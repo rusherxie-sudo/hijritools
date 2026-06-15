@@ -1,0 +1,32 @@
+---
+import { liveTools, categoryNamesAr, toolLink } from '../data/tools.js';
+const byCategory = {};
+for (const t of liveTools) {
+  (byCategory[t.category] ||= []).push(t);
+}
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="container">
+    <div class="cols">
+      {Object.entries(byCategory).map(([cat, items]) => (
+        <div>
+          <h3>{categoryNamesAr[cat] ?? cat}</h3>
+          <ul>
+            {items.map((t) => (<li><a href={toolLink(t)}>{t.shortAr}</a></li>))}
+          </ul>
+        </div>
+      ))}
+      <div>
+        <h3>عن الموقع</h3>
+        <ul>
+          <li><a href="/">الرئيسية</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="legal">
+      © {year} HijriTools — جميع الحسابات والنتائج إرشادية. التواريخ الهجرية وفق تقويم أم القرى؛
+      وتُعتمد المناسبات الرسمية حسب إعلان الجهات المختصة في كل دولة.
+    </p>
+  </div>
+</footer>

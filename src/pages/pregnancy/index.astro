@@ -1,0 +1,74 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('pregnancy');
+const faqs = [
+  { q: 'كيف يُحسب موعد الولادة؟', a: 'بإضافة ٢٨٠ يومًا (٤٠ أسبوعًا) إلى أول يوم في آخر دورة شهرية، وفق قاعدة نيجيله (Naegele).' },
+  { q: 'هل النتيجة مؤكدة؟', a: 'النتيجة تقديرية. تختلف مدة الحمل بين النساء، ويبقى تقدير الطبيب بالموجات فوق الصوتية هو الأدق.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/pregnancy/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/pregnancy/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="field" style="max-width:280px">
+      <label for="lmp">أول يوم في آخر دورة شهرية</label>
+      <input type="date" id="lmp" />
+    </div>
+    <button class="btn" id="calc">احسبي</button>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div style="color:var(--color-text-muted)">موعد الولادة المتوقع</div>
+    <div class="result-main num" id="due">-</div>
+    <div class="num" id="due-hijri" style="color:var(--color-primary-dark)"></div>
+    <hr class="gold-divider" />
+    <div class="result-grid">
+      <div class="stat"><div class="v" id="gest">-</div><div class="l">عمر الحمل الحالي</div></div>
+      <div class="stat"><div class="v num" id="trimester">-</div><div class="l">الثلث</div></div>
+      <div class="stat"><div class="v num" id="remaining">-</div><div class="l">يوم متبقٍ</div></div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="health" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { pregnancyFromLMP } from '../../lib/pregnancy.js';
+  import { formatGregorian, formatHijri } from '../../lib/hijri.js';
+  import { parseISODate, todayUtc } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  function run() {
+    const lmp = parseISODate($('lmp').value);
+    const res = $('result');
+    if (!lmp) { res.classList.add('hidden'); return; }
+    const r = pregnancyFromLMP(lmp, todayUtc(), 0);
+    $('due').textContent = formatGregorian(r.dueDate);
+    $('due-hijri').textContent = formatHijri(r.dueDateHijri);
+    $('gest').textContent = `${r.gestationalAge.weeks} أسبوع ${r.gestationalAge.days} يوم`;
+    $('trimester').textContent = r.trimester;
+    $('remaining').textContent = Math.max(0, r.daysRemaining);
+    res.classList.remove('hidden');
+  }
+  $('calc').addEventListener('click', run);
+  $('lmp').addEventListener('change', run);
+</script>

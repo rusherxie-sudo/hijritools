@@ -1,0 +1,93 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { buildHijriYear } from '../../lib/calendar.js';
+import { WEEKDAYS_AR } from '../../lib/hijri.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+// 预留多年：加 1448/1449 只需在此 push。
+export function getStaticPaths() {
+  return [{ params: { hy: '1447' } }];
+}
+
+const { hy } = Astro.params;
+const hyNum = Number(hy);
+const year = buildHijriYear(hyNum); // 构建期执行，结果直接进 HTML（零客户端 JS）
+const tool = getTool('calendar');
+
+// 周日起的短星期名（网格表头）。
+const SHORT_WEEKDAYS = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+
+// 某月公历跨度标签（如「٢٦ يونيو - ٢٤ يوليو ٢٠٢٥»）。
+function gregRange(m) {
+  const a = m.days[0], b = m.days[m.days.length - 1];
+  const ay = a.greg.y, by = b.greg.y;
+  const left = a.gregLabel;
+  const right = by !== ay ? `${b.gregLabel} ${by}` : `${b.gregLabel} ${by}`;
+  return ay !== by ? `${left} ${ay} – ${right}` : `${left} – ${right}`;
+}
+
+const title = `التقويم الهجري ${hy}`;
+const description = `التقويم الهجري لعام ${hy} هـ كاملًا بالأشهر والأيام والمناسبات الإسلامية وما يقابلها بالتقويم الميلادي، وفق تقويم أم القرى.`;
+
+// FAQ 直接给关键节日的公历答案，吃问句长尾。
+const ramadan = year.months[8].days[0];   // 1 رمضان
+const fitr = year.months[9].days[0];       // 1 شوال
+const adha = year.months[11].days[9];      // 10 ذو الحجة
+const faqs = [
+  { q: `متى رمضان ${hy}؟`, a: `يبدأ شهر رمضان ${hy} هـ يوم ${ramadan.gregLabel} ${ramadan.greg.y} م تقريبًا وفق تقويم أم القرى، وقد يختلف يومًا حسب رؤية الهلال.` },
+  { q: `متى عيد الفطر ${hy}؟`, a: `عيد الفطر ${hy} هـ يوافق ${fitr.gregLabel} ${fitr.greg.y} م تقريبًا.` },
+  { q: `متى عيد الأضحى ${hy}؟`, a: `عيد الأضحى ${hy} هـ (١٠ ذو الحجة) يوافق ${adha.gregLabel} ${adha.greg.y} م تقريبًا.` },
+];
+
+const jsonLd = graph(
+  webAppJsonLd({ name: title, description, path: `/calendar/${hy}/` }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={title} description={description} path={`/calendar/${hy}/`} jsonLd={jsonLd} wide>
+  <h1>التقويم الهجري {hy} هـ</h1>
+  <p class="tool-intro">{description}</p>
+
+  <div class="cal-year">
+    {year.months.map((m) => (
+      <section class="cal-month">
+        <h2 id={`month-${m.hm}`}>
+          {m.monthName} {hy}
+          {m.sacred && <span class="cal-sacred">🕌 شهر حرام</span>}
+        </h2>
+        <div class="cal-sub">{gregRange(m)}</div>
+        <div class="cal-grid">
+          {SHORT_WEEKDAYS.map((w) => (<div class="cal-head">{w}</div>))}
+          {Array.from({ length: m.firstWeekday }).map(() => (<div class="cal-empty"></div>))}
+          {m.days.map((d) => (
+            <div class={`cal-day${d.holiday ? ' cal-day--holiday' : ''}${d.weekday === 5 ? ' cal-day--friday' : ''}`} title={d.holiday ? d.holiday.nameAr : undefined}>
+              <span class="d-h num">{d.hd}</span>
+              <span class="d-g num">{d.greg.d}</span>
+            </div>
+          ))}
+        </div>
+        {m.days.some((d) => d.holiday) && (
+          <ul class="cal-events">
+            {m.days.filter((d) => d.holiday).map((d) => (
+              <li><span class="num">{d.hd}</span> {m.monthName}: {d.holiday.nameAr}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+    ))}
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="hijri" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>

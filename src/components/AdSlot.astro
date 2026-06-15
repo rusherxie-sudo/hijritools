@@ -1,0 +1,6 @@
+---
+// AdSense 广告位占位。上线接入 AdSense 时把内部替换为 <ins class="adsbygoogle">。
+// 铁律：只放结果下方与页面底部，绝不放结果上方、绝不弹窗/插页。
+const { label = 'مساحة إعلانية' } = Astro.props;
+---
+<div class="ad-slot" aria-hidden="true">{label}</div>

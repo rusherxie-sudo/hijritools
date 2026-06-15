@@ -1,0 +1,81 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('ovulation');
+const faqs = [
+  { q: 'كيف أحسب أيام التبويض؟', a: 'يحدث التبويض عادةً قبل ١٤ يومًا من موعد الدورة القادمة. ندخل تاريخ أول يوم في آخر دورة وطول الدورة، فنحسب يوم التبويض وفترة الخصوبة وموعد الدورة القادمة.' },
+  { q: 'ما هي أيام الخصوبة الأعلى للحمل؟', a: 'فترة الخصوبة تمتد من ٥ أيام قبل التبويض إلى يوم بعده، لأن الحيوانات المنوية قد تعيش حتى ٥ أيام والبويضة نحو يوم.' },
+  { q: 'هل النتيجة مؤكدة؟', a: 'النتيجة تقديرية وتختلف بين النساء وحسب انتظام الدورة. للتأكد استشيري طبيبك.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/ovulation/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/ovulation/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field"><label for="lmp">أول يوم في آخر دورة شهرية</label><input type="date" id="lmp" /></div>
+      <div class="field" style="flex:0 1 200px"><label for="cycle">طول الدورة (يوم)</label><input type="number" id="cycle" value="28" min="20" max="45" /></div>
+    </div>
+    <button class="btn" id="calc">احسبي</button>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div style="color:var(--color-text-muted)">يوم التبويض المتوقع</div>
+    <div class="result-main num" id="ovu">-</div>
+    <div class="num" id="ovu-hijri" style="color:var(--color-primary-dark)"></div>
+    <hr class="gold-divider" />
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="fertile">-</div><div class="l">فترة الخصوبة العالية</div></div>
+      <div class="stat"><div class="v num" id="next-period">-</div><div class="l">الدورة القادمة</div></div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="health" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { ovulationFromLMP } from '../../lib/ovulation.js';
+  import { formatGregorian, formatHijri } from '../../lib/hijri.js';
+  import { parseISODate } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  function run() {
+    const lmp = parseISODate($('lmp').value);
+    if (!lmp) { showErr('يرجى إدخال تاريخ آخر دورة شهرية.'); return; }
+    const cycle = parseInt($('cycle').value, 10);
+    if (!Number.isInteger(cycle) || cycle < 20 || cycle > 45) { showErr('طول الدورة يجب أن يكون بين ٢٠ و٤٥ يومًا.'); return; }
+
+    const r = ovulationFromLMP(lmp, cycle, 0);
+    $('ovu').textContent = formatGregorian(r.ovulationDay);
+    $('ovu-hijri').textContent = formatHijri(r.ovulationHijri);
+    $('fertile').textContent = `${formatGregorian(r.fertileStart)} – ${formatGregorian(r.fertileEnd)}`;
+    $('next-period').textContent = formatGregorian(r.nextPeriod);
+    $('err').classList.add('hidden');
+    $('result').classList.remove('hidden');
+  }
+
+  $('calc').addEventListener('click', run);
+  $('lmp').addEventListener('change', run);
+  $('cycle').addEventListener('change', run);
+</script>

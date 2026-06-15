@@ -1,0 +1,20 @@
+---
+import { getTool, toolLink } from '../data/tools.js';
+const { slugs = [] } = Astro.props;
+const items = slugs.map(getTool).filter((t) => t && t.live);
+---
+{items.length > 0 && (
+  <section class="related" aria-label="أدوات ذات صلة">
+    <h2>أدوات ذات صلة</h2>
+    <ul>
+      {items.map((t) => (
+        <li>
+          <a href={toolLink(t)}>
+            <span class="ico">{t.icon}</span>
+            <div><strong>{t.shortAr}</strong></div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}

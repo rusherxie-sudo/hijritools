@@ -1,0 +1,100 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('qrcode');
+const faqs = [
+  { q: 'كيف أنشئ رمز QR؟', a: 'اكتب النص أو الرابط، وسيظهر رمز QR فورًا، ثم اضغط «تحميل PNG» لحفظه صورة.' },
+  { q: 'هل يمكنني إنشاء باركود عادي؟', a: 'نعم، اختر وضع «باركود» لإنشاء باركود خطي (CODE128) من الأحرف والأرقام الإنجليزية.' },
+  { q: 'هل الأداة مجانية؟', a: 'نعم، مجانية بالكامل وبدون تسجيل، ويتم إنشاء الرمز في متصفحك مباشرة.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/qrcode/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/qrcode/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="field">
+      <label for="text">النص أو الرابط</label>
+      <input type="text" id="text" dir="auto" value="https://hijritools.com" placeholder="https://..." />
+    </div>
+    <div class="field" style="max-width:240px">
+      <label for="mode">النوع</label>
+      <select id="mode">
+        <option value="qr">رمز QR</option>
+        <option value="barcode">باركود (CODE128)</option>
+      </select>
+    </div>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result" id="result">
+    <div class="qr-wrap"><canvas id="canvas"></canvas></div>
+    <button class="btn" id="download">تحميل PNG</button>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import QRCode from 'qrcode';
+  import JsBarcode from 'jsbarcode';
+  import { sanitizeInput, buildFileName } from '../../lib/qrcode-helpers.js';
+
+  const $ = (id) => document.getElementById(id);
+  const canvas = $('canvas');
+  const PRIMARY = '#00532A';
+
+  function showErr(msg) { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('download').disabled = true; }
+  function clearErr() { $('err').classList.add('hidden'); $('download').disabled = false; }
+
+  async function render() {
+    const mode = $('mode').value;
+    const { ok, value, error } = sanitizeInput($('text').value, mode);
+    if (!ok) { showErr(error); return; }
+    try {
+      if (mode === 'barcode') {
+        JsBarcode(canvas, value, { format: 'CODE128', lineColor: PRIMARY, width: 2, height: 90, margin: 10, displayValue: true });
+      } else {
+        await QRCode.toCanvas(canvas, value, { width: 256, margin: 2, color: { dark: PRIMARY, light: '#ffffff' } });
+      }
+      clearErr();
+    } catch (e) {
+      showErr(mode === 'barcode'
+        ? 'الباركود يدعم الأحرف والأرقام الإنجليزية فقط.'
+        : 'تعذّر إنشاء الرمز، تحقق من النص.');
+    }
+  }
+
+  $('download').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = buildFileName($('text').value, $('mode').value);
+    a.click();
+  });
+
+  $('text').addEventListener('input', render);
+  $('mode').addEventListener('change', render);
+  render();
+</script>
+
+<style>
+  .qr-wrap { display: flex; justify-content: center; padding: var(--space-4); background: #fff; border-radius: var(--radius-sm); margin-block-end: var(--space-4); }
+  .qr-wrap canvas { max-inline-size: 100%; height: auto; }
+</style>

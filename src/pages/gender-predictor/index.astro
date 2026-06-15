@@ -1,0 +1,111 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { HIJRI_MONTHS_AR } from '../../lib/hijri.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('gender-predictor');
+const months = HIJRI_MONTHS_AR.slice(1); // 去掉索引 0 的空串
+const faqs = [
+  { q: 'ما هو الجدول الصيني لتوقع نوع الجنين؟', a: 'جدول قديم منسوب للصين يربط عمر الأم وشهر الحمل بنوع الجنين المتوقع. هو للتسلية فقط ولا أساس علمي له.' },
+  { q: 'هل الجدول الصيني دقيق؟', a: 'لا. النتيجة للتسلية والترفيه فقط ولا يمكن الاعتماد عليها؛ الطريقة الموثوقة لمعرفة نوع الجنين هي السونار لدى الطبيب.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/gender-predictor/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/gender-predictor/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <p class="fun-note">🎎 للتسلية فقط — هذا الجدول لا يستند إلى أي أساس علمي.</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field" style="flex:0 1 160px"><label for="age">عمر الأم (سنة)</label><input type="number" id="age" value="28" min="18" max="45" /></div>
+      <div class="field" style="flex:0 1 220px">
+        <label for="mode">طريقة إدخال شهر الحمل</label>
+        <select id="mode">
+          <option value="hijri">اختيار الشهر الهجري</option>
+          <option value="greg">من تاريخ الحمل الميلادي</option>
+        </select>
+      </div>
+      <div class="field" id="field-hijri" style="flex:0 1 200px">
+        <label for="hmonth">شهر الحمل (هجري)</label>
+        <select id="hmonth">{months.map((m, i) => (<option value={i + 1}>{m}</option>))}</select>
+      </div>
+      <div class="field hidden" id="field-greg" style="flex:0 1 200px">
+        <label for="gdate">تاريخ الحمل (ميلادي)</label>
+        <input type="date" id="gdate" />
+      </div>
+    </div>
+    <button class="btn" id="calc">توقّع نوع الجنين</button>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div style="color:var(--color-text-muted)">النتيجة المتوقعة (للتسلية)</div>
+    <div class="result-main" id="out">-</div>
+    <div id="out-month" style="color:var(--color-text-muted)"></div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="entertainment" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { predictGender } from '../../lib/gender.js';
+  import { gregorianToHijri, HIJRI_MONTHS_AR } from '../../lib/hijri.js';
+  import { parseISODate } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  // 输入模式切换
+  $('mode').addEventListener('change', () => {
+    const greg = $('mode').value === 'greg';
+    $('field-greg').classList.toggle('hidden', !greg);
+    $('field-hijri').classList.toggle('hidden', greg);
+  });
+
+  function run() {
+    const age = parseInt($('age').value, 10);
+    if (!Number.isInteger(age) || age < 18 || age > 45) { showErr('عمر الأم يجب أن يكون بين ١٨ و٤٥ سنة.'); return; }
+
+    let hmonth;
+    if ($('mode').value === 'greg') {
+      const d = parseISODate($('gdate').value);
+      if (!d) { showErr('يرجى إدخال تاريخ الحمل الميلادي.'); return; }
+      hmonth = gregorianToHijri(d, 0).hm;
+    } else {
+      hmonth = parseInt($('hmonth').value, 10);
+    }
+
+    try {
+      const g = predictGender(age, hmonth);
+      $('out').textContent = g === 'male' ? '👦 ذكر' : '👧 أنثى';
+      $('out-month').textContent = `حسب الجدول الصيني — شهر الحمل: ${HIJRI_MONTHS_AR[hmonth]}`;
+      $('err').classList.add('hidden');
+      $('result').classList.remove('hidden');
+    } catch (e) {
+      showErr('تعذّر التوقّع، تأكد من المدخلات.');
+    }
+  }
+
+  $('calc').addEventListener('click', run);
+</script>
+
+<style>
+  .fun-note { background: var(--color-accent-light); color: var(--color-warning); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); font-weight: 700; font-size: var(--fs-small); }
+</style>

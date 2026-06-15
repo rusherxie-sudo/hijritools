@@ -1,0 +1,99 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('percentage');
+const faqs = [
+  { q: 'كيف أحسب نسبة رقم من رقم؟', a: 'استخدم «كم نسبة س من ص»: مثلًا ٣٠ من ٢٠٠ = ١٥٪.' },
+  { q: 'كيف أحسب نسبة الزيادة أو النقصان؟', a: 'استخدم «نسبة التغيّر» بإدخال القيمة القديمة والجديدة.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/percentage/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/percentage/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <h2>كم يساوي نسبة من رقم؟</h2>
+    <div class="row">
+      <div class="field"><label for="p1">النسبة ٪</label><input type="number" id="p1" value="15" /></div>
+      <div class="field"><label for="t1">من الرقم</label><input type="number" id="t1" value="200" /></div>
+    </div>
+    <div class="result" id="r1"><span class="result-main num" id="o1">30</span></div>
+  </div>
+
+  <div class="card">
+    <h2>كم نسبة رقم من رقم؟</h2>
+    <div class="row">
+      <div class="field"><label for="p2">الرقم</label><input type="number" id="p2" value="30" /></div>
+      <div class="field"><label for="t2">من</label><input type="number" id="t2" value="200" /></div>
+    </div>
+    <div class="result" id="r2"><span class="result-main"><span class="num" id="o2">15</span>٪</span></div>
+  </div>
+
+  <div class="card">
+    <h2>نسبة التغيّر (زيادة / نقصان)</h2>
+    <div class="row">
+      <div class="field"><label for="old">القيمة القديمة</label><input type="number" id="old" value="200" /></div>
+      <div class="field"><label for="new">القيمة الجديدة</label><input type="number" id="new" value="250" /></div>
+    </div>
+    <div class="result" id="r3"><span class="result-main"><span class="num" id="o3">25</span>٪</span><span id="dir3" style="margin-inline-start:.5rem"></span></div>
+  </div>
+
+  <div class="card">
+    <h2>زيادة رقم بنسبة مئوية</h2>
+    <div class="row">
+      <div class="field"><label for="b4">الرقم</label><input type="number" id="b4" value="200" /></div>
+      <div class="field"><label for="p4">زائد ٪</label><input type="number" id="p4" value="15" /></div>
+    </div>
+    <div class="result" id="r4"><span class="result-main num" id="o4">230</span></div>
+  </div>
+
+  <div class="card">
+    <h2>نقص رقم بنسبة مئوية</h2>
+    <div class="row">
+      <div class="field"><label for="b5">الرقم</label><input type="number" id="b5" value="200" /></div>
+      <div class="field"><label for="p5">ناقص ٪</label><input type="number" id="p5" value="15" /></div>
+    </div>
+    <div class="result" id="r5"><span class="result-main num" id="o5">170</span></div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { percentOf, whatPercent, percentChange, increaseByPercent, decreaseByPercent } from '../../lib/percentage.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value);
+
+  function r1() { const v = percentOf(val('p1'), val('t1')); $('o1').textContent = Number.isFinite(v) ? v : '-'; }
+  function r2() { const v = whatPercent(val('p2'), val('t2')); $('o2').textContent = Number.isFinite(v) ? v : '-'; }
+  function r3() {
+    const v = percentChange(val('old'), val('new'));
+    $('o3').textContent = Number.isFinite(v) ? Math.abs(v) : '-';
+    $('dir3').textContent = !Number.isFinite(v) ? '' : v > 0 ? '↑ زيادة' : v < 0 ? '↓ نقصان' : '';
+  }
+  function r4() { const v = increaseByPercent(val('b4'), val('p4')); $('o4').textContent = Number.isFinite(v) ? v : '-'; }
+  function r5() { const v = decreaseByPercent(val('b5'), val('p5')); $('o5').textContent = Number.isFinite(v) ? v : '-'; }
+  ['p1','t1'].forEach((id)=>$(id).addEventListener('input', r1));
+  ['p2','t2'].forEach((id)=>$(id).addEventListener('input', r2));
+  ['old','new'].forEach((id)=>$(id).addEventListener('input', r3));
+  ['b4','p4'].forEach((id)=>$(id).addEventListener('input', r4));
+  ['b5','p5'].forEach((id)=>$(id).addEventListener('input', r5));
+  r1(); r2(); r3(); r4(); r5();
+</script>

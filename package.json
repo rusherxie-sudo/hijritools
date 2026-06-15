@@ -1,0 +1,22 @@
+{
+  "name": "hijritools",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@umalqura/core": "^0.0.7",
+    "astro": "^4.16.18",
+    "jsbarcode": "^3.12.3",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
+  }
+}

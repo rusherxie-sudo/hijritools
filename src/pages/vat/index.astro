@@ -1,0 +1,51 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import CountrySwitcher from '../../components/CountrySwitcher.astro';
+import { getTool } from '../../data/tools.js';
+import { gccOrder, countries } from '../../data/countries.js';
+import { vatRates } from '../../data/vat.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('vat');
+const faqs = [
+  { q: 'ما نسبة ضريبة القيمة المضافة في دول الخليج؟', a: 'السعودية ١٥٪، الإمارات ٥٪، البحرين ١٠٪، عُمان ٥٪، بينما لا تطبّقها قطر والكويت حاليًا.' },
+  { q: 'كيف أستخرج الضريبة من سعر شامل؟', a: 'اختر دولتك ثم استخدم وضع «استخراج الضريبة» لإدخال السعر الشامل ومعرفة قيمة الضريبة والصافي.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/vat/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/vat/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <CountrySwitcher toolSlug="vat" countryCodes={tool.countries} active={null} />
+
+  <h2>نسب الضريبة في دول الخليج</h2>
+  <table class="comparison-table">
+    <thead><tr><th>الدولة</th><th>النسبة</th><th>سارية منذ</th></tr></thead>
+    <tbody>
+      {gccOrder.map((cc) => (
+        <tr>
+          <td><a href={`/vat/${cc}/`}>{countries[cc].nameAr}</a></td>
+          <td class="num">{vatRates[cc].rate}٪</td>
+          <td>{vatRates[cc].since ?? '—'}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <AdSlot />
+  <Disclaimer variant="regulatory" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>

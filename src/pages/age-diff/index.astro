@@ -1,0 +1,92 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('age-diff');
+const faqs = [
+  { q: 'كيف أحسب الفرق في العمر بين شخصين؟', a: 'أدخل تاريخ ميلاد كل شخص، وسنحسب الفرق بينهما بالسنوات والأشهر والأيام، ونحدّد من هو الأكبر، مع إجمالي الأيام والأسابيع.' },
+  { q: 'هل يهم ترتيب إدخال التاريخين؟', a: 'لا، تُحسب النتيجة تلقائيًا بغضّ النظر عن ترتيب الإدخال؛ نحدّد الأكبر بأنفسنا.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/age-diff/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/age-diff/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field"><label for="a">الشخص الأول (تاريخ الميلاد)</label><input type="date" id="a" /></div>
+      <div class="field"><label for="b">الشخص الثاني (تاريخ الميلاد)</label><input type="date" id="b" /></div>
+    </div>
+    <button class="btn" id="calc">احسب الفرق</button>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div class="result-main"><span id="who">-</span></div>
+    <div style="color:var(--color-text-muted)" id="who-sub"></div>
+    <hr class="gold-divider" />
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="total-days">0</div><div class="l">إجمالي الأيام</div></div>
+      <div class="stat"><div class="v num" id="total-weeks">0</div><div class="l">إجمالي الأسابيع</div></div>
+      <div class="stat"><div class="v num" id="total-months">0</div><div class="l">إجمالي الأشهر</div></div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { ageDifference } from '../../lib/age.js';
+  import { parseISODate } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  function run() {
+    const a = parseISODate($('a').value);
+    const b = parseISODate($('b').value);
+    if (!a || !b) { showErr('يرجى إدخال تاريخي ميلاد صحيحين.'); return; }
+
+    const r = ageDifference(a, b);
+    const { years, months, days } = r.delta;
+    const parts = [];
+    if (years) parts.push(`${years} سنة`);
+    if (months) parts.push(`${months} شهر`);
+    if (days) parts.push(`${days} يوم`);
+    const span = parts.length ? parts.join(' و') : 'يوم واحد';
+
+    if (r.totalDays === 0) {
+      $('who').textContent = 'الشخصان من نفس العمر';
+      $('who-sub').textContent = 'وُلِدا في اليوم نفسه';
+    } else {
+      // olderIsFirst: a 是较大者（出生更早）。a 对应「الشخص الأول」。
+      $('who').textContent = r.olderIsFirst ? 'الشخص الأول أكبر' : 'الشخص الثاني أكبر';
+      $('who-sub').textContent = `بفارق ${span}`;
+    }
+    $('total-days').textContent = r.totalDays.toLocaleString('en-US');
+    $('total-weeks').textContent = Math.floor(r.totalDays / 7).toLocaleString('en-US');
+    $('total-months').textContent = (years * 12 + months).toLocaleString('en-US');
+    $('err').classList.add('hidden');
+    $('result').classList.remove('hidden');
+  }
+
+  $('calc').addEventListener('click', run);
+  $('a').addEventListener('change', run);
+  $('b').addEventListener('change', run);
+</script>

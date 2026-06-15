@@ -1,0 +1,76 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('date-diff');
+const faqs = [
+  { q: 'هل يحتسب اليوم الأخير؟', a: 'افتراضيًا لا. فعّل خيار «احتساب اليوم الأخير» لإضافة يوم واحد إلى النتيجة.' },
+  { q: 'ماذا لو أدخلت التاريخ الأحدث أولًا؟', a: 'لا مشكلة، نحسب الفرق المطلق تلقائيًا.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/date-diff/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/date-diff/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field"><label for="from">من تاريخ</label><input type="date" id="from" /></div>
+      <div class="field"><label for="to">إلى تاريخ</label><input type="date" id="to" /></div>
+    </div>
+    <label style="display:flex;gap:.5rem;align-items:center;font-weight:400">
+      <input type="checkbox" id="inclusive" style="inline-size:auto" /> احتساب اليوم الأخير
+    </label>
+    <button class="btn" id="calc" style="margin-block-start:1rem">احسب الفرق</button>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div class="result-main"><span class="num" id="total-days">0</span> يوم</div>
+    <hr class="gold-divider" />
+    <div style="font-size:1.2rem"><span class="num" id="ymd"></span></div>
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="weeks">0</div><div class="l">أسابيع</div></div>
+      <div class="stat"><div class="v num" id="rem">0</div><div class="l">أيام متبقية</div></div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { dateDifference } from '../../lib/date-diff.js';
+  import { parseISODate, todayUtc, toISODate } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  $('from').value = toISODate(todayUtc());
+
+  function run() {
+    const a = parseISODate($('from').value);
+    const b = parseISODate($('to').value);
+    const res = $('result');
+    if (!a || !b) { res.classList.add('hidden'); return; }
+    const r = dateDifference(a, b, $('inclusive').checked);
+    $('total-days').textContent = r.totalDays.toLocaleString('en-US');
+    $('ymd').textContent = `${r.years} سنة، ${r.months} شهر، ${r.days} يوم`;
+    $('weeks').textContent = r.totalWeeks;
+    $('rem').textContent = r.remainderDays;
+    res.classList.remove('hidden');
+  }
+  $('calc').addEventListener('click', run);
+  ['from','to','inclusive'].forEach((id) => $(id).addEventListener('change', run));
+</script>

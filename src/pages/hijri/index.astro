@@ -1,0 +1,182 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { gccOrder, countries } from '../../data/countries.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('hijri');
+const faqs = [
+  { q: 'ما هو تقويم أم القرى؟', a: 'هو التقويم الهجري الرسمي المعتمد في المملكة العربية السعودية ومعظم دول الخليج، ويُحسب فلكيًا مسبقًا لسنوات قادمة، وتعتمده أنظمة التشغيل والتطبيقات حول العالم.' },
+  { q: 'لماذا يختلف التاريخ الهجري بين الدول أحيانًا؟', a: 'لأن بداية الشهر الهجري ترتبط برؤية الهلال، وتختلف الرؤية بين الدول، فقد يفرق التاريخ بيوم واحد. لذلك نوفّر خيار تعديل الدولة لمطابقة التاريخ المعتمد محليًا.' },
+  { q: 'هل التحويل دقيق؟', a: 'نعم، يعتمد التحويل على بيانات تقويم أم القرى الرسمية. وتبقى المناسبات الرسمية معتمدة حسب إعلان الجهات المختصة في كل دولة.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/hijri/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/hijri/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="field" style="max-width:280px">
+    <label for="country">الدولة (لضبط فرق رؤية الهلال)</label>
+    <select id="country">
+      {gccOrder.map((cc) => (<option value={cc}>{countries[cc].nameAr}</option>))}
+    </select>
+  </div>
+
+  <!-- 今日伊历 -->
+  <div class="result" id="today-box">
+    <div class="num result-main" id="today-hijri">…</div>
+    <hr class="gold-divider" />
+    <div class="num" id="today-greg" style="color:var(--color-text-muted)">…</div>
+    <div id="today-weekday" style="margin-block-start:.5rem"></div>
+    <div id="today-sacred"></div>
+  </div>
+
+  <AdSlot />
+
+  <!-- 公历 → 伊历 -->
+  <div class="card">
+    <h2>تحويل من ميلادي إلى هجري</h2>
+    <div class="field" style="max-width:280px">
+      <label for="g-date">اختر التاريخ الميلادي</label>
+      <input type="date" id="g-date" />
+    </div>
+    <div class="result hidden" id="g2h-result">
+      <div class="num" id="g2h-out" style="font-size:1.5rem;font-weight:700;color:var(--color-primary-dark)"></div>
+      <div id="g2h-weekday" style="color:var(--color-text-muted)"></div>
+      <div id="g2h-sacred"></div>
+    </div>
+  </div>
+
+  <!-- 伊历 → 公历 -->
+  <div class="card">
+    <h2>تحويل من هجري إلى ميلادي</h2>
+    <div class="row">
+      <div class="field"><label for="h-year">السنة</label><input type="number" id="h-year" value="1447" min="1356" max="1500" /></div>
+      <div class="field"><label for="h-month">الشهر</label><select id="h-month"></select></div>
+      <div class="field"><label for="h-day">اليوم</label><input type="number" id="h-day" value="1" min="1" max="30" /></div>
+    </div>
+    <button class="btn" id="h2g-btn">تحويل</button>
+    <div class="result hidden" id="h2g-result">
+      <div class="num" id="h2g-out" style="font-size:1.5rem;font-weight:700;color:var(--color-primary-dark)"></div>
+      <div id="h2g-weekday" style="color:var(--color-text-muted)"></div>
+    </div>
+    <p class="error-text hidden" id="h2g-err">تاريخ هجري غير صالح أو خارج النطاق المدعوم (١٣٥٦–١٥٠٠ هـ).</p>
+  </div>
+
+  <!-- 倒计时 -->
+  <div class="card">
+    <h2>العد التنازلي للمناسبات</h2>
+    <div class="result-grid" id="countdown"></div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="hijri" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>
+      {faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}
+    </dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import {
+    gregorianToHijri, hijriToGregorian, formatHijri, formatGregorian,
+    HIJRI_MONTHS_AR, WEEKDAYS_AR, isSacredMonth,
+  } from '../../lib/hijri.js';
+  import { todayUtc, parseISODate, utcDate, toISODate, diffInDays } from '../../lib/date-utils.js';
+  import { countdownTargets } from '../../data/hijri-holidays.js';
+
+  const $ = (id) => document.getElementById(id);
+  const countrySel = $('country');
+  const offsets = { sa: 0, ae: 0, qa: 0, kw: 0, bh: 0, om: 0 };
+  const getOffset = () => offsets[countrySel.value] ?? 0;
+
+  // 圣月徽章：在圣月时显示金色胶囊，否则清空。
+  const sacredBadge = (hm) => isSacredMonth(hm)
+    ? '<span style="display:inline-block;margin-block-start:.5rem;padding:.15rem .7rem;border-radius:999px;background:var(--color-accent-light);color:var(--color-warning);font-size:var(--fs-small);font-weight:700">🕌 شهر من الأشهر الحُرُم</span>'
+    : '';
+
+  // 填充伊历月下拉
+  const hMonth = $('h-month');
+  for (let m = 1; m <= 12; m++) {
+    const o = document.createElement('option');
+    o.value = String(m); o.textContent = `${m} - ${HIJRI_MONTHS_AR[m]}`;
+    hMonth.appendChild(o);
+  }
+
+  function renderToday() {
+    const today = todayUtc();
+    const off = getOffset();
+    const h = gregorianToHijri(today, off);
+    $('today-hijri').textContent = formatHijri(h);
+    $('today-greg').textContent = formatGregorian(today);
+    $('today-weekday').textContent = WEEKDAYS_AR[h.weekday];
+    $('today-sacred').innerHTML = sacredBadge(h.hm);
+    renderCountdown(today, off);
+  }
+
+  function renderG2H() {
+    const d = parseISODate($('g-date').value);
+    const box = $('g2h-result');
+    if (!d) { box.classList.add('hidden'); return; }
+    try {
+      const h = gregorianToHijri(d, getOffset());
+      $('g2h-out').textContent = formatHijri(h);
+      $('g2h-weekday').textContent = WEEKDAYS_AR[h.weekday];
+      $('g2h-sacred').innerHTML = sacredBadge(h.hm);
+      box.classList.remove('hidden');
+    } catch { box.classList.add('hidden'); }
+  }
+
+  function renderH2G() {
+    const hy = parseInt($('h-year').value, 10);
+    const hm = parseInt($('h-month').value, 10);
+    const hd = parseInt($('h-day').value, 10);
+    const box = $('h2g-result'); const err = $('h2g-err');
+    try {
+      const g = hijriToGregorian(hy, hm, hd, getOffset());
+      const back = gregorianToHijri(g, getOffset());
+      $('h2g-out').textContent = formatGregorian(g);
+      $('h2g-weekday').textContent = WEEKDAYS_AR[back.weekday];
+      box.classList.remove('hidden'); err.classList.add('hidden');
+    } catch {
+      box.classList.add('hidden'); err.classList.remove('hidden');
+    }
+  }
+
+  function renderCountdown(today, off) {
+    const grid = $('countdown');
+    grid.innerHTML = '';
+    const todayH = gregorianToHijri(today, off);
+    for (const t of countdownTargets) {
+      // 找今年或明年的该伊历日对应公历
+      let hy = todayH.hy;
+      let g = hijriToGregorian(hy, t.hm, t.hd, off);
+      if (diffInDays(today, g) < 0) g = hijriToGregorian(hy + 1, t.hm, t.hd, off);
+      const days = diffInDays(today, g);
+      const el = document.createElement('div');
+      el.className = 'stat';
+      el.innerHTML = `<div class="v num">${days}</div><div class="l">يوم حتى ${t.nameAr}</div>`;
+      grid.appendChild(el);
+    }
+  }
+
+  // 初始化
+  $('g-date').value = toISODate(todayUtc());
+  renderToday();
+  renderG2H();
+  countrySel.addEventListener('change', () => { renderToday(); renderG2H(); renderH2G(); });
+  $('g-date').addEventListener('change', renderG2H);
+  $('h2g-btn').addEventListener('click', renderH2G);
+</script>

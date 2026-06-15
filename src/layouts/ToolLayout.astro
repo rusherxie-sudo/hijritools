@@ -1,0 +1,66 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import ShareButtons from '../components/ShareButtons.astro';
+
+const {
+  title,
+  description,
+  path = '/',
+  jsonLd = null,
+  noindex = false,
+  wide = false, // 首页等需要宽骨架的页面设 true；工具页默认收窄正文
+} = Astro.props;
+
+const site = Astro.site?.toString().replace(/\/$/, '') ?? 'https://hijritools.com';
+const canonical = `${site}${path}`;
+const ogImage = `${site}/og.png`;
+const fullTitle = title.includes('HijriTools') ? title : `${title} | HijriTools`;
+---
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex
+      ? <meta name="robots" content="noindex, follow" />
+      : <link rel="canonical" href={canonical} />}
+    {!noindex && <link rel="alternate" hreflang="ar" href={canonical} />}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="HijriTools" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="ar" />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- 字体：Tajawal。首版用 Google Fonts；后续可自托管 woff2 进一步提速。 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
+  </head>
+  <body>
+    <SiteHeader />
+    <main>
+      <div class={wide ? 'container' : 'container container--content'}>
+        <slot />
+        {!noindex && <ShareButtons title={title} url={canonical} />}
+      </div>
+    </main>
+    <SiteFooter />
+  </body>
+</html>

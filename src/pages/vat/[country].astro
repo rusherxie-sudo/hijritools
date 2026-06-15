@@ -1,0 +1,99 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import CountrySwitcher from '../../components/CountrySwitcher.astro';
+import { getTool } from '../../data/tools.js';
+import { countries } from '../../data/countries.js';
+import { vatRates } from '../../data/vat.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+// 每个国家自动生成一页（法规工具的国家一等维度）。
+export function getStaticPaths() {
+  const tool = getTool('vat');
+  return tool.countries.map((cc) => ({ params: { country: cc } }));
+}
+
+const { country } = Astro.params;
+const tool = getTool('vat');
+const c = countries[country];
+const rate = vatRates[country];
+
+const title = `حاسبة ضريبة القيمة المضافة (VAT) في ${c.nameAr}`;
+const description = `احسب ضريبة القيمة المضافة (VAT) في ${c.nameAr} (${rate.rate}٪): أضف الضريبة إلى السعر أو استخرجها من السعر الشامل بالعملة المحلية.`;
+const faqs = [
+  { q: `كم نسبة ضريبة القيمة المضافة في ${c.nameAr}؟`, a: rate.rate > 0 ? `النسبة ${rate.rate}٪ وفق ${rate.source}.` : `لا تُطبَّق ضريبة القيمة المضافة في ${c.nameAr} حاليًا.` },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: title, description, path: `/vat/${country}/` }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={title} description={description} path={`/vat/${country}/`} jsonLd={jsonLd}>
+  <h1>{title}</h1>
+  <p class="tool-intro">{description}</p>
+
+  <CountrySwitcher toolSlug="vat" countryCodes={tool.countries} active={country} />
+
+  {rate.rate > 0 ? (
+    <div class="card">
+      <div class="row">
+        <div class="field">
+          <label for="amount">المبلغ ({c.currencyAr})</label>
+          <input type="number" id="amount" value="100" min="0" data-rate={rate.rate} />
+        </div>
+        <div class="field" style="flex:0 1 200px">
+          <label for="mode">العملية</label>
+          <select id="mode">
+            <option value="add">إضافة الضريبة (السعر صافٍ)</option>
+            <option value="remove">استخراج الضريبة (السعر شامل)</option>
+          </select>
+        </div>
+      </div>
+      <p style="color:var(--color-text-muted)">النسبة المطبّقة: <strong class="num">{rate.rate}٪</strong></p>
+
+      <div class="result" id="result">
+        <div class="result-grid">
+          <div class="stat"><div class="v num" id="net">0</div><div class="l">الصافي</div></div>
+          <div class="stat"><div class="v num" id="vat">0</div><div class="l">الضريبة ({rate.rate}٪)</div></div>
+          <div class="stat"><div class="v num" id="gross">0</div><div class="l">الإجمالي الشامل</div></div>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div class="card">
+      <p>لا تُطبّق <strong>{c.nameAr}</strong> ضريبة القيمة المضافة حاليًا، لذا يساوي السعر الشامل السعر الصافي.</p>
+      <p style="color:var(--color-text-muted)">{rate.source}</p>
+    </div>
+  )}
+
+  <AdSlot />
+  <Disclaimer variant="regulatory" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { addVat, removeVat } from '../../lib/vat.js';
+  const $ = (id) => document.getElementById(id);
+  const amountEl = $('amount');
+  if (amountEl) {
+    const rate = parseFloat(amountEl.dataset.rate) || 0;
+    const run = () => {
+      const amount = parseFloat(amountEl.value) || 0;
+      const r = $('mode').value === 'remove' ? removeVat(amount, rate) : addVat(amount, rate);
+      $('net').textContent = r.net.toLocaleString('en-US');
+      $('vat').textContent = r.vat.toLocaleString('en-US');
+      $('gross').textContent = r.gross.toLocaleString('en-US');
+    };
+    amountEl.addEventListener('input', run);
+    $('mode').addEventListener('change', run);
+    run();
+  }
+</script>

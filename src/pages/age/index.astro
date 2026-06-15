@@ -1,0 +1,119 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { gccOrder, countries } from '../../data/countries.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('age');
+const faqs = [
+  { q: 'كيف يُحسب العمر بالهجري؟', a: 'نحوّل تاريخ ميلادك وتاريخ اليوم إلى تقويم أم القرى ونحسب الفرق بالسنوات والأشهر والأيام الهجرية. السنة الهجرية أقصر من الميلادية بنحو ١١ يومًا، لذا يزيد عمرك الهجري سنة تقريبًا كل ٣٣ سنة.' },
+  { q: 'هل يمكنني حساب العمر حتى تاريخ معيّن وليس اليوم؟', a: 'نعم، غيّر حقل «حتى تاريخ» لحساب عمرك في أي يوم مستقبلي أو ماضٍ.' },
+  { q: 'متى عيد ميلادي القادم؟', a: 'نعرض العد التنازلي لعيد ميلادك الميلادي والهجري معًا.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/age/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/age/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field"><label for="birth">تاريخ الميلاد (ميلادي)</label><input type="date" id="birth" /></div>
+      <div class="field"><label for="asof">حتى تاريخ</label><input type="date" id="asof" /></div>
+      <div class="field" style="flex:0 1 160px">
+        <label for="country">الدولة</label>
+        <select id="country">{gccOrder.map((cc) => (<option value={cc}>{countries[cc].nameAr}</option>))}</select>
+      </div>
+    </div>
+    <button class="btn" id="calc">احسب العمر</button>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div class="result-main"><span class="num" id="g-years">0</span> سنة <span class="num" id="g-months">0</span> شهر <span class="num" id="g-days">0</span> يوم</div>
+    <div style="color:var(--color-text-muted)">بالتقويم الميلادي</div>
+    <hr class="gold-divider" />
+    <div style="font-size:1.4rem;font-weight:700;color:var(--color-primary-dark)">
+      <span class="num" id="h-years">0</span> سنة <span class="num" id="h-months">0</span> شهر <span class="num" id="h-days">0</span> يوم
+    </div>
+    <div style="color:var(--color-text-muted)">بالتقويم الهجري</div>
+
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="total-months">0</div><div class="l">إجمالي الأشهر</div></div>
+      <div class="stat"><div class="v num" id="total-weeks">0</div><div class="l">إجمالي الأسابيع</div></div>
+      <div class="stat"><div class="v num" id="total-days">0</div><div class="l">إجمالي الأيام</div></div>
+      <div class="stat"><div class="v num" id="total-hours">0</div><div class="l">إجمالي الساعات</div></div>
+      <div class="stat"><div class="v num" id="total-minutes">0</div><div class="l">إجمالي الدقائق</div></div>
+      <div class="stat"><div class="v" id="weekday">-</div><div class="l">يوم الميلاد</div></div>
+      <div class="stat"><div class="v num" id="next-greg">0</div><div class="l">يوم حتى ميلادك الميلادي</div></div>
+      <div class="stat"><div class="v num" id="next-hijri">0</div><div class="l">يوم حتى ميلادك الهجري</div></div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { computeAge } from '../../lib/age.js';
+  import { MIN_GREGORIAN_YEAR, MAX_GREGORIAN_YEAR } from '../../lib/hijri.js';
+  import { todayUtc, parseISODate, toISODate } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  const offsets = { sa: 0, ae: 0, qa: 0, kw: 0, bh: 0, om: 0 };
+
+  $('asof').value = toISODate(todayUtc());
+
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  function run() {
+    const birth = parseISODate($('birth').value);
+    const asof = parseISODate($('asof').value) || todayUtc();
+    const err = $('err'); const res = $('result');
+    if (!birth) { showErr('يرجى إدخال تاريخ الميلاد.'); return; }
+    // 友好范围提示：超出乌姆库拉历支持区间时给阿语说明（而非底层中文报错）
+    if (birth.getUTCFullYear() < MIN_GREGORIAN_YEAR || asof.getUTCFullYear() > MAX_GREGORIAN_YEAR) {
+      showErr(`يدعم الحساب الهجري سنوات الميلاد من ${MIN_GREGORIAN_YEAR} إلى ${MAX_GREGORIAN_YEAR} ميلادية فقط.`);
+      return;
+    }
+    if (asof.getTime() < birth.getTime()) { showErr('تاريخ «حتى» لا يمكن أن يسبق تاريخ الميلاد.'); return; }
+    try {
+      const a = computeAge(birth, asof, offsets[$('country').value] ?? 0);
+      $('g-years').textContent = a.gregorian.years;
+      $('g-months').textContent = a.gregorian.months;
+      $('g-days').textContent = a.gregorian.days;
+      $('h-years').textContent = a.hijri.years;
+      $('h-months').textContent = a.hijri.months;
+      $('h-days').textContent = a.hijri.days;
+      $('total-months').textContent = a.totalMonths.toLocaleString('en-US');
+      $('total-weeks').textContent = a.totalWeeks.toLocaleString('en-US');
+      $('total-days').textContent = a.totalDays.toLocaleString('en-US');
+      $('total-hours').textContent = a.totalHours.toLocaleString('en-US');
+      $('total-minutes').textContent = a.totalMinutes.toLocaleString('en-US');
+      $('weekday').textContent = a.birthWeekday;
+      $('next-greg').textContent = a.nextGregorianBirthday.daysUntil;
+      $('next-hijri').textContent = a.nextHijriBirthday.daysUntil;
+      err.classList.add('hidden'); res.classList.remove('hidden');
+    } catch (e) {
+      showErr('تعذّر الحساب، تأكّد من صحة التواريخ المدخلة.');
+    }
+  }
+
+  $('calc').addEventListener('click', run);
+  $('birth').addEventListener('change', run);
+  $('asof').addEventListener('change', run);
+  $('country').addEventListener('change', run);
+</script>

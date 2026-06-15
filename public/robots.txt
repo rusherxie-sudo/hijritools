@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hijritools.com/sitemap.xml

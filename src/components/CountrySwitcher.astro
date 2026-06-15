@@ -1,0 +1,11 @@
+---
+import { countries } from '../data/countries.js';
+// 法规工具的国家切换。props: toolSlug、countryCodes、active（当前国家代码，可空=总览）
+const { toolSlug, countryCodes = [], active = null } = Astro.props;
+---
+<nav class="country-switcher" aria-label="اختر الدولة">
+  <a href={`/${toolSlug}/`} class={active === null ? 'active' : ''}>مقارنة الكل</a>
+  {countryCodes.map((cc) => (
+    <a href={`/${toolSlug}/${cc}/`} class={active === cc ? 'active' : ''}>{countries[cc]?.nameAr ?? cc}</a>
+  ))}
+</nav>

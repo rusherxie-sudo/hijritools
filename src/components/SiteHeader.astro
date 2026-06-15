@@ -1,0 +1,28 @@
+---
+// 主导航：从 tools.js 按 category 自动分组的下拉菜单（零 JS）。
+// 桌面端 CSS hover 下拉；移动端 checkbox 汉堡 + 原生 <details> 点击展开。
+import { liveTools, categoryNamesAr, toolLink } from '../data/tools.js';
+const byCategory = {};
+for (const t of liveTools) (byCategory[t.category] ||= []).push(t);
+const groups = Object.entries(byCategory);
+---
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="brand"><span>🌙</span><span>HijriTools</span></a>
+
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden />
+    <label for="nav-toggle" class="nav-burger" aria-label="القائمة الرئيسية">☰</label>
+
+    <nav class="site-nav" aria-label="القائمة الرئيسية">
+      {groups.map(([cat, items]) => (
+        <details class="nav-group">
+          <summary>{categoryNamesAr[cat] ?? cat}</summary>
+          <ul class="nav-menu">
+            {items.map((t) => (<li><a href={toolLink(t)}>{t.shortAr}</a></li>))}
+          </ul>
+        </details>
+      ))}
+      <a class="nav-all" href="/">كل الأدوات</a>
+    </nav>
+  </div>
+</header>
