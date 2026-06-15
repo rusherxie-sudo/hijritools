@@ -1,5 +1,6 @@
 /* 全局样式 + RTL。一律使用逻辑属性（margin-inline / padding-inline / inset-inline）。 */
 @import "./tokens.css";
+@import "./fonts.css";
 
 * { box-sizing: border-box; }
 
@@ -186,6 +187,14 @@ input[type="date"], input[type="number"], input[type="text"], select {
 .site-footer ul { list-style: none; padding: 0; margin: 0; font-size: var(--fs-small); }
 .site-footer li { margin-block-end: var(--space-2); }
 .site-footer .legal { margin-block-start: var(--space-6); font-size: var(--fs-small); opacity: 0.7; }
+
+/* 面包屑（首页与 noindex 页不渲染） */
+.breadcrumb { margin-block-end: var(--space-6); font-size: var(--fs-small); }
+.breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 0; margin: 0; color: var(--color-text-muted); }
+.breadcrumb li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.breadcrumb li:not(:last-child)::after { content: '/'; color: var(--color-text-muted); opacity: 0.6; }
+.breadcrumb a { color: var(--color-primary-dark); }
+.breadcrumb [aria-current="page"] { color: var(--color-text-muted); }
 
 /* 内容长文（FAQ/说明） */
 .prose { margin-block-start: var(--space-8); }

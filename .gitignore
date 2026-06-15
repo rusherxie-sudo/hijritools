@@ -11,3 +11,6 @@ dist/
 
 # 个人级 Claude Code 配置(团队共享的 settings.json / launch.json 仍提交)
 .claude/settings.local.json
+
+# playwright-mcp 临时产物(截图/快照)
+.playwright-mcp/

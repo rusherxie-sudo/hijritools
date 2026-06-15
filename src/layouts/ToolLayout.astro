@@ -3,6 +3,7 @@ import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import ShareButtons from '../components/ShareButtons.astro';
+import { breadcrumbJsonLd } from '../lib/seo.js';
 
 const {
   title,
@@ -11,12 +12,23 @@ const {
   jsonLd = null,
   noindex = false,
   wide = false, // 首页等需要宽骨架的页面设 true；工具页默认收窄正文
+  breadcrumb = null, // 可选自定义面包屑 [{name, path}]；缺省时工具页自动用「首页 > 当前页」
 } = Astro.props;
 
 const site = Astro.site?.toString().replace(/\/$/, '') ?? 'https://hijritools.com';
 const canonical = `${site}${path}`;
 const ogImage = `${site}/og.png`;
 const fullTitle = title.includes('HijriTools') ? title : `${title} | HijriTools`;
+
+// 面包屑：首页与 noindex 页不显示；其余默认两级（首页 > 当前页），可被 breadcrumb prop 覆盖。
+const crumbs = !noindex && path !== '/'
+  ? (breadcrumb ?? [{ name: 'الرئيسية', path: '/' }, { name: title, path }])
+  : null;
+
+// 把 BreadcrumbList 注入页面已有的 @graph（零页面改动即获面包屑结构化数据）。
+const finalJsonLd = crumbs && jsonLd && Array.isArray(jsonLd['@graph'])
+  ? { ...jsonLd, '@graph': [...jsonLd['@graph'], breadcrumbJsonLd(crumbs)] }
+  : jsonLd;
 ---
 <!doctype html>
 <html lang="ar" dir="rtl">
@@ -42,21 +54,30 @@ const fullTitle = title.includes('HijriTools') ? title : `${title} | HijriTools`
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <!-- 字体：Tajawal。首版用 Google Fonts；后续可自托管 woff2 进一步提速。 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    {jsonLd && (
-      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <!-- 字体：Tajawal 自托管 woff2（src/styles/fonts.css），无第三方往返；预载最常用的阿语字重。 -->
+    <link rel="preload" href="/fonts/tajawal-400-arabic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/tajawal-700-arabic.woff2" as="font" type="font/woff2" crossorigin />
+    {finalJsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(finalJsonLd)} />
     )}
   </head>
   <body>
     <SiteHeader />
     <main>
       <div class={wide ? 'container' : 'container container--content'}>
+        {crumbs && (
+          <nav class="breadcrumb" aria-label="مسار التنقل">
+            <ol>
+              {crumbs.map((c, i) => (
+                <li>
+                  {i < crumbs.length - 1
+                    ? <a href={c.path}>{c.name}</a>
+                    : <span aria-current="page">{c.name}</span>}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
         <slot />
         {!noindex && <ShareButtons title={title} url={canonical} />}
       </div>

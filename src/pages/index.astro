@@ -2,7 +2,7 @@
 import ToolLayout from '../layouts/ToolLayout.astro';
 import AdSlot from '../components/AdSlot.astro';
 import { liveTools, categoryNamesAr, toolLink } from '../data/tools.js';
-import { webAppJsonLd, graph } from '../lib/seo.js';
+import { webAppJsonLd, websiteJsonLd, organizationJsonLd, graph } from '../lib/seo.js';
 
 const title = 'أدوات وحاسبات بالتقويم الهجري والميلادي';
 const description =
@@ -11,7 +11,11 @@ const description =
 const byCategory = {};
 for (const t of liveTools) (byCategory[t.category] ||= []).push(t);
 
-const jsonLd = graph(webAppJsonLd({ name: 'HijriTools', description, path: '/' }));
+const jsonLd = graph(
+  websiteJsonLd(),
+  organizationJsonLd(),
+  webAppJsonLd({ name: 'HijriTools', description, path: '/' }),
+);
 ---
 <ToolLayout title={title} description={description} path="/" jsonLd={jsonLd} wide>
   <h1>أدوات وحاسبات بالتقويم الهجري والميلادي</h1>
