@@ -20,6 +20,10 @@ const canonical = `${site}${path}`;
 const ogImage = `${site}/og.png`;
 const fullTitle = title.includes('HijriTools') ? title : `${title} | HijriTools`;
 
+// GA4 初始化脚本（用 set:html={表达式} 原样输出，避免 JSX 转义单引号为 &#39; 破坏脚本）。
+const gaId = 'G-EW5LTTLXTY';
+const gaInit = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`;
+
 // 面包屑：首页与 noindex 页不显示；其余默认两级（首页 > 当前页），可被 breadcrumb prop 覆盖。
 const crumbs = !noindex && path !== '/'
   ? (breadcrumb ?? [{ name: 'الرئيسية', path: '/' }, { name: title, path }])
@@ -35,6 +39,13 @@ const finalJsonLd = crumbs && jsonLd && Array.isArray(jsonLd['@graph'])
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Google Analytics 4（G-EW5LTTLXTY）。仅生产环境注入，避免本地 dev/preview 污染 GA4 数据。 -->
+    {import.meta.env.PROD && (
+      <Fragment>
+        <script async is:inline src="https://www.googletagmanager.com/gtag/js?id=G-EW5LTTLXTY"></script>
+        <script is:inline set:html={gaInit}></script>
+      </Fragment>
+    )}
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noindex
