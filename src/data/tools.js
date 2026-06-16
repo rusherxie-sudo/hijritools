@@ -1,6 +1,8 @@
 // 工具元数据单一数据源。导航、首页卡片、相关链接、sitemap 全部引用这里。
 // type: 'calc'（纯计算单页）| 'regulatory'（法规工具，按国分页）。
 // descAr 同时用作：页面 meta description、首页卡片描述、工具页引言段，故写到 ~150 字符并含关键词。
+// updated: 该工具内容/功能最后实质更新日（YYYY-MM-DD）。sitemap 的 lastmod 用它——
+//   只在真改了内容时手动更新此字段，新增工具时一并填写。不要写成构建日（会让 Google 忽略 lastmod）。
 
 export const tools = [
   {
@@ -12,6 +14,7 @@ export const tools = [
     type: 'calc',
     icon: '🌙',
     live: true,
+    updated: '2026-06-15',
     related: ['age', 'date-diff', 'pregnancy'],
   },
   {
@@ -23,6 +26,7 @@ export const tools = [
     type: 'calc',
     icon: '🎂',
     live: true,
+    updated: '2026-06-15',
     related: ['hijri', 'date-diff', 'age-diff'],
   },
   {
@@ -34,6 +38,7 @@ export const tools = [
     type: 'calc',
     icon: '📅',
     live: true,
+    updated: '2026-06-15',
     related: ['age', 'age-diff', 'hijri'],
   },
   {
@@ -45,6 +50,7 @@ export const tools = [
     type: 'calc',
     icon: '👶',
     live: true,
+    updated: '2026-06-15',
     related: ['age', 'date-diff', 'hijri'],
   },
   {
@@ -56,6 +62,7 @@ export const tools = [
     type: 'calc',
     icon: '٪',
     live: true,
+    updated: '2026-06-15',
     related: ['vat', 'age', 'date-diff'],
   },
   {
@@ -67,6 +74,7 @@ export const tools = [
     type: 'regulatory',
     icon: '🧾',
     live: true,
+    updated: '2026-06-15',
     related: ['percentage', 'age', 'date-diff'],
     countries: ['sa', 'ae', 'qa', 'kw', 'bh', 'om'],
   },
@@ -79,6 +87,7 @@ export const tools = [
     type: 'calc',
     icon: '👥',
     live: true,
+    updated: '2026-06-15',
     related: ['age', 'date-diff', 'hijri'],
   },
   {
@@ -91,6 +100,7 @@ export const tools = [
     type: 'calc',
     icon: '🗓️',
     live: true,
+    updated: '2026-06-15',
     staticPaths: ['/calendar/1447/'],
     related: ['hijri', 'age', 'pregnancy'],
   },
@@ -103,6 +113,7 @@ export const tools = [
     type: 'calc',
     icon: '🌸',
     live: true,
+    updated: '2026-06-15',
     related: ['pregnancy', 'age', 'date-diff'],
   },
   {
@@ -114,6 +125,7 @@ export const tools = [
     type: 'calc',
     icon: '🎎',
     live: true,
+    updated: '2026-06-15',
     related: ['pregnancy', 'ovulation', 'age'],
   },
   {
@@ -125,6 +137,7 @@ export const tools = [
     type: 'calc',
     icon: '🔳',
     live: true,
+    updated: '2026-06-15',
     related: ['percentage', 'hijri', 'age'],
   },
 
@@ -138,6 +151,7 @@ export const tools = [
     type: 'calc',
     icon: '⚖️',
     live: true,
+    updated: '2026-06-16',
     related: ['bmi', 'body-fat', 'calories'],
   },
   {
@@ -149,6 +163,7 @@ export const tools = [
     type: 'calc',
     icon: '📊',
     live: true,
+    updated: '2026-06-16',
     related: ['ideal-weight', 'body-fat', 'calories'],
   },
   {
@@ -160,6 +175,7 @@ export const tools = [
     type: 'calc',
     icon: '💪',
     live: true,
+    updated: '2026-06-16',
     related: ['bmi', 'ideal-weight', 'calories'],
   },
   {
@@ -171,6 +187,7 @@ export const tools = [
     type: 'calc',
     icon: '🔥',
     live: true,
+    updated: '2026-06-16',
     related: ['bmi', 'water', 'ideal-weight'],
   },
   {
@@ -182,6 +199,7 @@ export const tools = [
     type: 'calc',
     icon: '💧',
     live: true,
+    updated: '2026-06-16',
     related: ['calories', 'bmi', 'ideal-weight'],
   },
   {
@@ -193,6 +211,7 @@ export const tools = [
     type: 'calc',
     icon: '🏠',
     live: true,
+    updated: '2026-06-16',
     related: ['percentage', 'vat', 'discount'],
   },
 
@@ -206,6 +225,7 @@ export const tools = [
     type: 'calc',
     icon: '🔢',
     live: true,
+    updated: '2026-06-16',
     related: ['percentage', 'vat', 'mortgage'],
   },
   {
@@ -217,6 +237,7 @@ export const tools = [
     type: 'calc',
     icon: '⏳',
     live: true,
+    updated: '2026-06-16',
     related: ['hijri', 'calendar', 'pregnancy'],
   },
   {
@@ -228,6 +249,7 @@ export const tools = [
     type: 'calc',
     icon: '🏷️',
     live: true,
+    updated: '2026-06-16',
     related: ['percentage', 'vat', 'mortgage'],
   },
   {
@@ -239,6 +261,7 @@ export const tools = [
     type: 'calc',
     icon: '📐',
     live: true,
+    updated: '2026-06-16',
     related: ['percentage', 'discount', 'bmi'],
   },
   {
@@ -250,6 +273,7 @@ export const tools = [
     type: 'calc',
     icon: '🌺',
     live: true,
+    updated: '2026-06-16',
     related: ['ovulation', 'pregnancy', 'age'],
   },
   {
@@ -261,6 +285,7 @@ export const tools = [
     type: 'calc',
     icon: '🎓',
     live: true,
+    updated: '2026-06-16',
     related: ['percentage', 'age', 'date-diff'],
   },
 ];

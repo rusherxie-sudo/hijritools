@@ -20,7 +20,7 @@ disable-model-invocation: true
 
 ## 步骤
 
-1. **元数据**:在 `src/data/tools.js` 加一条(`slug/titleAr/shortAr/descAr/category/type/icon/related`,上线后 `live:true`)。`type` = `'calc'` 或 `'regulatory'`。
+1. **元数据**:在 `src/data/tools.js` 加一条(`slug/titleAr/shortAr/descAr/category/type/icon/related`,上线后 `live:true`)。`type` = `'calc'` 或 `'regulatory'`。**必填 `updated:'YYYY-MM-DD'`**(当天上线日)——sitemap 的 lastmod 用它;漏填该页就没有 lastmod。日后实质改了内容时同步更新此日期(切勿写成构建日)。
 2. **测试 RED**:写 `tests/<tool>.test.js`,覆盖公式边界 + 锚点 → `npm test` 看红。**锚点必须来自独立来源或手算,绝不能用待测实现反推**——Owner 无法校对,锚点错了 TDD 形同虚设。
 3. **实现 GREEN**:写 `src/lib/<tool>.js` 纯函数 → `npm test` 看绿。
 4. **页面**:建 `src/pages/<slug>/index.astro`,套 `ToolLayout` + 复用组件 + 底部 module `<script>`。法规类多国页用 `getStaticPaths` + `[country].astro`。

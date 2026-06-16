@@ -5,25 +5,32 @@ import { liveTools } from '../data/tools.js';
 const SITE = 'https://hijritools.com';
 
 export function GET() {
-  const urls = ['/']; // 首页
+  // lastmod = 每个工具自带的 updated（内容最后实质更新日），稳定且只在真改时变化。
+  // 绝不用构建日（new Date()）——那会让全站 lastmod 每次构建都变，Google 判定不可信而忽略。
+  const entries = [];
+
+  // 首页内容 = 工具列表，故其 lastmod 取所有工具 updated 的最新值。
+  const dates = liveTools.map((t) => t.updated).filter(Boolean).sort();
+  entries.push({ loc: '/', lastmod: dates.at(-1) ?? null });
 
   for (const t of liveTools) {
-    // 特殊路径工具（如伊历日历 /calendar/1447/）用 staticPaths 显式声明。
     if (Array.isArray(t.staticPaths)) {
-      for (const p of t.staticPaths) urls.push(p);
+      for (const p of t.staticPaths) entries.push({ loc: p, lastmod: t.updated ?? null });
       continue;
     }
-    urls.push(`/${t.slug}/`);
+    entries.push({ loc: `/${t.slug}/`, lastmod: t.updated ?? null });
     if (t.type === 'regulatory' && Array.isArray(t.countries)) {
-      for (const cc of t.countries) urls.push(`/${t.slug}/${cc}/`);
+      for (const cc of t.countries) entries.push({ loc: `/${t.slug}/${cc}/`, lastmod: t.updated ?? null });
     }
   }
 
-  const lastmod = new Date().toISOString().slice(0, 10);
   const body =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    urls.map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n') +
+    entries
+      .map(({ loc, lastmod }) =>
+        `  <url><loc>${SITE}${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`)
+      .join('\n') +
     `\n</urlset>\n`;
 
   return new Response(body, { headers: { 'Content-Type': 'application/xml' } });
