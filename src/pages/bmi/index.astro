@@ -1,0 +1,65 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('bmi');
+const faqs = [
+  { q: 'ما هو مؤشر كتلة الجسم BMI؟', a: 'هو رقم يربط بين وزنك وطولك لتقدير ما إذا كان وزنك صحيًا. يُحسب بقسمة الوزن بالكيلوغرام على مربّع الطول بالمتر.' },
+  { q: 'كم مؤشر كتلة الجسم الطبيعي؟', a: 'حسب منظمة الصحة العالمية، يكون الوزن طبيعيًا إذا كان المؤشر بين 18.5 و24.9. أقل من ذلك نحافة، ومن 25 إلى 29.9 زيادة في الوزن، و30 فأكثر سمنة.' },
+  { q: 'هل مؤشر كتلة الجسم دقيق للجميع؟', a: 'هو مؤشر تقريبي عام ولا يفرّق بين العضلات والدهون، فقد لا يناسب الرياضيين أو كبار السن. للتقييم الدقيق راجع طبيبك المختص.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/bmi/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/bmi/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field"><label for="weight">الوزن (كجم)</label><input type="number" id="weight" inputmode="decimal" value="70" /></div>
+      <div class="field"><label for="height">الطول (سم)</label><input type="number" id="height" inputmode="decimal" value="175" /></div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div style="color:var(--color-text-muted)">مؤشر كتلة الجسم</div>
+    <div class="result-main num" id="bmi-value">-</div>
+    <div id="bmi-cat" style="color:var(--color-primary-dark);font-weight:700;font-size:1.15rem"></div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="health" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { bmi, bmiCategory } from '../../lib/health.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value);
+
+  function run() {
+    const v = bmi(val('weight'), val('height'));
+    if (!Number.isFinite(v)) {
+      $('bmi-value').textContent = '-';
+      $('bmi-cat').textContent = '';
+      return;
+    }
+    $('bmi-value').textContent = v;
+    $('bmi-cat').textContent = bmiCategory(v) ?? '';
+  }
+  ['weight', 'height'].forEach((id) => $(id).addEventListener('input', run));
+  run();
+</script>

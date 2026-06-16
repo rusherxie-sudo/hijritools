@@ -1,0 +1,155 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('tafqit');
+
+// 货币选项（辅币名 + 进位）。海湾常见货币，事实稳定，作为静态显示项内联。
+const currencies = [
+  { value: '', label: 'بدون عملة (رقم فقط)' },
+  { value: 'ريال سعودي', label: 'ريال سعودي (هللة)' },
+  { value: 'درهم إماراتي', label: 'درهم إماراتي (فلس)' },
+  { value: 'ريال قطري', label: 'ريال قطري (درهم)' },
+  { value: 'دينار كويتي', label: 'دينار كويتي (فلس)' },
+  { value: 'دينار بحريني', label: 'دينار بحريني (فلس)' },
+  { value: 'ريال عماني', label: 'ريال عماني (بيسة)' },
+  { value: 'جنيه مصري', label: 'جنيه مصري (قرش)' },
+];
+
+const faqs = [
+  {
+    q: 'ما معنى تفقيط المبلغ؟',
+    a: 'التفقيط هو كتابة الرقم بالحروف العربية بدل الأرقام، مثل تحويل ١٢٣٤ إلى «ألف ومئتان وأربعة وثلاثون». ويُستخدم كثيرًا في الشيكات والفواتير والعقود لمنع التلاعب بالمبلغ.',
+  },
+  {
+    q: 'هل أكتب «هللة» أم «هلله»؟ وهل التفقيط يصلح للشيكات البنكية؟',
+    a: 'الصيغة الصحيحة «هللة» للريال السعودي، و«فلس» للدرهم والدينار. والأداة تكتب المبلغ بصيغة معتمدة تصلح للشيكات والفواتير الرسمية، مع ذكر اسم العملة وكسورها تلقائيًا.',
+  },
+  {
+    q: 'هل تدعم الأداة الأرقام الكبيرة والكسور؟',
+    a: 'نعم، تدعم الأرقام حتى المليارات، وتكتب الكسور (الهللات أو الفلوس) تلقائيًا عند اختيار العملة، مع تقريب الكسر إلى منزلتين أو ثلاث حسب العملة.',
+  },
+];
+
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/tafqit/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/tafqit/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="amount">الرقم أو المبلغ</label>
+        <input type="number" id="amount" class="num" inputmode="decimal" step="any" value="1234.50" placeholder="مثال: 1234.50" />
+      </div>
+      <div class="field">
+        <label for="currency">العملة (اختياري)</label>
+        <select id="currency">
+          {currencies.map((c) => (
+            <option value={c.value} selected={c.value === 'ريال سعودي'}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result" id="result">
+    <p class="tafqit-label">المبلغ كتابةً</p>
+    <p class="tafqit-out" id="out" dir="rtl">—</p>
+    <button class="btn btn-secondary" id="copy" type="button">نسخ النص</button>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة عن تفقيط الأرقام</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={['percentage', 'vat', 'qrcode']} />
+</ToolLayout>
+
+<script>
+  import { tafqit, tafqitCurrency } from '../../lib/tafqit.js';
+
+  const $ = (id) => document.getElementById(id);
+
+  // 货币 → 辅币配置（与下拉 value 对应）。
+  const CURRENCY = {
+    'ريال سعودي': { currencyName: 'ريال', subName: 'هللة', subDivisor: 100 },
+    'درهم إماراتي': { currencyName: 'درهم', subName: 'فلس', subDivisor: 100 },
+    'ريال قطري': { currencyName: 'ريال', subName: 'درهم', subDivisor: 100 },
+    'دينار كويتي': { currencyName: 'دينار', subName: 'فلس', subDivisor: 1000 },
+    'دينار بحريني': { currencyName: 'دينار', subName: 'فلس', subDivisor: 1000 },
+    'ريال عماني': { currencyName: 'ريال', subName: 'بيسة', subDivisor: 1000 },
+    'جنيه مصري': { currencyName: 'جنيه', subName: 'قرش', subDivisor: 100 },
+  };
+
+  function showErr(msg) {
+    const e = $('err');
+    e.textContent = msg;
+    e.classList.remove('hidden');
+    $('out').textContent = '—';
+    $('copy').disabled = true;
+  }
+  function clearErr() {
+    $('err').classList.add('hidden');
+    $('copy').disabled = false;
+  }
+
+  function render() {
+    const raw = $('amount').value.trim();
+    if (raw === '') { showErr('الرجاء إدخال رقم.'); return; }
+    const n = Number(raw);
+    if (!Number.isFinite(n)) { showErr('الرجاء إدخال رقم صحيح.'); return; }
+    if (n < 0) { showErr('الرجاء إدخال رقم موجب.'); return; }
+    if (n > 999999999999) { showErr('الرقم كبير جدًا (الحد الأقصى مليارات).'); return; }
+
+    const cur = $('currency').value;
+    let text;
+    if (cur && CURRENCY[cur]) {
+      text = tafqitCurrency(n, CURRENCY[cur]) + ' لا غير';
+    } else {
+      text = tafqit(Math.floor(n));
+    }
+    $('out').textContent = text;
+    clearErr();
+  }
+
+  $('copy').addEventListener('click', async () => {
+    const text = $('out').textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = $('copy');
+      const orig = btn.textContent;
+      btn.textContent = 'تم النسخ ✓';
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    } catch (e) { /* 剪贴板不可用时静默忽略 */ }
+  });
+
+  $('amount').addEventListener('input', render);
+  $('currency').addEventListener('change', render);
+  render();
+</script>
+
+<style>
+  .tafqit-label { color: var(--color-text-muted); font-size: var(--fs-small); margin-block-end: var(--space-2); }
+  .tafqit-out {
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.7;
+    color: var(--color-primary-dark);
+    margin-block-end: var(--space-4);
+    word-break: break-word;
+  }
+</style>

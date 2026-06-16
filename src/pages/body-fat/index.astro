@@ -1,0 +1,88 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('body-fat');
+const faqs = [
+  { q: 'كيف تُحسب نسبة الدهون بمعادلة البحرية الأمريكية؟', a: 'تعتمد على قياسات المحيط بشريط القياس مع الطول والجنس: محيط الرقبة والخصر للرجال، ويُضاف محيط الورك للنساء. تُدخل القياسات بالسنتيمتر وتحسب النسبة فورًا.' },
+  { q: 'أين أقيس الخصر والرقبة بالضبط؟', a: 'قِس الرقبة أسفل الحنجرة، والخصر عند مستوى السرّة للرجال وعند أنحف نقطة للنساء، والورك عند أعرض نقطة. أبقِ الشريط أفقيًا ومشدودًا دون ضغط للحصول على نتيجة أدق.' },
+  { q: 'هل النتيجة دقيقة؟', a: 'هي تقدير جيد لكنها أقل دقة من أجهزة قياس مثل DEXA. اعتبرها مؤشرًا للمتابعة مع مرور الوقت، وللتقييم الدقيق راجع مختصًا.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/body-fat/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/body-fat/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="sex">الجنس</label>
+        <select id="sex">
+          <option value="male">ذكر</option>
+          <option value="female">أنثى</option>
+        </select>
+      </div>
+      <div class="field"><label for="height">الطول (سم)</label><input type="number" id="height" inputmode="decimal" value="178" /></div>
+    </div>
+    <div class="row">
+      <div class="field"><label for="neck">محيط الرقبة (سم)</label><input type="number" id="neck" inputmode="decimal" value="38" /></div>
+      <div class="field"><label for="waist">محيط الخصر (سم)</label><input type="number" id="waist" inputmode="decimal" value="90" /></div>
+    </div>
+    <div class="field hidden" id="hip-field" style="max-width:280px">
+      <label for="hip">محيط الورك (سم)</label><input type="number" id="hip" inputmode="decimal" value="95" />
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div style="color:var(--color-text-muted)">نسبة الدهون في الجسم</div>
+    <div class="result-main"><span class="num" id="bf-value">-</span><span id="bf-pct"></span></div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="health" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { bodyFatNavy } from '../../lib/health.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value);
+
+  function run() {
+    const sex = $('sex').value;
+    $('hip-field').classList.toggle('hidden', sex !== 'female');
+    const v = bodyFatNavy({
+      sex,
+      heightCm: val('height'),
+      neckCm: val('neck'),
+      waistCm: val('waist'),
+      hipCm: val('hip'),
+    });
+    if (!Number.isFinite(v)) {
+      $('bf-value').textContent = '-';
+      $('bf-pct').textContent = '';
+      return;
+    }
+    $('bf-value').textContent = v;
+    $('bf-pct').textContent = '٪';
+  }
+  ['sex', 'height', 'neck', 'waist', 'hip'].forEach((id) => {
+    $(id).addEventListener('input', run);
+    $(id).addEventListener('change', run);
+  });
+  run();
+</script>

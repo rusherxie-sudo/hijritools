@@ -1,0 +1,70 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('ideal-weight');
+const faqs = [
+  { q: 'كيف يُحسب الوزن المثالي؟', a: 'يعتمد على الطول والجنس. تعرض الحاسبة نتيجتين بمعادلتي ديفاين (Devine) وهاموي (Hamwi) الشهيرتين، وكلاهما يبدأ من وزن أساس عند طول ١٥٢٫٤ سم ويزيد مع كل إنش إضافي.' },
+  { q: 'ما الفرق بين معادلة ديفاين وهاموي؟', a: 'الاثنتان تقديريتان وتعطيان أرقامًا متقاربة. ديفاين أقدم وتُستخدم كثيرًا في حساب جرعات الدواء، وهاموي أبسط قليلًا. اعتبر النتيجتين مدى تقريبيًا لا رقمًا واحدًا صارمًا.' },
+  { q: 'هل الوزن المثالي يعني أن وزني غير صحي إذا اختلف عنه؟', a: 'لا. الوزن المثالي رقم إرشادي فقط ولا يأخذ بالحسبان كتلة العضلات وبنية الجسم. للتقييم الشامل راجع طبيبك المختص.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/ideal-weight/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/ideal-weight/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="sex">الجنس</label>
+        <select id="sex">
+          <option value="male">ذكر</option>
+          <option value="female">أنثى</option>
+        </select>
+      </div>
+      <div class="field"><label for="height">الطول (سم)</label><input type="number" id="height" inputmode="decimal" value="175" /></div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="devine">-</div><div class="l">معادلة ديفاين (كجم)</div></div>
+      <div class="stat"><div class="v num" id="hamwi">-</div><div class="l">معادلة هاموي (كجم)</div></div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="health" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { idealWeightDevine, idealWeightHamwi } from '../../lib/health.js';
+  const $ = (id) => document.getElementById(id);
+
+  function run() {
+    const sex = $('sex').value;
+    const height = parseFloat($('height').value);
+    const d = idealWeightDevine(height, sex);
+    const h = idealWeightHamwi(height, sex);
+    $('devine').textContent = Number.isFinite(d) ? d : '-';
+    $('hamwi').textContent = Number.isFinite(h) ? h : '-';
+  }
+  $('sex').addEventListener('change', run);
+  $('height').addEventListener('input', run);
+  run();
+</script>

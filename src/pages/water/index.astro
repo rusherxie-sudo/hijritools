@@ -1,0 +1,68 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('water');
+const faqs = [
+  { q: 'كم لتر ماء أحتاج في اليوم؟', a: 'القاعدة التقريبية الشائعة هي نحو ٣٥ مل لكل كيلوغرام من وزنك. مثلًا من وزنه ٧٠ كجم يحتاج قرابة ٢٫٤٥ لتر يوميًا. تحسب الأداة الكمية باللتر وعدد الأكواب تلقائيًا.' },
+  { q: 'هل أزيد كمية الماء عند الرياضة أو الحر؟', a: 'نعم. في أجواء الخليج الحارّة ومع التمارين أو التعرّق الشديد يحتاج الجسم كمية أكبر، فأضف نحو ٥٠٠ مل لكل ساعة نشاط مكثّف.' },
+  { q: 'هل تُحسب القهوة والشاي ضمن الكمية؟', a: 'السوائل كلها تسهم في الترطيب، لكن يُفضّل أن يكون الماء النقي هو المصدر الأساسي، وتقليل المشروبات الغنية بالكافيين أو السكر.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/water/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/water/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="field" style="max-width:280px">
+      <label for="weight">الوزن (كجم)</label>
+      <input type="number" id="weight" inputmode="decimal" value="70" />
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div style="color:var(--color-text-muted)">احتياجك اليومي من الماء</div>
+    <div class="result-main"><span class="num" id="liters">-</span> <span style="font-size:1rem">لتر/يوم</span></div>
+    <hr class="gold-divider" />
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="ml">-</div><div class="l">مليلتر</div></div>
+      <div class="stat"><div class="v num" id="cups">-</div><div class="l">كوب (٢٥٠ مل)</div></div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="health" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { waterIntakeMl } from '../../lib/health.js';
+  const $ = (id) => document.getElementById(id);
+
+  function run() {
+    const ml = waterIntakeMl(parseFloat($('weight').value));
+    if (!Number.isFinite(ml)) {
+      ['liters', 'ml', 'cups'].forEach((id) => { $(id).textContent = '-'; });
+      return;
+    }
+    $('ml').textContent = Math.round(ml);
+    $('liters').textContent = (Math.round(ml / 100) / 10).toFixed(1);
+    $('cups').textContent = Math.round(ml / 250);
+  }
+  $('weight').addEventListener('input', run);
+  run();
+</script>

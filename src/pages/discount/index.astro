@@ -1,0 +1,83 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('discount');
+const faqs = [
+  {
+    q: 'كيف أحسب سعر المنتج بعد الخصم؟',
+    a: 'اضرب السعر الأصلي في (١ ناقص نسبة الخصم مقسومة على ١٠٠). مثال: منتج بـ ٢٠٠ ريال وعليه خصم ١٥٪، يصير سعره بعد الخصم ١٧٠ ريال وتوفّر ٣٠ ريال.',
+  },
+  {
+    q: 'كيف أعرف نسبة الخصم بين سعرين؟',
+    a: 'اطرح السعر بعد التخفيض من السعر الأصلي، ثم اقسم الناتج على السعر الأصلي واضربه في ١٠٠. مثال: من ٢٠٠ إلى ١٧٠ يعني خصم ١٥٪.',
+  },
+  {
+    q: 'هل تشمل الحاسبة ضريبة القيمة المضافة؟',
+    a: 'لا، الحاسبة تحسب الخصم على السعر المُدخل فقط. إذا أردت إضافة الضريبة بعد الخصم، استخدم حاسبة ضريبة القيمة المضافة المخصصة لكل دولة خليجية.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/discount/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/discount/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <h2>السعر بعد الخصم</h2>
+    <div class="row">
+      <div class="field"><label for="orig1">السعر الأصلي</label><input type="number" id="orig1" value="200" min="0" /></div>
+      <div class="field"><label for="pct1">نسبة الخصم ٪</label><input type="number" id="pct1" value="15" min="0" /></div>
+    </div>
+    <div class="result" id="res1">
+      <div class="result-main num" id="after1">170</div>
+      <div class="result-grid">
+        <div class="stat"><div class="v num" id="saved1">30</div><div class="l">قيمة التوفير</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>كم نسبة الخصم؟</h2>
+    <div class="row">
+      <div class="field"><label for="orig2">السعر الأصلي</label><input type="number" id="orig2" value="200" min="0" /></div>
+      <div class="field"><label for="sale2">السعر بعد التخفيض</label><input type="number" id="sale2" value="170" min="0" /></div>
+    </div>
+    <div class="result" id="res2"><span class="result-main"><span class="num" id="rate2">15</span>٪</span></div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { priceAfterDiscount, savedAmount, discountRate } from '../../lib/discount.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value);
+  const show = (id, v) => { $(id).textContent = Number.isFinite(v) ? v : '-'; };
+
+  function calc1() {
+    show('after1', priceAfterDiscount(val('orig1'), val('pct1')));
+    show('saved1', savedAmount(val('orig1'), val('pct1')));
+  }
+  function calc2() {
+    show('rate2', discountRate(val('orig2'), val('sale2')));
+  }
+  ['orig1', 'pct1'].forEach((id) => $(id).addEventListener('input', calc1));
+  ['orig2', 'sale2'].forEach((id) => $(id).addEventListener('input', calc2));
+  calc1(); calc2();
+</script>

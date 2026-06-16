@@ -1,0 +1,100 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('calories');
+const faqs = [
+  { q: 'ما معنى السعرات الحرارية اليومية TDEE؟', a: 'هي إجمالي السعرات التي يحرقها جسمك في اليوم حسب نشاطك. تُحسب بضرب معدل الأيض الأساسي (BMR) في معامل النشاط، وهي مقدار السعرات الذي يحافظ على وزنك ثابتًا.' },
+  { q: 'كم سعرة أحتاج لإنقاص أو زيادة وزني؟', a: 'لإنقاص الوزن قلّل نحو ٥٠٠ سعرة عن احتياجك اليومي، ولزيادة الوزن أضف نحو ٥٠٠ سعرة. تعرض الحاسبة هذه القيم تلقائيًا بعد حساب احتياجك.' },
+  { q: 'ما هي معادلة ميفلين سانت جيور؟', a: 'هي المعادلة الأدق حاليًا لتقدير معدل الأيض الأساسي، وتعتمد على الوزن والطول والعمر والجنس. النتيجة تقديرية وقد تختلف قليلًا بين الأشخاص.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/calories/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/calories/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="sex">الجنس</label>
+        <select id="sex">
+          <option value="male">ذكر</option>
+          <option value="female">أنثى</option>
+        </select>
+      </div>
+      <div class="field"><label for="age">العمر (سنة)</label><input type="number" id="age" inputmode="numeric" value="30" /></div>
+    </div>
+    <div class="row">
+      <div class="field"><label for="weight">الوزن (كجم)</label><input type="number" id="weight" inputmode="decimal" value="80" /></div>
+      <div class="field"><label for="height">الطول (سم)</label><input type="number" id="height" inputmode="decimal" value="180" /></div>
+    </div>
+    <div class="field" style="max-width:100%">
+      <label for="activity">مستوى النشاط</label>
+      <select id="activity">
+        <option value="1.2">قليل الحركة (جلوس معظم اليوم)</option>
+        <option value="1.375">نشاط خفيف (تمرين ١–٣ أيام أسبوعيًا)</option>
+        <option value="1.55" selected>نشاط متوسط (تمرين ٣–٥ أيام أسبوعيًا)</option>
+        <option value="1.725">نشاط عالٍ (تمرين ٦–٧ أيام أسبوعيًا)</option>
+        <option value="1.9">نشاط شديد (عمل بدني + تمرين مكثّف)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div style="color:var(--color-text-muted)">احتياجك اليومي (TDEE)</div>
+    <div class="result-main"><span class="num" id="tdee">-</span> <span style="font-size:1rem">سعرة/يوم</span></div>
+    <hr class="gold-divider" />
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="bmr">-</div><div class="l">معدل الأيض الأساسي (BMR)</div></div>
+      <div class="stat"><div class="v num" id="loss">-</div><div class="l">لإنقاص الوزن</div></div>
+      <div class="stat"><div class="v num" id="gain">-</div><div class="l">لزيادة الوزن</div></div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="health" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { bmr, tdee } from '../../lib/health.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value);
+
+  function run() {
+    const base = bmr({
+      sex: $('sex').value,
+      weightKg: val('weight'),
+      heightCm: val('height'),
+      age: val('age'),
+    });
+    const total = tdee(base, val('activity'));
+    if (!Number.isFinite(base) || !Number.isFinite(total)) {
+      ['bmr', 'tdee', 'loss', 'gain'].forEach((id) => { $(id).textContent = '-'; });
+      return;
+    }
+    $('bmr').textContent = Math.round(base);
+    $('tdee').textContent = total;
+    $('loss').textContent = Math.max(0, total - 500);
+    $('gain').textContent = total + 500;
+  }
+  ['sex', 'age', 'weight', 'height', 'activity'].forEach((id) => {
+    $(id).addEventListener('input', run);
+    $(id).addEventListener('change', run);
+  });
+  run();
+</script>

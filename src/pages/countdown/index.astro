@@ -1,0 +1,140 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { gccOrder, countries } from '../../data/countries.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('countdown');
+const faqs = [
+  {
+    q: 'كم باقي على رمضان؟',
+    a: 'تعرض الأداة أعلى الصفحة عدد الأيام المتبقية حتى أول رمضان وفق تقويم أم القرى، ويتحدّث العدّ تلقائيًا كل يوم. وقد تختلف البداية الفعلية يومًا حسب رؤية الهلال في دولتك.',
+  },
+  {
+    q: 'هل العدّ التنازلي دقيق لكل دول الخليج؟',
+    a: 'نعم؛ اختر دولتك من القائمة لضبط فرق رؤية الهلال بفارق يوم واحد، فيتغيّر العدّ والتاريخ الميلادي المقابل بما يناسب التقويم المعتمد محليًا في السعودية والإمارات وقطر والكويت والبحرين وعُمان.',
+  },
+  {
+    q: 'كيف أعمل عدّ تنازلي لمناسبتي أو تاريخ معيّن؟',
+    a: 'من خانة «العدّ لأي تاريخ» اختر أي تاريخ ميلادي قادم — كزواج أو سفر أو امتحان — لتظهر لك الأيام المتبقية والتاريخ الهجري المقابل له فورًا.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/countdown/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/countdown/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="field" style="max-width:280px">
+    <label for="country">الدولة (لضبط فرق رؤية الهلال)</label>
+    <select id="country">
+      {gccOrder.map((cc) => (<option value={cc}>{countries[cc].nameAr}</option>))}
+    </select>
+  </div>
+
+  <!-- 三大节日倒计时 -->
+  <div class="result-grid" id="events"></div>
+
+  <AdSlot />
+
+  <!-- 自定义日期倒计时 -->
+  <div class="card">
+    <h2>العدّ لأي تاريخ</h2>
+    <p style="color:var(--color-text-muted);margin-block-end:var(--space-4)">
+      اختر تاريخًا ميلاديًا لمعرفة الأيام المتبقية والتاريخ الهجري المقابل له.
+    </p>
+    <div class="field" style="max-width:280px">
+      <label for="custom-date">التاريخ المستهدف</label>
+      <input type="date" id="custom-date" />
+    </div>
+    <div class="result hidden" id="custom-result">
+      <div class="result-main"><span class="num" id="custom-days">0</span> يومًا متبقيًا</div>
+      <hr class="gold-divider" />
+      <div id="custom-hijri" class="num" style="color:var(--color-text-muted)"></div>
+      <div id="custom-greg" class="num" style="color:var(--color-text-muted)"></div>
+    </div>
+    <p class="error-text hidden" id="custom-err">يرجى اختيار تاريخ صالح ضمن النطاق المدعوم.</p>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { daysBetween, nextHijriEvent, EVENTS } from '../../lib/countdown.js';
+  import { gregorianToHijri, formatHijri, formatGregorian } from '../../lib/hijri.js';
+  import { todayUtc, parseISODate, toISODate } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  const countrySel = $('country');
+  // 海湾各国相对沙特官历的偏移（与 hijri 页保持一致，默认 0）。
+  const offsets = { sa: 0, ae: 0, qa: 0, kw: 0, bh: 0, om: 0 };
+  const getOffset = () => offsets[countrySel.value] ?? 0;
+
+  // 剩余天数文案：0=اليوم，1=غدًا，其余=N يومًا。
+  function daysLabel(n) {
+    if (n === 0) return 'اليوم';
+    if (n === 1) return 'غدًا';
+    return `<span class="num">${n}</span> يومًا متبقيًا`;
+  }
+
+  function renderEvents() {
+    const today = todayUtc();
+    const off = getOffset();
+    const grid = $('events');
+    grid.innerHTML = '';
+    for (const ev of EVENTS) {
+      const g = nextHijriEvent(today, ev.hm, ev.hd, off);
+      const days = daysBetween(today, g);
+      const el = document.createElement('div');
+      el.className = 'stat';
+      el.innerHTML =
+        `<div class="l" style="font-weight:700;color:var(--color-primary-dark);font-size:var(--fs-base)">${ev.nameAr}</div>` +
+        `<div class="v">${days}</div>` +
+        `<div class="l">${daysLabel(days)}</div>` +
+        `<div class="l num" style="margin-block-start:.4rem">${formatGregorian(g)}</div>`;
+      grid.appendChild(el);
+    }
+  }
+
+  function renderCustom() {
+    const box = $('custom-result');
+    const err = $('custom-err');
+    const d = parseISODate($('custom-date').value);
+    if (!d) { box.classList.add('hidden'); err.classList.add('hidden'); return; }
+    try {
+      const today = todayUtc();
+      const off = getOffset();
+      const days = daysBetween(today, d);
+      const h = gregorianToHijri(d, off);
+      $('custom-days').textContent = days;
+      $('custom-greg').textContent = formatGregorian(d);
+      $('custom-hijri').textContent = formatHijri(h);
+      box.classList.remove('hidden');
+      err.classList.add('hidden');
+    } catch {
+      box.classList.add('hidden');
+      err.classList.remove('hidden');
+    }
+  }
+
+  // 初始化：自定义日期默认填今天。
+  $('custom-date').value = toISODate(todayUtc());
+  renderEvents();
+  renderCustom();
+  countrySel.addEventListener('change', () => { renderEvents(); renderCustom(); });
+  $('custom-date').addEventListener('change', renderCustom);
+</script>

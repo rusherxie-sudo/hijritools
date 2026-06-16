@@ -1,0 +1,177 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('weighted');
+
+// 沙特常见三项预设（权重可由用户修改，因大学不同而异）。
+const rows = [
+  { id: 'a', label: 'الثانوية العامة', score: 95, weight: 30 },
+  { id: 'b', label: 'اختبار القدرات', score: 85, weight: 40 },
+  { id: 'c', label: 'الاختبار التحصيلي', score: 88, weight: 30 },
+];
+
+const faqs = [
+  {
+    q: 'كيف أحسب النسبة الموزونة للقبول الجامعي؟',
+    a: 'أدخل درجاتك في الثانوية العامة واختبار القدرات والاختبار التحصيلي، ثم اضبط وزن كل معيار حسب جامعتك (مثل ٣٠٪ ثانوية و٤٠٪ قدرات و٣٠٪ تحصيلي). تحسب الأداة المجموع المرجّح وتقسمه على مجموع الأوزان لتظهر لك النسبة الموزونة مباشرة.',
+  },
+  {
+    q: 'هل أوزان النسبة الموزونة ثابتة في كل الجامعات؟',
+    a: 'لا، تختلف الأوزان من جامعة لأخرى ومن تخصص لآخر، وقد تتغيّر كل عام. لذلك جعلنا الأوزان قابلة للتعديل؛ اعتمد دائمًا على الأوزان المعلنة في موقع جامعتك أو دليل القبول الرسمي.',
+  },
+  {
+    q: 'ما الفرق بين النسبة الموزونة والنسبة المكافئة؟',
+    a: 'كلتاهما تدمج درجاتك بأوزان مختلفة لمعايير القبول؛ والفرق غالبًا في المعايير المشمولة ونسب أوزانها حسب كل جامعة. تتيح لك هذه الحاسبة ضبط المعايير وأوزانها بحرّية لتطابق آلية جامعتك أيًّا كان مسمّاها.',
+  },
+];
+
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/weighted/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/weighted/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <h2>أدخل درجاتك وأوزانها</h2>
+    <p class="note">القِيم التالية افتراضية شائعة في الجامعات السعودية، وكل الحقول قابلة للتعديل. غيّر الأوزان لتطابق جامعتك؛ لا يُشترط أن يكون مجموعها ١٠٠ إذ تُحسب النسبة على أساس مجموع الأوزان.</p>
+
+    <div class="wtbl" id="wtbl">
+      <div class="wt-head">
+        <span>المعيار</span>
+        <span>الدرجة (٪)</span>
+        <span>الوزن (٪)</span>
+      </div>
+      {rows.map((r) => (
+        <div class="wt-row" data-row>
+          <input type="text" class="wt-label" value={r.label} aria-label="اسم المعيار" />
+          <input type="number" class="wt-score" value={r.score} min="0" max="100" step="0.01" inputmode="decimal" aria-label="الدرجة" />
+          <input type="number" class="wt-weight" value={r.weight} min="0" step="0.01" inputmode="decimal" aria-label="الوزن" />
+        </div>
+      ))}
+    </div>
+
+    <div class="wt-actions">
+      <button type="button" id="addRow" class="btn-secondary">+ إضافة معيار</button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-label">النسبة الموزونة</div>
+      <span class="result-main"><span class="num" id="out">—</span><span class="pct">٪</span></span>
+      <div class="result-sub">مجموع الأوزان: <span class="num" id="wsum">—</span>٪</div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .note { color: var(--muted, #667); font-size: .9rem; margin-block: .25rem 1rem; }
+  .wtbl { display: grid; gap: .5rem; }
+  .wt-head, .wt-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: .5rem;
+    align-items: center;
+  }
+  .wt-head { font-weight: 600; font-size: .85rem; color: var(--muted, #667); padding-inline: .25rem; }
+  .wt-row input {
+    width: 100%;
+    padding: .55rem .6rem;
+    border: 1px solid var(--border, #d4d4d8);
+    border-radius: .5rem;
+    font: inherit;
+    background: var(--bg, #fff);
+    color: inherit;
+  }
+  .wt-score, .wt-weight { text-align: center; }
+  .wt-actions { margin-block: .75rem; }
+  .btn-secondary {
+    border: 1px solid var(--border, #d4d4d8);
+    background: transparent;
+    color: inherit;
+    border-radius: .5rem;
+    padding: .45rem .9rem;
+    font: inherit;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { background: var(--surface-2, #f4f4f5); }
+  .result-label { font-size: .9rem; color: var(--muted, #667); }
+  .result-sub { font-size: .85rem; color: var(--muted, #667); margin-block-start: .35rem; }
+  .pct { margin-inline-start: .1rem; }
+  .wt-row .wt-remove {
+    grid-column: 1 / -1;
+    justify-self: start;
+    border: none;
+    background: transparent;
+    color: var(--muted, #888);
+    cursor: pointer;
+    font: inherit;
+    font-size: .8rem;
+    padding: 0;
+  }
+  .wt-row .wt-remove:hover { color: #c0392b; }
+</style>
+
+<script>
+  import { weightedAverage } from '../../lib/weighted.js';
+
+  const tbl = document.getElementById('wtbl');
+  const out = document.getElementById('out');
+  const wsum = document.getElementById('wsum');
+  const addBtn = document.getElementById('addRow');
+
+  function readRows() {
+    const items = [];
+    let weightTotal = 0;
+    tbl.querySelectorAll('[data-row]').forEach((row) => {
+      const score = parseFloat(row.querySelector('.wt-score').value);
+      const weight = parseFloat(row.querySelector('.wt-weight').value);
+      if (Number.isFinite(score) && Number.isFinite(weight) && weight >= 0) {
+        items.push({ score, weight });
+        weightTotal += weight;
+      }
+    });
+    return { items, weightTotal };
+  }
+
+  function render() {
+    const { items, weightTotal } = readRows();
+    const result = weightedAverage(items);
+    out.textContent = Number.isFinite(result) ? result : '—';
+    wsum.textContent = Number.isFinite(weightTotal) && weightTotal > 0 ? weightTotal : '—';
+  }
+
+  function makeRow() {
+    const row = document.createElement('div');
+    row.className = 'wt-row';
+    row.setAttribute('data-row', '');
+    row.innerHTML =
+      '<input type="text" class="wt-label" value="معيار إضافي" aria-label="اسم المعيار" />' +
+      '<input type="number" class="wt-score" value="" min="0" max="100" step="0.01" inputmode="decimal" aria-label="الدرجة" />' +
+      '<input type="number" class="wt-weight" value="" min="0" step="0.01" inputmode="decimal" aria-label="الوزن" />' +
+      '<button type="button" class="wt-remove">حذف</button>';
+    row.querySelector('.wt-remove').addEventListener('click', () => { row.remove(); render(); });
+    return row;
+  }
+
+  tbl.addEventListener('input', render);
+  addBtn.addEventListener('click', () => { tbl.appendChild(makeRow()); render(); });
+
+  render();
+</script>

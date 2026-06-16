@@ -1,0 +1,132 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { UNIT_GROUPS } from '../../lib/unit-convert.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('unit-convert');
+
+const categories = [
+  { key: 'length', ar: 'الطول' },
+  { key: 'weight', ar: 'الوزن' },
+  { key: 'temperature', ar: 'درجة الحرارة' },
+];
+
+const faqs = [
+  { q: 'كم يساوي المتر بالقدم؟', a: 'المتر الواحد يساوي تقريبًا ٣٫٢٨ قدمًا. أدخل القيمة في المحوّل أعلاه واختر «متر» ثم «قدم» للحصول على الناتج فورًا.' },
+  { q: 'كيف أحوّل من كيلوغرام إلى رطل؟', a: 'الكيلوغرام الواحد يساوي تقريبًا ٢٫٢٠ رطل. اختر فئة «الوزن» ثم «كيلوغرام» في الخانة الأولى و«رطل» في الخانة الثانية.' },
+  { q: 'كيف أحوّل درجة الحرارة من مئوية إلى فهرنهايت؟', a: 'اضرب الدرجة المئوية في ٩ ثم اقسم على ٥ وأضف ٣٢؛ فمثلًا ٠ مئوية = ٣٢ فهرنهايت و١٠٠ مئوية = ٢١٢ فهرنهايت. أو اختر فئة «درجة الحرارة» في المحوّل ليحسبها لك مباشرة.' },
+];
+
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/unit-convert/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/unit-convert/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field" style="flex:0 1 220px">
+        <label for="category">الفئة</label>
+        <select id="category">
+          {categories.map((c) => (<option value={c.key}>{c.ar}</option>))}
+        </select>
+      </div>
+      <div class="field">
+        <label for="value">القيمة</label>
+        <input type="number" id="value" value="1" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="from">من</label>
+        <select id="from">
+          {Object.entries(UNIT_GROUPS).map(([cat, g]) =>
+            g.units.map((u) => (
+              <option value={u.key} data-cat={cat}>{u.ar}</option>
+            )),
+          )}
+        </select>
+      </div>
+      <div class="field">
+        <label for="to">إلى</label>
+        <select id="to">
+          {Object.entries(UNIT_GROUPS).map(([cat, g]) =>
+            g.units.map((u) => (
+              <option value={u.key} data-cat={cat}>{u.ar}</option>
+            )),
+          )}
+        </select>
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <span class="result-main"><span class="num" id="out">3.28084</span></span>
+      <span id="out-unit" style="margin-inline-start:.4rem"></span>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { convert, UNIT_GROUPS } from '../../lib/unit-convert.js';
+  const $ = (id) => document.getElementById(id);
+  const catEl = $('category');
+  const valEl = $('value');
+  const fromEl = $('from');
+  const toEl = $('to');
+  const outEl = $('out');
+  const outUnitEl = $('out-unit');
+
+  // 阿语单位名查表(显示结果单位)。
+  const arName = {};
+  Object.values(UNIT_GROUPS).forEach((g) => g.units.forEach((u) => { arName[u.key] = u.ar; }));
+
+  // 切换分类:只显示该类的 option,并把 from/to 选中该类前两个单位。
+  function syncCategory() {
+    const cat = catEl.value;
+    [fromEl, toEl].forEach((sel) => {
+      Array.from(sel.options).forEach((o) => {
+        o.hidden = o.dataset.cat !== cat;
+      });
+    });
+    const inCat = Array.from(fromEl.options).filter((o) => o.dataset.cat === cat);
+    fromEl.value = inCat[0].value;
+    toEl.value = (inCat[1] || inCat[0]).value;
+  }
+
+  function run() {
+    const v = parseFloat(valEl.value);
+    if (!Number.isFinite(v)) { outEl.textContent = '-'; outUnitEl.textContent = ''; return; }
+    const r = convert(v, fromEl.value, toEl.value);
+    if (r === null || !Number.isFinite(r)) { outEl.textContent = '-'; outUnitEl.textContent = ''; return; }
+    outEl.textContent = r;
+    outUnitEl.textContent = arName[toEl.value] || '';
+  }
+
+  catEl.addEventListener('change', () => { syncCategory(); run(); });
+  valEl.addEventListener('input', run);
+  fromEl.addEventListener('change', run);
+  toEl.addEventListener('change', run);
+
+  syncCategory();
+  fromEl.value = 'm';
+  toEl.value = 'ft';
+  run();
+</script>

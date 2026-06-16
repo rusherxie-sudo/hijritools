@@ -1,0 +1,117 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('period');
+const faqs = [
+  { q: 'كيف أحسب موعد دورتي الشهرية القادمة؟', a: 'أدخلي تاريخ أول يوم في آخر دورة وطول دورتك بالأيام، فتضيف الحاسبة طول الدورة إلى ذلك التاريخ لتظهر لك موعد الدورة القادمة وأيام التبويض وفترة الخصوبة.' },
+  { q: 'كم يبلغ طول الدورة الشهرية الطبيعي؟', a: 'يتراوح طول الدورة الطبيعي عادةً بين ٢١ و٣٥ يومًا، ومتوسطه ٢٨ يومًا. وقد يختلف قليلًا من شهر لآخر، خصوصًا إذا كانت الدورة غير منتظمة.' },
+  { q: 'هل نتيجة الحاسبة مؤكدة؟', a: 'النتيجة تقديرية تعتمد على انتظام دورتك وثبات طولها. إذا كانت دورتك غير منتظمة فقد تختلف المواعيد فعليًا، وتبقى استشارة الطبيبة هي الأدق.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/period/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/period/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field"><label for="last">أول يوم في آخر دورة شهرية</label><input type="date" id="last" /></div>
+      <div class="field" style="flex:0 1 200px"><label for="cycle">طول الدورة (يوم)</label><input type="number" id="cycle" value="28" min="20" max="45" /></div>
+    </div>
+    <button class="btn" id="calc">احسبي</button>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div style="color:var(--color-text-muted)">موعد الدورة القادمة</div>
+    <div class="result-main num" id="next">-</div>
+    <div class="num" id="next-hijri" style="color:var(--color-primary-dark)"></div>
+    <hr class="gold-divider" />
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="ovu">-</div><div class="l">يوم التبويض المتوقع</div></div>
+      <div class="stat"><div class="v num" id="fertile">-</div><div class="l">فترة الخصوبة العالية</div></div>
+    </div>
+    <hr class="gold-divider" />
+    <div style="color:var(--color-text-muted);margin-block-end:.5rem">مواعيد الدورات القادمة المتوقعة</div>
+    <ul class="list-reset" id="future"></ul>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="health" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .list-reset { list-style: none; padding: 0; margin: 0; }
+  .list-reset li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: .5rem;
+    border-block-end: 1px solid var(--color-border, #eee);
+  }
+  .list-reset li:last-child { border-block-end: 0; }
+  .list-reset .idx { color: var(--color-text-muted); }
+</style>
+
+<script>
+  import { nextPeriod, ovulationDay, fertileWindow, futurePeriods } from '../../lib/period.js';
+  import { formatGregorian, formatHijri, gregorianToHijri } from '../../lib/hijri.js';
+  import { parseISODate } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (iso) => formatGregorian(parseISODate(iso));
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  function run() {
+    const lastISO = $('last').value;
+    const last = parseISODate(lastISO);
+    if (!last) { showErr('يرجى إدخال تاريخ أول يوم في آخر دورة شهرية.'); return; }
+    const cycle = parseInt($('cycle').value, 10);
+    if (!Number.isInteger(cycle) || cycle < 20 || cycle > 45) { showErr('طول الدورة يجب أن يكون بين 20 و45 يومًا.'); return; }
+
+    const next = nextPeriod(lastISO, cycle);
+    const ovu = ovulationDay(lastISO, cycle);
+    const win = fertileWindow(lastISO, cycle);
+
+    $('next').textContent = formatGregorian(parseISODate(next));
+    $('next-hijri').textContent = formatHijri(gregorianToHijri(parseISODate(next), 0));
+    $('ovu').textContent = formatGregorian(parseISODate(ovu));
+    $('fertile').textContent = `${fmt(win.start)} – ${fmt(win.end)}`;
+
+    const ul = $('future');
+    ul.innerHTML = '';
+    futurePeriods(lastISO, cycle, 6).forEach((iso, i) => {
+      const li = document.createElement('li');
+      const idx = document.createElement('span');
+      idx.className = 'idx num';
+      idx.textContent = `${i + 1}`;
+      const date = document.createElement('span');
+      date.className = 'num';
+      date.textContent = formatGregorian(parseISODate(iso));
+      li.append(idx, date);
+      ul.appendChild(li);
+    });
+
+    $('err').classList.add('hidden');
+    $('result').classList.remove('hidden');
+  }
+
+  $('calc').addEventListener('click', run);
+  $('last').addEventListener('change', run);
+  $('cycle').addEventListener('change', run);
+</script>

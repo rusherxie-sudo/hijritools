@@ -1,0 +1,92 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('mortgage');
+const faqs = [
+  {
+    q: 'كيف يُحسب القسط الشهري للتمويل العقاري؟',
+    a: 'يُحسب القسط الثابت بقسمة مبلغ التمويل ونسبة الربح السنوية على عدد أشهر السداد بمعادلة القسط المتساوي؛ أدخِل المبلغ ونسبة الربح ومدة السداد بالسنوات لتظهر لك قيمة القسط الشهري فورًا.',
+  },
+  {
+    q: 'ما الفرق بين إجمالي المبلغ ومبلغ التمويل؟',
+    a: 'مبلغ التمويل هو المبلغ الأساسي الذي تحصل عليه، أمّا إجمالي المبلغ فهو مجموع كل الأقساط طوال المدة، والفرق بينهما هو إجمالي الأرباح المضافة على مدّة السداد.',
+  },
+  {
+    q: 'هل تعتمد هذه الحاسبة نسبة ربح بنك معيّن؟',
+    a: 'لا، الحاسبة عامة وتعمل بأي نسبة ربح تُدخلها أنت، فتناسب مقارنة عروض التمويل بين الجهات المختلفة في دول الخليج قبل اتخاذ القرار.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/mortgage/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/mortgage/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="amount">مبلغ التمويل</label>
+        <input type="number" id="amount" value="500000" min="0" step="1000" />
+      </div>
+      <div class="field">
+        <label for="rate">نسبة الربح السنوية ٪</label>
+        <input type="number" id="rate" value="5" min="0" step="0.1" />
+      </div>
+      <div class="field">
+        <label for="years">مدة السداد بالسنوات</label>
+        <input type="number" id="years" value="20" min="1" step="1" />
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-grid">
+        <div class="stat"><div class="v num" id="monthly">0</div><div class="l">القسط الشهري</div></div>
+        <div class="stat"><div class="v num" id="total">0</div><div class="l">إجمالي المبلغ</div></div>
+        <div class="stat"><div class="v num" id="profit">0</div><div class="l">إجمالي الأرباح</div></div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot />
+  <Disclaimer variant="calc" />
+
+  <section class="prose faq">
+    <h2>أسئلة شائعة</h2>
+    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  </section>
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { monthlyPayment, totalPayment, totalProfit } from '../../lib/mortgage.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value);
+  const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '-');
+
+  function run() {
+    const principal = val('amount');
+    const rate = val('rate');
+    const years = val('years');
+    if (!Number.isFinite(principal) || !Number.isFinite(rate) || !Number.isFinite(years) || principal <= 0 || years <= 0) {
+      $('monthly').textContent = '-';
+      $('total').textContent = '-';
+      $('profit').textContent = '-';
+      return;
+    }
+    $('monthly').textContent = fmt(monthlyPayment(principal, rate, years));
+    $('total').textContent = fmt(totalPayment(principal, rate, years));
+    $('profit').textContent = fmt(totalProfit(principal, rate, years));
+  }
+
+  ['amount', 'rate', 'years'].forEach((id) => $(id).addEventListener('input', run));
+  run();
+</script>
