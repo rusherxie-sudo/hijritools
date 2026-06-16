@@ -13,6 +13,11 @@ export function GET() {
   const dates = liveTools.map((t) => t.updated).filter(Boolean).sort();
   entries.push({ loc: '/', lastmod: dates.at(-1) ?? null });
 
+  // 信任/信息页(非工具)。lastmod 用各自创建/更新日(静态法律页极少变)。
+  for (const p of ['/about/', '/privacy/', '/contact/', '/terms/']) {
+    entries.push({ loc: p, lastmod: '2026-06-16' });
+  }
+
   for (const t of liveTools) {
     if (Array.isArray(t.staticPaths)) {
       for (const p of t.staticPaths) entries.push({ loc: p, lastmod: t.updated ?? null });

@@ -1,0 +1,23 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import { graph } from '../lib/seo.js';
+
+const title = 'اتصل بنا';
+const description = 'تواصل مع فريق HijriTools: أرسل ملاحظاتك أو اقتراحاتك أو تصحيحات الأخطاء عبر البريد الإلكتروني contact@hijritools.com.';
+---
+<ToolLayout title={title} description={description} path="/contact/" jsonLd={graph()}>
+  <h1>اتصل بنا</h1>
+  <section class="prose">
+    <p>
+      يسعدنا تواصلك معنا. سواء كان لديك ملاحظة، أو اقتراح أداة جديدة، أو تصحيح لخطأ في إحدى
+      الحاسبات، فإن رأيك يساعدنا على التحسين باستمرار.
+    </p>
+
+    <h2>البريد الإلكتروني</h2>
+    <p>راسلنا مباشرةً على البريد الإلكتروني: <a href="mailto:contact@hijritools.com">contact@hijritools.com</a></p>
+    <p>
+      نسعى للردّ على الرسائل في أقرب وقت ممكن. وللأمور المتعلّقة بالخصوصية أو الإعلانات،
+      يُرجى الإشارة إلى ذلك في سطر موضوع الرسالة لتسريع الرد عليها.
+    </p>
+  </section>
+</ToolLayout>
