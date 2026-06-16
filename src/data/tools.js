@@ -205,7 +205,7 @@ export const tools = [
     category: 'utility',
     type: 'calc',
     icon: '🔢',
-    // live 暂缓:تفقيط 的数-名一致(تمييز)语法需专门硬化 + 母语审校后再上线。
+    live: true,
     related: ['percentage', 'vat', 'mortgage'],
   },
   {

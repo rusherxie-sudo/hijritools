@@ -11,13 +11,12 @@ const tool = getTool('tafqit');
 // 货币选项（辅币名 + 进位）。海湾常见货币，事实稳定，作为静态显示项内联。
 const currencies = [
   { value: '', label: 'بدون عملة (رقم فقط)' },
-  { value: 'ريال سعودي', label: 'ريال سعودي (هللة)' },
-  { value: 'درهم إماراتي', label: 'درهم إماراتي (فلس)' },
-  { value: 'ريال قطري', label: 'ريال قطري (درهم)' },
-  { value: 'دينار كويتي', label: 'دينار كويتي (فلس)' },
-  { value: 'دينار بحريني', label: 'دينار بحريني (فلس)' },
-  { value: 'ريال عماني', label: 'ريال عماني (بيسة)' },
-  { value: 'جنيه مصري', label: 'جنيه مصري (قرش)' },
+  { value: 'SAR', label: 'ريال سعودي (هللة)' },
+  { value: 'AED', label: 'درهم إماراتي (فلس)' },
+  { value: 'QAR', label: 'ريال قطري (درهم)' },
+  { value: 'KWD', label: 'دينار كويتي (فلس)' },
+  { value: 'BHD', label: 'دينار بحريني (فلس)' },
+  { value: 'OMR', label: 'ريال عماني (بيسة)' },
 ];
 
 const faqs = [
@@ -54,7 +53,7 @@ const jsonLd = graph(
         <label for="currency">العملة (اختياري)</label>
         <select id="currency">
           {currencies.map((c) => (
-            <option value={c.value} selected={c.value === 'ريال سعودي'}>{c.label}</option>
+            <option value={c.value} selected={c.value === 'SAR'}>{c.label}</option>
           ))}
         </select>
       </div>
@@ -76,24 +75,13 @@ const jsonLd = graph(
     <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
   </section>
 
-  <RelatedTools slugs={['percentage', 'vat', 'qrcode']} />
+  <RelatedTools slugs={tool.related} />
 </ToolLayout>
 
 <script>
   import { tafqit, tafqitCurrency } from '../../lib/tafqit.js';
 
   const $ = (id) => document.getElementById(id);
-
-  // 货币 → 辅币配置（与下拉 value 对应）。
-  const CURRENCY = {
-    'ريال سعودي': { currencyName: 'ريال', subName: 'هللة', subDivisor: 100 },
-    'درهم إماراتي': { currencyName: 'درهم', subName: 'فلس', subDivisor: 100 },
-    'ريال قطري': { currencyName: 'ريال', subName: 'درهم', subDivisor: 100 },
-    'دينار كويتي': { currencyName: 'دينار', subName: 'فلس', subDivisor: 1000 },
-    'دينار بحريني': { currencyName: 'دينار', subName: 'فلس', subDivisor: 1000 },
-    'ريال عماني': { currencyName: 'ريال', subName: 'بيسة', subDivisor: 1000 },
-    'جنيه مصري': { currencyName: 'جنيه', subName: 'قرش', subDivisor: 100 },
-  };
 
   function showErr(msg) {
     const e = $('err');
@@ -116,12 +104,9 @@ const jsonLd = graph(
     if (n > 999999999999) { showErr('الرقم كبير جدًا (الحد الأقصى مليارات).'); return; }
 
     const cur = $('currency').value;
-    let text;
-    if (cur && CURRENCY[cur]) {
-      text = tafqitCurrency(n, CURRENCY[cur]) + ' لا غير';
-    } else {
-      text = tafqit(Math.floor(n));
-    }
+    const text = cur
+      ? tafqitCurrency(n, { currency: cur }) + ' لا غير'
+      : tafqit(Math.floor(n));
     $('out').textContent = text;
     clearErr();
   }
