@@ -1,6 +1,8 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
 import Disclaimer from '../../components/Disclaimer.astro';
 import RelatedTools from '../../components/RelatedTools.astro';
 import { getTool } from '../../data/tools.js';
@@ -28,8 +30,13 @@ const jsonLd = graph(
 );
 ---
 <ToolLayout title={tool.titleAr} description={tool.descAr} path="/countdown/" jsonLd={jsonLd}>
-  <h1>{tool.titleAr}</h1>
-  <p class="tool-intro">{tool.descAr}</p>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
 
   <div class="field" style="max-width:280px">
     <label for="country">الدولة (لضبط فرق رؤية الهلال)</label>
@@ -41,7 +48,6 @@ const jsonLd = graph(
   <!-- 三大节日倒计时 -->
   <div class="result-grid" id="events"></div>
 
-  <AdSlot />
 
   <!-- 自定义日期倒计时 -->
   <div class="card">
@@ -62,13 +68,9 @@ const jsonLd = graph(
     <p class="error-text hidden" id="custom-err">يرجى اختيار تاريخ صالح ضمن النطاق المدعوم.</p>
   </div>
 
-  <AdSlot />
   <Disclaimer variant="calc" />
 
-  <section class="prose faq">
-    <h2>أسئلة شائعة</h2>
-    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
-  </section>
+  <Faq faqs={faqs} />
 
   <RelatedTools slugs={tool.related} />
 </ToolLayout>

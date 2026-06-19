@@ -14,3 +14,8 @@ dist/
 
 # playwright-mcp 临时产物(截图/快照)
 .playwright-mcp/
+
+# 其它 AI 工具的本地配置产物(非本项目代码)
+.agents/
+.codex/
+AGENTS.md

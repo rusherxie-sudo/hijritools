@@ -1,6 +1,6 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
+import Faq from "../../components/Faq.astro";
 import Disclaimer from '../../components/Disclaimer.astro';
 import RelatedTools from '../../components/RelatedTools.astro';
 import { getTool } from '../../data/tools.js';
@@ -81,13 +81,9 @@ const jsonLd = graph(
     ))}
   </div>
 
-  <AdSlot />
   <Disclaimer variant="hijri" />
 
-  <section class="prose faq">
-    <h2>أسئلة شائعة</h2>
-    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
-  </section>
+  <Faq faqs={faqs} />
 
   <RelatedTools slugs={tool.related} />
 </ToolLayout>

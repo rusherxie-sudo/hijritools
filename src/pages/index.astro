@@ -1,7 +1,8 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
-import AdSlot from '../components/AdSlot.astro';
+import Icon from '../components/Icon.astro';
 import { liveTools, categoryNamesAr, toolLink } from '../data/tools.js';
+import { categoryMeta, toolIconId } from '../data/icons.js';
 import { webAppJsonLd, websiteJsonLd, organizationJsonLd, graph } from '../lib/seo.js';
 
 const title = 'أدوات وحاسبات بالتقويم الهجري والميلادي';
@@ -17,29 +18,55 @@ const jsonLd = graph(
   webAppJsonLd({ name: 'HijriTools', description, path: '/' }),
 );
 ---
-<ToolLayout title={title} description={description} path="/" jsonLd={jsonLd} wide>
-  <h1>أدوات وحاسبات بالتقويم الهجري والميلادي</h1>
-  <p class="tool-intro">
-    مجموعة حاسبات سريعة ودقيقة بالعربية تعمل وفق تقويم أم القرى الرسمي — تحويل التواريخ،
-    حساب العمر، الحمل، النسبة المئوية، وضريبة القيمة المضافة في دول الخليج. بدون تسجيل، وبدون انتظار.
-  </p>
+<ToolLayout title={title} description={description} path="/" jsonLd={jsonLd} bleed>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-star" aria-hidden="true">
+      <svg width="92" height="92" viewBox="0 0 100 100">
+        <rect x="24" y="24" width="52" height="52" rx="11" fill="none" stroke="var(--color-primary)" stroke-width="2.5"/>
+        <rect x="24" y="24" width="52" height="52" rx="11" transform="rotate(45 50 50)" fill="none" stroke="var(--color-accent)" stroke-width="2.5"/>
+      </svg>
+    </div>
+    <div class="hero-inner">
+      <span class="hero-badge"><Icon id="ico-spark" size={14} filled />أدوات الخليج العربي المجانية</span>
+      <h1 class="hero-h1">كل الحاسبات والأدوات التي تحتاجها في مكانٍ واحد</h1>
+      <p class="hero-lead">تحويل التواريخ الهجرية، وحاسبات الصحة والمال والتعليم — مجانية بالكامل، تعمل في متصفحك دون تسجيل.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#tools">استكشف الأدوات<Icon id="ico-chev" size={17} /></a>
+        <a class="btn btn-secondary" href="/about/">تعرّف علينا</a>
+      </div>
+    </div>
+  </section>
 
-  {Object.entries(byCategory).map(([cat, items]) => (
-    <section>
-      <h2>{categoryNamesAr[cat] ?? cat}</h2>
-      <ul class="tool-grid">
-        {items.map((t) => (
-          <li>
-            <a href={toolLink(t)}>
-              <span class="ico">{t.icon}</span>
-              <span class="t">{t.shortAr}</span>
-              <span class="d">{t.descAr}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
-  ))}
-
-  <AdSlot />
+  <!-- 工具分类 -->
+  <div class="container" id="tools">
+    {Object.entries(byCategory).map(([cat, items]) => (
+      <section class="tool-section" id={`c-${cat}`}>
+        <div class="section-head">
+          <span class="section-chip"><Icon id={categoryMeta[cat]?.icon ?? 'ico-spark'} /></span>
+          <div class="section-titles">
+            <h2>{categoryNamesAr[cat] ?? cat}</h2>
+            {categoryMeta[cat]?.sub && <span class="section-sub">{categoryMeta[cat].sub}</span>}
+          </div>
+          <span class="section-count" dir="ltr">{String(items.length).padStart(2, '0')}</span>
+        </div>
+        <ul class="tool-grid">
+          {items.map((t) => (
+            <li>
+              <a class="tool-card" href={toolLink(t)}>
+                <span class="tool-chip"><Icon id={toolIconId(t.slug)} size={22} /></span>
+                <span class="tool-text">
+                  <span class="t">{t.shortAr}</span>
+                  <span class="d">{t.descAr}</span>
+                </span>
+                <Icon id="ico-chev" size={18} class="tool-chev" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
 </ToolLayout>

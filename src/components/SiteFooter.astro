@@ -1,36 +1,44 @@
 ---
-import { liveTools, categoryNamesAr, toolLink } from '../data/tools.js';
-const byCategory = {};
-for (const t of liveTools) {
-  (byCategory[t.category] ||= []).push(t);
-}
+import { categoryNamesAr } from '../data/tools.js';
 const year = new Date().getFullYear();
+// 紧凑页脚：分类列只放「分类」链接（链到首页对应锚点），不再罗列全部工具。
+const cats = ['date', 'health', 'finance', 'entertainment', 'utility', 'education'];
 ---
 <footer class="site-footer">
-  <div class="container">
-    <div class="cols">
-      {Object.entries(byCategory).map(([cat, items]) => (
-        <div>
-          <h3>{categoryNamesAr[cat] ?? cat}</h3>
-          <ul>
-            {items.map((t) => (<li><a href={toolLink(t)}>{t.shortAr}</a></li>))}
-          </ul>
-        </div>
-      ))}
-      <div>
-        <h3>عن الموقع</h3>
-        <ul>
-          <li><a href="/">الرئيسية</a></li>
-          <li><a href="/about/">من نحن</a></li>
-          <li><a href="/contact/">اتصل بنا</a></li>
-          <li><a href="/privacy/">سياسة الخصوصية</a></li>
-          <li><a href="/terms/">الشروط وإخلاء المسؤولية</a></li>
-        </ul>
+  <div class="container footer-cols">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="8" y="8" width="16" height="16" rx="3.5" fill="#EAF3EE"/>
+          <rect x="8" y="8" width="16" height="16" rx="3.5" transform="rotate(45 16 16)" fill="var(--color-accent)"/>
+        </svg>
+        <span>هجري</span>
       </div>
+      <p class="footer-intro">أدوات وحاسبات مجانية لمستخدمي الخليج العربي — تحويل التواريخ، وحسابات صحية ومالية وتعليمية، كلها داخل متصفحك.</p>
+      <div class="footer-domain" dir="ltr">hijritools.com</div>
     </div>
-    <p class="legal">
-      © {year} HijriTools — جميع الحسابات والنتائج إرشادية. التواريخ الهجرية وفق تقويم أم القرى؛
-      وتُعتمد المناسبات الرسمية حسب إعلان الجهات المختصة في كل دولة.
-    </p>
+
+    <div class="footer-col">
+      <h3>الأدوات</h3>
+      <ul>
+        {cats.map((c) => (<li><a href={`/#c-${c}`}>{categoryNamesAr[c]}</a></li>))}
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h3>الموقع</h3>
+      <ul>
+        <li><a href="/">الرئيسية</a></li>
+        <li><a href="/about/">من نحن</a></li>
+        <li><a href="/privacy/">سياسة الخصوصية</a></li>
+        <li><a href="/contact/">اتصل بنا</a></li>
+        <li><a href="/terms/">الشروط وإخلاء المسؤولية</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer-legal">
+    <span>© <span dir="ltr">{year}</span> هجري — جميع الحسابات إرشادية، والتواريخ وفق تقويم أم القرى.</span>
+    <span>كل الحسابات تتم داخل متصفحك — لا نجمع بياناتك.</span>
   </div>
 </footer>

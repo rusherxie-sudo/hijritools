@@ -1,6 +1,8 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
 import Disclaimer from '../../components/Disclaimer.astro';
 import RelatedTools from '../../components/RelatedTools.astro';
 import { getTool } from '../../data/tools.js';
@@ -19,8 +21,13 @@ const jsonLd = graph(
 );
 ---
 <ToolLayout title={tool.titleAr} description={tool.descAr} path="/hijri/" jsonLd={jsonLd}>
-  <h1>{tool.titleAr}</h1>
-  <p class="tool-intro">{tool.descAr}</p>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
 
   <div class="field" style="max-width:280px">
     <label for="country">الدولة (لضبط فرق رؤية الهلال)</label>
@@ -38,10 +45,15 @@ const jsonLd = graph(
     <div id="today-sacred"></div>
   </div>
 
-  <AdSlot />
+
+  <!-- 方向分段切换 -->
+  <div class="segmented" role="radiogroup" aria-label="اتجاه التحويل">
+    <button type="button" class="seg-btn active" data-dir="g2h" role="radio" aria-checked="true">ميلادي إلى هجري</button>
+    <button type="button" class="seg-btn" data-dir="h2g" role="radio" aria-checked="false">هجري إلى ميلادي</button>
+  </div>
 
   <!-- 公历 → 伊历 -->
-  <div class="card">
+  <div class="card" id="card-g2h">
     <h2>تحويل من ميلادي إلى هجري</h2>
     <div class="field" style="max-width:280px">
       <label for="g-date">اختر التاريخ الميلادي</label>
@@ -55,7 +67,7 @@ const jsonLd = graph(
   </div>
 
   <!-- 伊历 → 公历 -->
-  <div class="card">
+  <div class="card hidden" id="card-h2g">
     <h2>تحويل من هجري إلى ميلادي</h2>
     <div class="row">
       <div class="field"><label for="h-year">السنة</label><input type="number" id="h-year" value="1447" min="1356" max="1500" /></div>
@@ -76,15 +88,9 @@ const jsonLd = graph(
     <div class="result-grid" id="countdown"></div>
   </div>
 
-  <AdSlot />
   <Disclaimer variant="hijri" />
 
-  <section class="prose faq">
-    <h2>أسئلة شائعة</h2>
-    <dl>
-      {faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}
-    </dl>
-  </section>
+  <Faq faqs={faqs} />
 
   <RelatedTools slugs={tool.related} />
 </ToolLayout>
@@ -104,7 +110,7 @@ const jsonLd = graph(
 
   // 圣月徽章：在圣月时显示金色胶囊，否则清空。
   const sacredBadge = (hm) => isSacredMonth(hm)
-    ? '<span style="display:inline-block;margin-block-start:.5rem;padding:.15rem .7rem;border-radius:999px;background:var(--color-accent-light);color:var(--color-warning);font-size:var(--fs-small);font-weight:700">🕌 شهر من الأشهر الحُرُم</span>'
+    ? '<span style="display:inline-block;margin-block-start:.5rem;padding:.15rem .7rem;border-radius:999px;background:var(--color-accent-light);color:var(--color-accent-deep);font-size:var(--fs-small);font-weight:700">🕌 شهر من الأشهر الحُرُم</span>'
     : '';
 
   // 填充伊历月下拉
@@ -172,6 +178,21 @@ const jsonLd = graph(
     }
   }
 
+  // 方向分段切换：仅切显示，转换逻辑不变。
+  const cards = { g2h: $('card-g2h'), h2g: $('card-h2g') };
+  for (const btn of document.querySelectorAll('.seg-btn')) {
+    btn.addEventListener('click', () => {
+      const dir = btn.dataset.dir;
+      for (const b of document.querySelectorAll('.seg-btn')) {
+        const on = b === btn;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-checked', String(on));
+      }
+      cards.g2h.classList.toggle('hidden', dir !== 'g2h');
+      cards.h2g.classList.toggle('hidden', dir !== 'h2g');
+    });
+  }
+
   // 初始化
   $('g-date').value = toISODate(todayUtc());
   renderToday();
@@ -179,4 +200,7 @@ const jsonLd = graph(
   countrySel.addEventListener('change', () => { renderToday(); renderG2H(); renderH2G(); });
   $('g-date').addEventListener('change', renderG2H);
   $('h2g-btn').addEventListener('click', renderH2G);
+  // 伊历→公历也即时计算（与公历→伊历方向交互一致）
+  for (const id of ['h-year', 'h-month', 'h-day']) $(id).addEventListener('input', renderH2G);
+  $('h-month').addEventListener('change', renderH2G);
 </script>

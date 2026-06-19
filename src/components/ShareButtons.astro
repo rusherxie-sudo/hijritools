@@ -1,87 +1,88 @@
 ---
-// 轻量原生分享组件。零第三方依赖、不加载外部脚本、不追踪。
-// 海湾市场优先 WhatsApp。分享链接构建期拼好（纯静态）；系统分享/复制链接走客户端脚本。
-// 传服务端值一律用 data-* 属性（不用 define:vars，见 CLAUDE.md）。
-const { title, url, label = 'شارك الأداة' } = Astro.props;
+// 全局浮动分享条。桌面：左侧竖排固定；移动：底部横条固定。零第三方脚本、不追踪。
+// 海湾市场优先 WhatsApp。分享链接构建期拼好（纯静态）；复制链接走客户端脚本。
+import Icon from './Icon.astro';
+const { url, title } = Astro.props;
 
-const text = `${title}`;
 const encUrl = encodeURIComponent(url);
-const encTitle = encodeURIComponent(text);
-const encTitleUrl = encodeURIComponent(`${text} ${url}`);
+const encTitle = encodeURIComponent(title);
+const encTitleUrl = encodeURIComponent(`${title} ${url}`);
 
 const waHref = `https://wa.me/?text=${encTitleUrl}`;
 const xHref = `https://twitter.com/intent/tweet?text=${encTitle}&url=${encUrl}`;
 const tgHref = `https://t.me/share/url?url=${encUrl}&text=${encTitle}`;
 ---
-<div class="share" data-share-url={url} data-share-title={text}>
-  <span class="share-label">{label}</span>
-  <div class="share-btns">
-    <button type="button" class="share-btn native hidden" data-native>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-      مشاركة
-    </button>
-    <a class="share-btn wa" href={waHref} target="_blank" rel="noopener" aria-label="واتساب">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.16c-.24.68-1.42 1.31-1.96 1.36-.5.05-1.14.21-3.68-.77-3.1-1.22-5.1-4.36-5.26-4.57-.16-.21-1.26-1.68-1.26-3.2s.8-2.27 1.08-2.58c.28-.31.61-.39.81-.39.2 0 .41 0 .58.01.19.01.44-.07.69.52.24.59.83 2.03.9 2.18.07.15.12.32.02.53-.1.21-.15.34-.3.52-.15.18-.31.4-.45.54-.15.15-.3.31-.13.6.17.29.77 1.27 1.65 2.06 1.14 1.01 2.1 1.33 2.39 1.48.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.2-.29.39-.24.66-.15.27.1 1.71.81 2 .96.29.15.49.22.56.34.07.12.07.71-.17 1.39z"/></svg>
-      واتساب
-    </a>
-    <a class="share-btn x" href={xHref} target="_blank" rel="noopener" aria-label="إكس">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.6l5.24 6.93 6.06-6.93zm-1.29 19.5h2.04L6.49 3.24H4.3l13.31 17.41z"/></svg>
-      إكس
-    </a>
-    <a class="share-btn tg" href={tgHref} target="_blank" rel="noopener" aria-label="تليجرام">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.64 6.8-1.55 7.32c-.12.52-.42.65-.85.4l-2.35-1.73-1.13 1.09c-.13.13-.24.24-.48.24l.17-2.43 4.42-3.99c.19-.17-.04-.27-.3-.1L9.6 13.51l-2.32-.72c-.5-.16-.51-.5.11-.74l9.06-3.49c.42-.16.79.1.65.74z"/></svg>
-      تليجرام
-    </a>
-    <button type="button" class="share-btn copy" data-copy>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
-      <span data-copy-label>نسخ الرابط</span>
+<div class="share-bar" data-share-url={url} data-share-title={title}>
+  <span class="sb-label-d">شارك</span>
+  <span class="sb-label-m"><Icon id="ico-share" size={17} />شارك الموقع</span>
+  <div class="sb-btns">
+    <a class="sb-btn wa" href={waHref} target="_blank" rel="noopener" aria-label="واتساب" title="واتساب"><Icon id="ico-whatsapp" size={21} /></a>
+    <a class="sb-btn x" href={xHref} target="_blank" rel="noopener" aria-label="إكس" title="إكس"><Icon id="ico-x" size={18} /></a>
+    <a class="sb-btn tg" href={tgHref} target="_blank" rel="noopener" aria-label="تيليجرام" title="تيليجرام"><Icon id="ico-telegram" size={20} /></a>
+    <button type="button" class="sb-btn copy" data-copy aria-label="نسخ الرابط" title="نسخ الرابط">
+      <Icon id="ico-link" size={19} class="sb-copy-icon" />
+      <Icon id="ico-check" size={19} class="sb-check-icon" />
     </button>
   </div>
+  <span class="sr-only" role="status" aria-live="polite" data-copy-status></span>
 </div>
 
 <style>
-  .share {
-    display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3);
-    margin-block-start: var(--space-8);
-    padding-block-start: var(--space-6);
-    border-block-start: 1px solid var(--color-border);
+  .share-bar {
+    position: fixed; z-index: 200; background: #fff;
+    display: flex; align-items: center;
+    box-shadow: 0 8px 30px rgba(16,40,28,.12);
   }
-  .share-label { font-weight: 700; font-size: var(--fs-small); color: var(--color-text-muted); }
-  .share-btns { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-  .share-btn {
-    display: inline-flex; align-items: center; gap: .4rem;
-    padding: .4rem .8rem; border-radius: 999px;
-    border: 1px solid var(--color-border); background: var(--color-surface);
-    color: var(--color-text); font-size: var(--fs-small); font-weight: 500;
-    font-family: var(--font-base); cursor: pointer; text-decoration: none;
-    transition: filter .15s, background .15s;
+  .sb-btns { display: flex; align-items: center; }
+  .sb-btn {
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; text-decoration: none;
+    transition: filter .15s ease;
   }
-  .share-btn:hover { filter: brightness(.97); text-decoration: none; }
-  .share-btn svg { inline-size: 16px; block-size: 16px; flex-shrink: 0; }
-  .share-btn.native { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
-  .share-btn.wa { color: #1a7a47; }
-  .share-btn.wa svg { color: #25D366; }
-  .share-btn.x svg { color: #000; }
-  .share-btn.tg svg { color: #229ED9; }
-  .share-btn.copied { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary-dark); }
-  .hidden { display: none; }
+  .sb-btn:hover { filter: brightness(.96); }
+  .sb-btn.wa { background: #EAF3EE; color: #1A9E5E; }
+  .sb-btn.x  { background: #F0EFE9; color: #1B2D24; }
+  .sb-btn.tg { background: #E7F1F7; color: #2A8CC4; }
+  .sb-btn.copy { background: #F7EFDB; color: #977322; }
+  .sb-check-icon { display: none; }
+  .sb-btn.copied .sb-copy-icon { display: none; }
+  .sb-btn.copied .sb-check-icon { display: inline-block; color: #1A9E5E; }
+
+  /* ===== 桌面：屏幕左侧竖排（物理 left，与设计一致；右侧圆角朝向内容） ===== */
+  @media (min-width: 860px) {
+    .share-bar {
+      left: 0; top: 50%; transform: translateY(-50%);
+      flex-direction: column; gap: 8px; padding: 12px 10px;
+      border: 1px solid #E6E2D5; border-left: none;
+      border-radius: 0 16px 16px 0;
+    }
+    .sb-label-d { font-size: 11px; font-weight: 600; color: var(--color-text-faint); text-align: center; letter-spacing: .04em; }
+    .sb-label-m { display: none; }
+    .sb-btns { flex-direction: column; gap: 8px; }
+    .sb-btn { inline-size: 44px; block-size: 44px; border-radius: 12px; }
+  }
+
+  /* ===== 移动：底部横条 ===== */
+  @media (max-width: 859px) {
+    .share-bar {
+      inset-inline: 0; inset-block-end: 0;
+      background: rgba(255,255,255,.94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-block-start: 1px solid #E6E2D5; box-shadow: 0 -6px 24px rgba(16,40,28,.08);
+      padding-block: 9px calc(9px + env(safe-area-inset-bottom)); padding-inline: clamp(12px,5vw,24px); gap: 10px;
+    }
+    .sb-label-d { display: none; }
+    .sb-label-m { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #42514A; }
+    .sb-label-m :global(.icon) { color: var(--color-primary); }
+    .sb-btns { margin-inline-start: auto; gap: 9px; }
+    .sb-btn { inline-size: 44px; block-size: 44px; border-radius: 12px; }
+  }
 </style>
 
 <script>
-  // 系统原生分享（移动端）+ 复制链接。多实例安全。
-  for (const root of document.querySelectorAll('.share')) {
+  // 复制链接 + 三级回退。多实例安全（实际全局仅一个）。
+  for (const root of document.querySelectorAll('.share-bar')) {
     const url = root.dataset.shareUrl || location.href;
-    const title = root.dataset.shareTitle || document.title;
 
-    const nativeBtn = root.querySelector('[data-native]');
-    if (nativeBtn && navigator.share) {
-      nativeBtn.classList.remove('hidden');
-      nativeBtn.addEventListener('click', async () => {
-        try { await navigator.share({ title, text: title, url }); } catch (_) { /* 用户取消，忽略 */ }
-      });
-    }
-
-    // 三级回退：Clipboard API → execCommand 临时 textarea → 失败提示（不弹阻塞框）。
     async function copyToClipboard(text) {
       try {
         if (navigator.clipboard && window.isSecureContext) {
@@ -91,12 +92,9 @@ const tgHref = `https://t.me/share/url?url=${encUrl}&text=${encTitle}`;
       } catch (_) { /* 落到 execCommand 回退 */ }
       try {
         const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.insetInlineStart = '-9999px';
+        ta.value = text; ta.style.position = 'fixed'; ta.style.insetInlineStart = '-9999px';
         ta.setAttribute('readonly', '');
-        document.body.appendChild(ta);
-        ta.select();
+        document.body.appendChild(ta); ta.select();
         const ok = document.execCommand('copy');
         document.body.removeChild(ta);
         return ok;
@@ -104,14 +102,15 @@ const tgHref = `https://t.me/share/url?url=${encUrl}&text=${encTitle}`;
     }
 
     const copyBtn = root.querySelector('[data-copy]');
-    const copyLabel = root.querySelector('[data-copy-label]');
+    const status = root.querySelector('[data-copy-status]');
     if (copyBtn) {
-      const original = copyLabel.textContent;
       copyBtn.addEventListener('click', async () => {
         const ok = await copyToClipboard(url);
-        copyLabel.textContent = ok ? 'تم النسخ ✓' : 'تعذّر النسخ';
-        copyBtn.classList.toggle('copied', ok);
-        setTimeout(() => { copyLabel.textContent = original; copyBtn.classList.remove('copied'); }, 1800);
+        if (status) status.textContent = ok ? 'تم نسخ الرابط' : 'تعذّر النسخ';
+        if (ok) {
+          copyBtn.classList.add('copied');
+          setTimeout(() => { copyBtn.classList.remove('copied'); if (status) status.textContent = ''; }, 1800);
+        }
       });
     }
   }

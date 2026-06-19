@@ -43,9 +43,6 @@ Astro 纯静态 → Cloudflare Pages。设计/竞品/风险文档见 `docs/super
 ### RTL
 - CSS 一律逻辑属性（`margin-inline-start` 等）。数字/计算结果用 `.num`（`dir:ltr`）防错乱。
 
-### 广告
-- `AdSlot` 只放结果下方 + 页面底部。绝不放结果上方、绝不弹窗/插页。
-
 ## 命令
 - `npm test` 测试 ｜ `npm run dev` 开发 ｜ `npm run build` 构建（dist/）｜ `npm run preview` 预览
 

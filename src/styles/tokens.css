@@ -1,32 +1,56 @@
-/* 设计令牌：色彩、字体、间距、圆角、阴影。单一来源，全站引用。 */
+/* 设计令牌：色彩、字体、间距、圆角、阴影。单一来源，全站引用。
+   2026-06 视觉升级：现代化伊斯兰风（祖母绿 + 古金 + 八角星）。
+   变量名保持稳定，global.css / 组件零改动即换肤。 */
 :root {
-  /* 主色：沙特深绿 */
-  --color-primary: #006C35;
-  --color-primary-dark: #00532A;
-  --color-primary-light: #E6F0EA;
-  /* 强调：金 */
-  --color-accent: #C8A24B;
-  --color-accent-light: #F5EEDC;
+  /* 主色：祖母绿 */
+  --color-primary: #14694A;       /* 按钮/图标/链接 */
+  --color-primary-dark: #0E4C36;  /* hover / 强调 */
+  --color-primary-deep: #0C3D2B;  /* 页脚底 */
+  --color-primary-bright: #1B8160;/* 装饰/强调亮绿 */
+  --color-primary-light: #EAF3EE; /* 图标芯片/极浅底 */
+  --color-primary-ink: #10231A;   /* 最深绿文字/标题 */
+
+  /* 强调：古金 */
+  --color-accent: #C29A4A;        /* logo / 装饰星 / 金条 */
+  --color-accent-deep: #7E5E15;   /* 金色文字（提深至 WCAG AA 达标） */
+  --color-accent-light: #F7EFDB;  /* 金色浅底标签 */
+
   /* 中性 */
-  --color-bg: #FFFFFF;
-  --color-surface: #F7F8F7;
-  --color-text: #1A2420;
-  --color-text-muted: #5E6B64;
-  --color-border: #E2E6E3;
+  --color-bg: #FBFAF5;            /* 页面背景：暖米白 */
+  --color-surface: #FFFFFF;       /* 卡片/输入背景 */
+  --color-surface-input: #FCFBF7; /* 输入框填充 */
+  --color-text: #16271E;          /* 正文主文字 */
+  --color-text-muted: #566860;    /* 次要文字 */
+  --color-text-faint: #66756D;    /* 更弱文字（提深至 WCAG AA 达标） */
+  --color-border: #EFEDE2;        /* 卡片边框 */
+  --color-border-input: #DCD8CB;  /* 输入描边 */
+  --color-footer-text: #9DBCAD;   /* 页脚浅绿文字 */
+
+  /* 结果面板渐变 */
+  --result-bg: linear-gradient(180deg, #F1F8F3, #EAF4EE);
+  --result-border: #D8EADF;
+
+  /* 提示框暖底（免责声明等） */
+  --warn-bg: #F6F4EC;
+  --warn-border: #EAE5D6;
+
   /* 功能色 */
-  --color-success: #2E7D32;
+  --color-success: #1B8160;
   --color-warning: #B26A00;
-  --color-danger: #B3261E;
+  --color-danger: #B23A2E;
 
-  /* 字体 */
-  --font-base: "Tajawal", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --fs-h1: clamp(1.6rem, 4vw, 2.3rem);
-  --fs-h2: clamp(1.25rem, 3vw, 1.6rem);
-  --fs-body: 1.05rem;
-  --fs-small: 0.9rem;
-  --lh-body: 1.9;
+  /* 字体：Reem Kufi（显示/标题/大数字）+ IBM Plex Sans Arabic（正文/UI） */
+  --font-base: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Reem Kufi", var(--font-base);
 
-  /* 间距 */
+  --fs-h1: clamp(1.625rem, 4.4vw, 2.25rem);  /* 工具页 26–36px */
+  --fs-h1-hero: clamp(1.75rem, 4.4vw, 2.75rem); /* 首页 Hero 28–44px */
+  --fs-h2: clamp(1.25rem, 2.6vw, 1.4375rem);    /* 20–23px */
+  --fs-body: 1rem;       /* 16px */
+  --fs-small: 0.85rem;   /* ~13.5px */
+  --lh-body: 1.8;
+
+  /* 间距（基准 4px） */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -35,12 +59,21 @@
   --space-8: 2rem;
   --space-12: 3rem;
 
-  /* 圆角与阴影 */
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  /* 圆角 */
+  --radius-lg: 20px;   /* 大卡片/转换器容器 */
+  --radius: 16px;      /* 工具卡片/结果面板 */
+  --radius-md: 13px;   /* 主按钮/图标芯片 */
+  --radius-sm: 12px;   /* 输入框/次级卡片 */
+  --radius-pill: 999px;
 
-  --container: 1160px;          /* 整页骨架：页眉、页脚、首页工具网格 */
-  --container-content: 860px;   /* 工具页正文：表单+结果+FAQ，保证阅读舒适度 */
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(16, 40, 28, 0.06);
+  --shadow: 0 1px 2px rgba(16, 40, 28, 0.04), 0 10px 26px rgba(16, 40, 28, 0.05);
+  --shadow-hover: 0 12px 30px rgba(16, 40, 28, 0.11);
+  --shadow-btn: 0 10px 24px rgba(20, 105, 74, 0.22);
+
+  --container: 1180px;          /* 整页骨架：页眉、页脚、首页工具网格 */
+  --container-content: 760px;   /* 工具页正文：表单+结果+FAQ */
+  --container-trust: 720px;     /* 信任页正文 */
+  --container-vat: 900px;       /* 国家选择页 */
 }

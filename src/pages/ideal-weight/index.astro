@@ -1,6 +1,8 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
 import Disclaimer from '../../components/Disclaimer.astro';
 import RelatedTools from '../../components/RelatedTools.astro';
 import { getTool } from '../../data/tools.js';
@@ -18,8 +20,13 @@ const jsonLd = graph(
 );
 ---
 <ToolLayout title={tool.titleAr} description={tool.descAr} path="/ideal-weight/" jsonLd={jsonLd}>
-  <h1>{tool.titleAr}</h1>
-  <p class="tool-intro">{tool.descAr}</p>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
 
   <div class="card">
     <div class="row">
@@ -41,13 +48,9 @@ const jsonLd = graph(
     </div>
   </div>
 
-  <AdSlot />
   <Disclaimer variant="health" />
 
-  <section class="prose faq">
-    <h2>أسئلة شائعة</h2>
-    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
-  </section>
+  <Faq faqs={faqs} />
 
   <RelatedTools slugs={tool.related} />
 </ToolLayout>

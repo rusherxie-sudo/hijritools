@@ -1,12 +1,20 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
+import Icon from '../components/Icon.astro';
 import { graph } from '../lib/seo.js';
 
 const title = 'من نحن';
 const description = 'تعرّف على HijriTools: موقع عربي مستقل يقدّم حاسبات ومحوّلات مجانية للتواريخ الهجرية والميلادية والصحة والمال، مع توضيح مصادر بياناتنا ومنهجيتنا في الدقة.';
+
+const values = [
+  { icon: 'ico-book', t: 'منهجية واضحة', d: 'نوضّح طريقة الحساب في كل أداة، وكل المنطق مغطّى باختبارات آلية لضمان ثبات النتائج وصحّتها.' },
+  { icon: 'ico-info', t: 'مصادر موثوقة', d: 'نعتمد على المراجع الرسمية مثل تقويم أم القرى والمعايير الصحية والمالية المعتمدة.' },
+  { icon: 'ico-shield', t: 'خصوصية أولاً', d: 'كل العمليات الحسابية تتم داخل متصفحك. لا نجمع بياناتك ولا نرسلها إلى أي خادم.' },
+];
 ---
 <ToolLayout title={title} description={description} path="/about/" jsonLd={graph()}>
-  <h1>من نحن</h1>
+  <span class="hero-badge"><Icon id="ico-spark" size={14} filled />تعرّف على هجري</span>
+  <h1 class="page-title">من نحن</h1>
   <section class="prose">
     <p>
       HijriTools موقع عربي مجاني يوفّر مجموعة من الحاسبات والمحوّلات الدقيقة والسريعة:
@@ -14,6 +22,16 @@ const description = 'تعرّف على HijriTools: موقع عربي مستقل 
       والنسبة المئوية وضريبة القيمة المضافة في دول الخليج، إضافةً إلى أدوات صحية وتعليمية وعملية.
       تعمل جميع الأدوات مباشرةً في متصفحك دون تسجيل ودون حفظ بياناتك.
     </p>
+
+    <div class="value-cards">
+      {values.map((v) => (
+        <div class="value-card">
+          <span class="value-chip"><Icon id={v.icon} size={22} /></span>
+          <h3>{v.t}</h3>
+          <p>{v.d}</p>
+        </div>
+      ))}
+    </div>
 
     <h2>استقلاليتنا</h2>
     <p>

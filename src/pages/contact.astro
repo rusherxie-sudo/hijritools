@@ -1,23 +1,73 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
+import Icon from '../components/Icon.astro';
 import { graph } from '../lib/seo.js';
 
 const title = 'اتصل بنا';
 const description = 'تواصل مع فريق HijriTools: أرسل ملاحظاتك أو اقتراحاتك أو تصحيحات الأخطاء عبر البريد الإلكتروني contact@hijritools.com.';
+const email = 'contact@hijritools.com';
 ---
 <ToolLayout title={title} description={description} path="/contact/" jsonLd={graph()}>
-  <h1>اتصل بنا</h1>
-  <section class="prose">
-    <p>
-      يسعدنا تواصلك معنا. سواء كان لديك ملاحظة، أو اقتراح أداة جديدة، أو تصحيح لخطأ في إحدى
-      الحاسبات، فإن رأيك يساعدنا على التحسين باستمرار.
-    </p>
+  <span class="hero-badge"><Icon id="ico-spark" size={14} filled />نحن نستمع</span>
+  <h1 class="page-title">اتصل بنا</h1>
+  <p class="tool-intro">
+    هل لديك سؤال أو اقتراح أداة جديدة، أو لاحظت خطأ في إحدى الحاسبات؟ يسعدنا أن نسمع منك.
+    راسلنا مباشرةً أو عبر النموذج أدناه.
+  </p>
 
-    <h2>البريد الإلكتروني</h2>
-    <p>راسلنا مباشرةً على البريد الإلكتروني: <a href="mailto:contact@hijritools.com">contact@hijritools.com</a></p>
-    <p>
-      نسعى للردّ على الرسائل في أقرب وقت ممكن. وللأمور المتعلّقة بالخصوصية أو الإعلانات،
-      يُرجى الإشارة إلى ذلك في سطر موضوع الرسالة لتسريع الرد عليها.
-    </p>
+  <a class="contact-card" href={`mailto:${email}`}>
+    <span class="contact-chip"><Icon id="ico-mail" size={24} /></span>
+    <span class="contact-card-text">
+      <span class="contact-label">راسلنا على البريد</span>
+      <span class="contact-email num">{email}</span>
+    </span>
+    <Icon id="ico-chev" size={18} class="contact-chev" />
+  </a>
+  <p class="contact-note">نرد عادةً خلال يومَي عمل.</p>
+
+  <section class="prose">
+    <h2>أرسل رسالة</h2>
+    <form id="contact-form" class="contact-form" data-email={email} novalidate>
+      <div class="row">
+        <div class="field"><label for="cf-name">الاسم</label><input id="cf-name" type="text" placeholder="اسمك الكريم" /></div>
+        <div class="field"><label for="cf-email">بريدك الإلكتروني</label><input id="cf-email" type="email" placeholder="you@example.com" dir="ltr" /></div>
+      </div>
+      <div class="field"><label for="cf-msg">رسالتك</label><textarea id="cf-msg" rows="5" placeholder="اكتب رسالتك هنا..."></textarea></div>
+      <p class="error-text hidden" id="cf-err"></p>
+      <button class="btn btn-block" type="submit">إرسال الرسالة<Icon id="ico-chev" size={17} /></button>
+      <p class="contact-sent hidden" id="cf-sent" role="status" aria-live="polite">سيفتح تطبيق البريد الإلكتروني تلقائيًا. إذا لم يفتح، يمكنك مراسلتنا مباشرةً على <span dir="ltr">{email}</span>.</p>
+    </form>
   </section>
 </ToolLayout>
+
+<script>
+  // 纯静态：校验后拼 mailto 唤起邮件客户端（无后端）。服务端值经 data-email 传入（不用 define:vars）。
+  const form = document.getElementById('contact-form');
+  const err = document.getElementById('cf-err');
+  const sent = document.getElementById('cf-sent');
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = form.dataset.email;
+    const name = document.getElementById('cf-name').value.trim();
+    const from = document.getElementById('cf-email').value.trim();
+    const msg = document.getElementById('cf-msg').value.trim();
+
+    let problem = '';
+    if (!name) problem = 'يرجى إدخال اسمك.';
+    else if (!emailRe.test(from)) problem = 'يرجى إدخال عنوان بريد إلكتروني صحيح.';
+    else if (!msg) problem = 'يرجى كتابة رسالتك.';
+    if (problem) {
+      err.textContent = problem;
+      err.classList.remove('hidden');
+      sent.classList.add('hidden');
+      return;
+    }
+    err.classList.add('hidden');
+
+    const subject = encodeURIComponent(`رسالة من ${name} — HijriTools`);
+    const body = encodeURIComponent(`${msg}\n\n— ${name}\n${from}`);
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    sent.classList.remove('hidden');
+  });
+</script>

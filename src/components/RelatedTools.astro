@@ -1,5 +1,7 @@
 ---
 import { getTool, toolLink } from '../data/tools.js';
+import { toolIconId } from '../data/icons.js';
+import Icon from './Icon.astro';
 const { slugs = [] } = Astro.props;
 const items = slugs.map(getTool).filter((t) => t && t.live);
 ---
@@ -10,7 +12,7 @@ const items = slugs.map(getTool).filter((t) => t && t.live);
       {items.map((t) => (
         <li>
           <a href={toolLink(t)}>
-            <span class="ico">{t.icon}</span>
+            <span class="ico"><Icon id={toolIconId(t.slug)} size={22} /></span>
             <div><strong>{t.shortAr}</strong></div>
           </a>
         </li>

@@ -1,0 +1,16 @@
+---
+// 线性图标渲染。默认描边（fill:none;stroke:currentColor）；filled 用于填充图标（如 ico-spark）。
+const { id, size = 24, filled = false, class: cls = '' } = Astro.props;
+---
+<svg
+  class={`icon ${cls}`}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill={filled ? 'currentColor' : 'none'}
+  stroke={filled ? 'none' : 'currentColor'}
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+><use href={`/sprite.svg#${id}`} /></svg>

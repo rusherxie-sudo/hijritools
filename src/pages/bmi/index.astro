@@ -1,6 +1,8 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
 import Disclaimer from '../../components/Disclaimer.astro';
 import RelatedTools from '../../components/RelatedTools.astro';
 import { getTool } from '../../data/tools.js';
@@ -18,8 +20,13 @@ const jsonLd = graph(
 );
 ---
 <ToolLayout title={tool.titleAr} description={tool.descAr} path="/bmi/" jsonLd={jsonLd}>
-  <h1>{tool.titleAr}</h1>
-  <p class="tool-intro">{tool.descAr}</p>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
 
   <div class="card">
     <div class="row">
@@ -31,16 +38,29 @@ const jsonLd = graph(
   <div class="result" id="result">
     <div style="color:var(--color-text-muted)">مؤشر كتلة الجسم</div>
     <div class="result-main num" id="bmi-value">-</div>
-    <div id="bmi-cat" style="color:var(--color-primary-dark);font-weight:700;font-size:1.15rem"></div>
+    <div id="bmi-cat" style="font-weight:700;font-size:1.15rem"></div>
+    <p class="error-text hidden" id="bmi-err">يرجى إدخال وزن وطول صحيحين لحساب مؤشر كتلة الجسم.</p>
+
+    <div class="bmi-scale" id="bmi-scale" hidden>
+      <div class="bmi-bar">
+        <span class="seg bmi-seg-low"></span>
+        <span class="seg bmi-seg-normal"></span>
+        <span class="seg bmi-seg-over"></span>
+        <span class="seg bmi-seg-obese"></span>
+        <span class="bmi-marker" id="bmi-marker"></span>
+      </div>
+      <div class="bmi-scale-labels">
+        <span style="width:14%">نحافة</span>
+        <span style="width:26%">طبيعي</span>
+        <span style="width:20%">زيادة</span>
+        <span style="width:40%">سمنة</span>
+      </div>
+    </div>
   </div>
 
-  <AdSlot />
   <Disclaimer variant="health" />
 
-  <section class="prose faq">
-    <h2>أسئلة شائعة</h2>
-    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
-  </section>
+  <Faq faqs={faqs} />
 
   <RelatedTools slugs={tool.related} />
 </ToolLayout>
@@ -50,15 +70,28 @@ const jsonLd = graph(
   const $ = (id) => document.getElementById(id);
   const val = (id) => parseFloat($(id).value);
 
+  // 分类配色（与刻度条四段一致）：[文字色] 按 BMI 落入的档位。
+  const catColor = (v) => v < 18.5 ? '#8A6516' : v < 25 ? '#0E5C40' : v < 30 ? '#9A5A1E' : '#9A3322';
+
   function run() {
     const v = bmi(val('weight'), val('height'));
     if (!Number.isFinite(v)) {
       $('bmi-value').textContent = '-';
       $('bmi-cat').textContent = '';
+      $('bmi-scale').hidden = true;
+      $('bmi-err').classList.remove('hidden');
       return;
     }
+    $('bmi-err').classList.add('hidden');
     $('bmi-value').textContent = v;
-    $('bmi-cat').textContent = bmiCategory(v) ?? '';
+    const cat = $('bmi-cat');
+    cat.textContent = bmiCategory(v) ?? '';
+    cat.style.color = catColor(v);
+    // 指针位置：15–40 刻度，clamp 防溢出。
+    const pos = Math.min(98, Math.max(2, (v - 15) / 25 * 100));
+    $('bmi-marker').style.left = pos + '%';
+    $('bmi-marker').style.borderColor = catColor(v);
+    $('bmi-scale').hidden = false;
   }
   ['weight', 'height'].forEach((id) => $(id).addEventListener('input', run));
   run();

@@ -1,28 +1,41 @@
 ---
-// 主导航：从 tools.js 按 category 自动分组的下拉菜单（零 JS）。
-// 桌面端 CSS hover 下拉；移动端 checkbox 汉堡 + 原生 <details> 点击展开。
-import { liveTools, categoryNamesAr, toolLink } from '../data/tools.js';
-const byCategory = {};
-for (const t of liveTools) (byCategory[t.category] ||= []).push(t);
-const groups = Object.entries(byCategory);
+// 简洁页眉（对齐设计）：八角星 logo + هجري ｜ 链接 الرئيسية/الأدوات/من نحن + CTA。
+// 移动端折叠为汉堡：用真正的 <button aria-expanded>（键盘/读屏可达）+ 极小脚本切换。
 ---
 <header class="site-header">
   <div class="container">
-    <a href="/" class="brand"><span>🌙</span><span>HijriTools</span></a>
+    <a href="/" class="brand" aria-label="هجري — HijriTools">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="8" y="8" width="16" height="16" rx="3.5" fill="var(--color-primary)"/>
+        <rect x="8" y="8" width="16" height="16" rx="3.5" transform="rotate(45 16 16)" fill="var(--color-accent)" opacity=".92"/>
+      </svg>
+      <span>هجري</span>
+    </a>
 
-    <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden />
-    <label for="nav-toggle" class="nav-burger" aria-label="القائمة الرئيسية">☰</label>
+    <button type="button" class="nav-burger" aria-label="القائمة" aria-expanded="false" aria-controls="site-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
 
-    <nav class="site-nav" aria-label="القائمة الرئيسية">
-      {groups.map(([cat, items]) => (
-        <details class="nav-group">
-          <summary>{categoryNamesAr[cat] ?? cat}</summary>
-          <ul class="nav-menu">
-            {items.map((t) => (<li><a href={toolLink(t)}>{t.shortAr}</a></li>))}
-          </ul>
-        </details>
-      ))}
-      <a class="nav-all" href="/">كل الأدوات</a>
+    <nav id="site-nav" class="site-nav" aria-label="التنقل الرئيسي">
+      <a href="/">الرئيسية</a>
+      <a href="/#tools">الأدوات</a>
+      <a href="/about/">من نحن</a>
+      <a href="/#tools" class="nav-cta">تصفّح الأدوات</a>
     </nav>
   </div>
 </header>
+
+<script>
+  const burger = document.querySelector('.nav-burger');
+  const nav = document.getElementById('site-nav');
+  if (burger && nav) {
+    const set = (open) => { burger.setAttribute('aria-expanded', String(open)); nav.classList.toggle('open', open); };
+    burger.addEventListener('click', () => set(burger.getAttribute('aria-expanded') !== 'true'));
+    // 点击任一链接后收起（移动端体验）
+    nav.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+    // Esc 关闭并把焦点送回汉堡
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && burger.getAttribute('aria-expanded') === 'true') { set(false); burger.focus(); }
+    });
+  }
+</script>

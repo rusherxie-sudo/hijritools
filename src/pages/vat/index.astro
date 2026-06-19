@@ -1,13 +1,16 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
 import Disclaimer from '../../components/Disclaimer.astro';
 import RelatedTools from '../../components/RelatedTools.astro';
-import CountrySwitcher from '../../components/CountrySwitcher.astro';
 import { getTool } from '../../data/tools.js';
 import { gccOrder, countries } from '../../data/countries.js';
 import { vatRates } from '../../data/vat.js';
 import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const flags = { sa: '🇸🇦', ae: '🇦🇪', qa: '🇶🇦', kw: '🇰🇼', bh: '🇧🇭', om: '🇴🇲' };
 
 const tool = getTool('vat');
 const faqs = [
@@ -21,32 +24,32 @@ const jsonLd = graph(
 );
 ---
 <ToolLayout title={tool.titleAr} description={tool.descAr} path="/vat/" jsonLd={jsonLd}>
-  <h1>{tool.titleAr}</h1>
-  <p class="tool-intro">{tool.descAr}</p>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
 
-  <CountrySwitcher toolSlug="vat" countryCodes={tool.countries} active={null} />
+  <ul class="vat-cards">
+    {gccOrder.map((cc) => (
+      <li>
+        <a class="vat-card" href={`/vat/${cc}/`}>
+          <span class="vat-flag">{flags[cc]}</span>
+          <span class="vat-card-text">
+            <span class="vat-name">{countries[cc].nameAr}</span>
+            <span class="vat-rate">{vatRates[cc].rate > 0 ? `نسبة الضريبة ${vatRates[cc].rate}%` : 'غير مطبقة حاليًا'}</span>
+          </span>
+          <Icon id="ico-chev" size={18} class="vat-chev" />
+        </a>
+      </li>
+    ))}
+  </ul>
 
-  <h2>نسب الضريبة في دول الخليج</h2>
-  <table class="comparison-table">
-    <thead><tr><th>الدولة</th><th>النسبة</th><th>سارية منذ</th></tr></thead>
-    <tbody>
-      {gccOrder.map((cc) => (
-        <tr>
-          <td><a href={`/vat/${cc}/`}>{countries[cc].nameAr}</a></td>
-          <td class="num">{vatRates[cc].rate}٪</td>
-          <td>{vatRates[cc].since ?? '—'}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-
-  <AdSlot />
   <Disclaimer variant="regulatory" />
 
-  <section class="prose faq">
-    <h2>أسئلة شائعة</h2>
-    <dl>{faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
-  </section>
+  <Faq faqs={faqs} />
 
   <RelatedTools slugs={tool.related} />
 </ToolLayout>
