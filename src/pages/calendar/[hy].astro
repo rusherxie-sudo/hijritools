@@ -8,9 +8,13 @@ import { buildHijriYear } from '../../lib/calendar.js';
 import { WEEKDAYS_AR } from '../../lib/hijri.js';
 import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
 
-// 预留多年：加 1448/1449 只需在此 push。
+// 多年年历：1448 为当前年（主推），保留 1447，预铺 1449。
 export function getStaticPaths() {
-  return [{ params: { hy: '1447' } }];
+  return [
+    { params: { hy: '1448' } },
+    { params: { hy: '1447' } },
+    { params: { hy: '1449' } },
+  ];
 }
 
 const { hy } = Astro.params;
