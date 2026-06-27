@@ -1,0 +1,134 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('zakat');
+
+const faqs = [
+  {
+    q: 'كم نسبة الزكاة الواجبة؟',
+    a: 'نسبة الزكاة الواجبة هي ربع العشر (٢.٥٪) من المال الذي بلغ النصاب وحال عليه الحول (سنة هجرية كاملة).',
+  },
+  {
+    q: 'ما هو نصاب الزكاة؟',
+    a: 'نصاب الزكاة يساوي قيمة ٨٥ جرامًا من الذهب. إذا بلغت أموالك هذه القيمة أو تجاوزتها، وجبت عليك الزكاة. يمكنك إدخال سعر جرام الذهب يدويًا في الحاسبة.',
+  },
+  {
+    q: 'هل تشمل الزكاة الذهب المدخر للزينة؟',
+    a: 'ذهب الزينة فيه خلاف فقهي. يُفضل استشارة هيئة الإفتاء المختصة في بلدك لتحديد حكم الزكاة على ذهب الزينة حسب المذهب المعتمد.',
+  },
+  {
+    q: 'هل تدعم الحاسبة أنواعًا أخرى من الزكاة؟',
+    a: 'هذه الحاسبة تقديرية بسيطة تدعم زكاة المال النقدي والذهب فقط. للزكاة على أنواع أخرى من الأموال (الأسهم، عروض التجارة، الزروع والثمار، بهيمة الأنعام)، راجع هيئة الإفتاء المختصة.',
+  },
+];
+
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/zakat/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/zakat/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>أدخل أموالك</h2>
+
+    <div class="field">
+      <label for="cash">المال النقدي (ريال)</label>
+      <input type="number" id="cash" value="0" min="0" step="0.01" inputmode="decimal" placeholder="مثال: 50000" />
+    </div>
+
+    <div class="field">
+      <label for="gold-g">وزن الذهب (جرام)</label>
+      <input type="number" id="gold-g" value="0" min="0" step="0.01" inputmode="decimal" placeholder="مثال: 100" />
+    </div>
+
+    <div class="field">
+      <label for="gold-p">سعر جرام الذهب (ريال) <span style="font-weight:400;font-size:.85rem;color:var(--color-text-muted)">— أدخله يدويًا من مصدر موثوق</span></label>
+      <input type="number" id="gold-p" value="0" min="0" step="0.01" inputmode="decimal" placeholder="مثال: 280" />
+    </div>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div class="result-label">مقدار الزكاة الواجب</div>
+    <div class="result-main"><span class="num" id="zakat-out">—</span> <span>ريال</span></div>
+    <hr class="gold-divider" />
+    <div class="result-grid">
+      <div class="stat"><div class="v"><span class="num" id="total-out">—</span></div><div class="l">إجمالي المال الخاضع للزكاة</div></div>
+      <div class="stat"><div class="v"><span class="num" id="nisab-out">—</span></div><div class="l">النصاب (قيمة ٨٥ جرام ذهب)</div></div>
+      <div class="stat" id="nisab-status"><div class="v">—</div><div class="l">حالة النصاب</div></div>
+    </div>
+  </div>
+
+  <div class="card warn">
+    <p>⚠️ هذه حسابات تقديرية. راجع هيئة الإفتاء المختصة في بلدك لتحديد الزكاة الواجبة بدقة. يُشترط لوجوب الزكاة مرور حول كامل (سنة هجرية) على بلوغ المال النصاب.</p>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .warn { background: var(--warn-bg, #fef9e7); border-color: var(--warn-border, #f0d58c); }
+  .warn p { margin: 0; font-size: .9rem; color: var(--warn-text, #7f6000); }
+  .result-label { font-size: .9rem; color: var(--color-text-muted); }
+  .result-grid { gap: .5rem; }
+</style>
+
+<script>
+  import { calcZakat } from '../../lib/zakat.js';
+
+  const cashEl = document.getElementById('cash');
+  const goldGEl = document.getElementById('gold-g');
+  const goldPEl = document.getElementById('gold-p');
+  const result = document.getElementById('result');
+  const zakatOut = document.getElementById('zakat-out');
+  const totalOut = document.getElementById('total-out');
+  const nisabOut = document.getElementById('nisab-out');
+  const nisabStatus = document.querySelector('#nisab-status .v');
+
+  function calc() {
+    const cash = parseFloat(cashEl.value) || 0;
+    const goldG = parseFloat(goldGEl.value) || 0;
+    const goldP = parseFloat(goldPEl.value) || 0;
+
+    const r = calcZakat(cash, goldG, goldP);
+    if (r.totalWealth === null) {
+      result.classList.add('hidden');
+      return;
+    }
+
+    result.classList.remove('hidden');
+    totalOut.textContent = r.totalWealth.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    nisabOut.textContent = (85 * goldP).toLocaleString('en-US', { maximumFractionDigits: 2 });
+
+    if (!r.reachedNisab) {
+      zakatOut.textContent = '—';
+      nisabStatus.textContent = 'لم يبلغ النصاب';
+      return;
+    }
+
+    zakatOut.textContent = r.zakatAmount.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    nisabStatus.textContent = '✅ بلغ النصاب';
+  }
+
+  for (const el of [cashEl, goldGEl, goldPEl]) {
+    el.addEventListener('input', calc);
+  }
+</script>

@@ -25,6 +25,8 @@ export const toolIconIds = {
   'unit-convert': 'ico-ruler',
   period: 'ico-droplet',
   weighted: 'ico-graduation',
+  qdrat: 'ico-graduation',
+  zakat: 'ico-coins',
 };
 
 export const toolIconId = (slug) => toolIconIds[slug] ?? 'ico-spark';

@@ -288,6 +288,30 @@ export const tools = [
     updated: '2026-06-16',
     related: ['percentage', 'age', 'date-diff'],
   },
+  {
+    slug: 'qdrat',
+    titleAr: 'حاسبة القدرات — حساب درجة القدرات العامة',
+    shortAr: 'حاسبة القدرات',
+    descAr: 'احسب نسبتك الموزونة لدخول الجامعة من درجات القدرات والثانوية والتحصيلي بأوزان قابلة للتعديل. حاسبة القدرات مجانية ومرنة وسهلة.',
+    category: 'education',
+    type: 'calc',
+    icon: '📝',
+    live: true,
+    updated: '2026-06-27',
+    related: ['weighted', 'percentage', 'age'],
+  },
+  {
+    slug: 'zakat',
+    titleAr: 'حاسبة الزكاة — حساب زكاة المال والذهب',
+    shortAr: 'حاسبة الزكاة',
+    descAr: 'احسب زكاة أموالك بسهولة: أدخل مبلغ المال النقدي ووزن الذهب وسعر الجرام، وتحسب الحاسبة مقدار الزكاة الواجب (ربع العشر 2.5٪). حاسبة تقديرية — راجع هيئة الإفتاء.',
+    category: 'finance',
+    type: 'calc',
+    icon: '🕌',
+    live: true,
+    updated: '2026-06-27',
+    related: ['percentage', 'vat', 'discount'],
+  },
 ];
 
 /** 工具落地 URL：日历等特殊路径用 href，其余按 slug。 */

@@ -1,0 +1,125 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('qdrat');
+
+const faqs = [
+  {
+    q: 'كيف أحسب درجة القدرات الموزونة؟',
+    a: 'أدخل درجاتك في اختبار القدرات العامة والثانوية والاختبار التحصيلي، ثم اضبط أوزانها حسب متطلبات جامعتك. تحسب الأداة نسبتك الموزونة مباشرة.',
+  },
+  {
+    q: 'ما هي أوزان القدرات والثانوية والتحصيلي الشائعة؟',
+    a: 'تختلف الأوزان بين الجامعات، لكن النسبة الشائعة في الجامعات السعودية هي: الثانوية ٣٠٪، القدرات ٣٠٪، والتحصيلي ٤٠٪. بعض الجامعات توزعها ٣٠-٤٠-٣٠. يمكنك تعديل الأوزان في الحاسبة حسب جامعتك.',
+  },
+  {
+    q: 'هل نتيجة حاسبة القدرات دقيقة؟',
+    a: 'النتيجة دقيقة بناءً على المدخلات التي تدخلها. تأكد من استخدام الأوزان الصحيحة المعلنة من جامعتك، وراجع دليل القبول الرسمي للتأكد.',
+  },
+];
+
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/qdrat/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/qdrat/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>أدخل درجاتك</h2>
+    <p class="note">القيم التالية افتراضية. غيّر الأوزان حسب جامعتك.</p>
+
+    <div class="zflds">
+      <div class="field">
+        <label for="hs">الثانوية العامة (٪)</label>
+        <input type="number" id="hs" value="95" min="0" max="100" step="0.01" inputmode="decimal" />
+      </div>
+      <div class="wt-inline">
+        <span style="font-size:.85rem;color:var(--color-text-muted)">الوزن:</span>
+        <input type="number" id="w-hs" value="30" min="0" max="100" class="wt-input" aria-label="وزن الثانوية" />
+        <span>٪</span>
+      </div>
+
+      <div class="field">
+        <label for="qd">اختبار القدرات العامة (٪)</label>
+        <input type="number" id="qd" value="85" min="0" max="100" step="0.01" inputmode="decimal" />
+      </div>
+      <div class="wt-inline">
+        <span style="font-size:.85rem;color:var(--color-text-muted)">الوزن:</span>
+        <input type="number" id="w-qd" value="30" min="0" max="100" class="wt-input" aria-label="وزن القدرات" />
+        <span>٪</span>
+      </div>
+
+      <div class="field">
+        <label for="ac">الاختبار التحصيلي (٪)</label>
+        <input type="number" id="ac" value="88" min="0" max="100" step="0.01" inputmode="decimal" />
+      </div>
+      <div class="wt-inline">
+        <span style="font-size:.85rem;color:var(--color-text-muted)">الوزن:</span>
+        <input type="number" id="w-ac" value="40" min="0" max="100" class="wt-input" aria-label="وزن التحصيلي" />
+        <span>٪</span>
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-label">النسبة الموزونة</div>
+      <span class="result-main"><span class="num" id="out">—</span><span class="pct">٪</span></span>
+    </div>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .note { color: var(--color-text-muted); font-size: .9rem; margin-block: .25rem 1rem; }
+  .zflds { display: flex; flex-direction: column; gap: .35rem; }
+  .wt-inline { display: flex; align-items: center; gap: .5rem; margin-block-end: .75rem; }
+  .wt-input { inline-size: 70px; padding: .4rem .5rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font: inherit; text-align: center; background: var(--color-surface-input); }
+  .result-label { font-size: .9rem; color: var(--color-text-muted); }
+  .pct { margin-inline-start: .1rem; }
+</style>
+
+<script>
+  import { weightedAverage } from '../../lib/weighted.js';
+
+  function calc() {
+    const hs = parseFloat(document.getElementById('hs').value);
+    const qd = parseFloat(document.getElementById('qd').value);
+    const ac = parseFloat(document.getElementById('ac').value);
+    const wh = parseFloat(document.getElementById('w-hs').value);
+    const wq = parseFloat(document.getElementById('w-qd').value);
+    const wa = parseFloat(document.getElementById('w-ac').value);
+
+    const items = [
+      { score: hs, weight: wh },
+      { score: qd, weight: wq },
+      { score: ac, weight: wa },
+    ];
+
+    const result = weightedAverage(items);
+    document.getElementById('out').textContent = Number.isFinite(result) ? result.toFixed(2) : '—';
+  }
+
+  for (const id of ['hs', 'qd', 'ac', 'w-hs', 'w-qd', 'w-ac']) {
+    document.getElementById(id).addEventListener('input', calc);
+  }
+  calc();
+</script>
