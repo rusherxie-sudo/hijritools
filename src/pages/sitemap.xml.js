@@ -4,6 +4,16 @@ import { liveTools } from '../data/tools.js';
 
 const SITE = 'https://hijritools.com';
 
+const blogPosts = [
+  { loc: '/blog/', lastmod: '2026-06-27' },
+  { loc: '/blog/hijri-converter-guide/', lastmod: '2026-06-27' },
+  { loc: '/blog/age-calculator-hijri/', lastmod: '2026-06-27' },
+  { loc: '/blog/pregnancy-calculator-hijri/', lastmod: '2026-06-27' },
+  { loc: '/blog/weighted-percentage-guide/', lastmod: '2026-06-27' },
+  { loc: '/blog/zakat-calculator-guide/', lastmod: '2026-06-27' },
+  { loc: '/blog/hijri-calendar-1448/', lastmod: '2026-06-27' },
+];
+
 export function GET() {
   // lastmod = 每个工具自带的 updated（内容最后实质更新日），稳定且只在真改时变化。
   // 绝不用构建日（new Date()）——那会让全站 lastmod 每次构建都变，Google 判定不可信而忽略。
@@ -27,6 +37,11 @@ export function GET() {
     if (t.type === 'regulatory' && Array.isArray(t.countries)) {
       for (const cc of t.countries) entries.push({ loc: `/${t.slug}/${cc}/`, lastmod: t.updated ?? null });
     }
+  }
+
+  // 博客文章
+  for (const p of blogPosts) {
+    entries.push(p);
   }
 
   const body =
