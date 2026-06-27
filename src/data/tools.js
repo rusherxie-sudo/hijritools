@@ -312,6 +312,18 @@ export const tools = [
     updated: '2026-06-27',
     related: ['percentage', 'vat', 'discount'],
   },
+  {
+    slug: 'meeras',
+    titleAr: 'حاسبة المواريث — توزيع التركة حسب الشريعة',
+    shortAr: 'حاسبة المواريث',
+    descAr: 'وزّع التركة شرعيًا: أدخل مبلغ التركة واختر الورثة (زوج، زوجة، أبناء، بنات، أب، أم) لحساب نصيب كل وارث حسب أحكام المواريث في الشريعة الإسلامية. حاسبة تقديرية.',
+    category: 'finance',
+    type: 'calc',
+    icon: '📜',
+    live: true,
+    updated: '2026-06-27',
+    related: ['zakat', 'percentage', 'vat'],
+  },
 ];
 
 /** 工具落地 URL：日历等特殊路径用 href，其余按 slug。 */

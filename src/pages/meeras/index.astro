@@ -1,0 +1,177 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('meeras');
+
+const faqs = [
+  {
+    q: 'كيف تُوزَّع التركة في الإسلام؟',
+    a: 'توزع التركة حسب أحكام المواريث في الشريعة الإسلامية: أصحاب الفروض يأخذون أنصباءهم المحددة (مثل ¼ للزوج إن كان له ولد، ⅛ للزوجة)، والباقي يأخذه العصبة (مثل الأبناء والبنات بنسبة ٢:١ للذكر مثل حظ الأنثيين).',
+  },
+  {
+    q: 'ما هي أنصبة الورثة الثابتة في القرآن؟',
+    a: 'الأنصبة الثابتة: الزوج النصف أو الربع، الزوجة الربع أو الثمن، البنت الواحدة النصف، البنات الثلثان، الأب السدس، الأم السدس أو الثلث. تختلف حسب وجود الولد وعدد البنات.',
+  },
+  {
+    q: 'هل الحاسبة تشمل جميع حالات الميراث؟',
+    a: 'هذه الحاسبة تغطي الحالات الأكثر شيوعًا: الزوج/الزوجة مع الأبناء والبنات، مع وجود الأبوين. للحالات المعقدة (الإخوة، الجد، الجدة، أولاد الابن) يُرجى استشارة مختص في المواريث.',
+  },
+  {
+    q: 'هل النتيجة ملزمة شرعًا؟',
+    a: 'النتيجة تقديرية لفهم توزيع التركة. التوزيع الشرعي الدقيق يحتاج إلى مختص في علم الفرائض لمراعاة جميع أحوال الورثة والاتفاقيات المذهبية. يُرجى مراجعة المحكمة الشرعية المختصة.',
+  },
+];
+
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/meeras/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/meeras/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>مبلغ التركة</h2>
+    <div class="field" style="max-width:280px">
+      <label for="estate">إجمالي التركة (ريال)</label>
+      <input type="number" id="estate" value="100000" min="0" step="1000" inputmode="decimal" />
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>اختر الورثة</h2>
+    <p class="note">اختر من تبقى من الورثة</p>
+    <div class="heirs-grid">
+      <label class="heir-cb"><input type="checkbox" id="husband" /> <span>الزوج</span></label>
+      <label class="heir-cb"><input type="checkbox" id="wife" /> <span>الزوجة</span></label>
+      <label class="heir-cb"><input type="checkbox" id="father" /> <span>الأب</span></label>
+      <label class="heir-cb"><input type="checkbox" id="mother" /> <span>الأم</span></label>
+    </div>
+    <div class="heir-num">
+      <div class="field"><label for="sons">عدد الأبناء</label><input type="number" id="sons" value="0" min="0" max="20" /></div>
+      <div class="field"><label for="daughters">عدد البنات</label><input type="number" id="daughters" value="0" min="0" max="20" /></div>
+    </div>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div class="result-label">توزيع التركة</div>
+    <div class="result-main"><span class="num" id="total-displayed">—</span> <span>ريال</span></div>
+    <hr class="gold-divider" />
+    <div id="shares-list"></div>
+    <div id="err-msg" class="error-text hidden"></div>
+  </div>
+
+  <div class="card warn">
+    <p>⚠️ هذه حسابات تقديرية لأغراض التوضيح. التوزيع الشرعي الدقيق يحتاج إلى مختص في علم الفرائض. راجع المحكمة الشرعية المختصة.</p>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .note { color: var(--color-text-muted); font-size: .9rem; margin-block: .25rem 1rem; }
+  .heirs-grid { display: flex; flex-wrap: wrap; gap: .75rem; margin-block-end: 1rem; }
+  .heir-cb { display: flex; align-items: center; gap: .4rem; cursor: pointer; padding: .4rem .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: .95rem; transition: background var(--duration-fast) var(--ease-out); }
+  .heir-cb:has(input:checked) { background: var(--color-primary-light, #eaf3ee); border-color: var(--color-primary); }
+  .heir-cb input { inline-size: 1rem; block-size: 1rem; }
+  .heir-num { display: flex; gap: 1rem; max-width: 320px; }
+  .heir-num .field { flex: 1; }
+  .heir-num input { text-align: center; }
+  .warn { background: var(--warn-bg, #fef9e7); border-color: var(--warn-border, #f0d58c); }
+  .warn p { margin: 0; font-size: .9rem; color: var(--warn-text, #7f6000); }
+  .result-label { font-size: .9rem; color: var(--color-text-muted); }
+  .shr-row { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; border-bottom: 1px solid var(--color-border); }
+  .shr-row:last-child { border-bottom: none; }
+  .shr-name { font-weight: 500; }
+  .shr-type { font-size: .8rem; color: var(--color-text-muted); margin-inline-start: .5rem; }
+  .shr-amt { font-weight: 600; color: var(--color-primary-dark); }
+  .shr-pct { font-size: .85rem; color: var(--color-text-muted); margin-inline-start: .5rem; }
+  .error-text { color: var(--color-error, #c0392b); font-size: .9rem; margin-block-start: .5rem; }
+</style>
+
+<script>
+  import { calculateInheritance } from '../../lib/meeras.js';
+
+  const estate = document.getElementById('estate');
+  const husband = document.getElementById('husband');
+  const wife = document.getElementById('wife');
+  const father = document.getElementById('father');
+  const mother = document.getElementById('mother');
+  const sons = document.getElementById('sons');
+  const daughters = document.getElementById('daughters');
+  const result = document.getElementById('result');
+  const sharesList = document.getElementById('shares-list');
+  const errMsg = document.getElementById('err-msg');
+  const totalDisplayed = document.getElementById('total-displayed');
+
+  function readRel() {
+    return {
+      husband: husband.checked,
+      wife: wife.checked,
+      sons: parseInt(sons.value) || 0,
+      daughters: parseInt(daughters.value) || 0,
+      father: father.checked,
+      mother: mother.checked,
+    };
+  }
+
+  function calc() {
+    const e = parseFloat(estate.value) || 0;
+    const rel = readRel();
+    const r = calculateInheritance(e, rel);
+
+    if (r.error) {
+      result.classList.remove('hidden');
+      errMsg.classList.remove('hidden');
+      errMsg.textContent = r.errorMsg;
+      sharesList.innerHTML = '';
+      totalDisplayed.textContent = e.toLocaleString('en-US');
+      return;
+    }
+
+    errMsg.classList.add('hidden');
+    result.classList.remove('hidden');
+
+    let html = '';
+    let total = 0;
+    for (const d of r.distributions) {
+      total += d.amount;
+      const typeLabel = d.type === 'quranic' ? 'فرض' : 'عصبة';
+      html += `<div class="shr-row">
+        <div><span class="shr-name">${d.name}</span> <span class="shr-type">${typeLabel}</span></div>
+        <div><span class="shr-amt num">${d.amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</span> <span class="shr-pct">(${d.percentage}%)</span></div>
+      </div>`;
+    }
+    // Add total row
+    html += `<div class="shr-row" style="font-weight:700;border-top:2px solid var(--color-accent);padding-block-start:.75rem">
+      <div>المجموع</div>
+      <div><span class="num">${total.toLocaleString('en-US', { maximumFractionDigits: 2 })}</span> <span class="shr-pct" style="font-weight:400">ريال</span></div>
+    </div>`;
+
+    sharesList.innerHTML = html;
+    totalDisplayed.textContent = e.toLocaleString('en-US');
+  }
+
+  for (const el of [estate, husband, wife, father, mother, sons, daughters]) {
+    el.addEventListener('input', calc);
+    el.addEventListener('change', calc);
+  }
+  calc();
+</script>

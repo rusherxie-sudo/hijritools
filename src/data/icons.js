@@ -27,7 +27,8 @@ export const toolIconIds = {
   weighted: 'ico-graduation',
   qdrat: 'ico-graduation',
   zakat: 'ico-coins',
-};
+  meeras: 'ico-book',
+  };
 
 export const toolIconId = (slug) => toolIconIds[slug] ?? 'ico-spark';
 
