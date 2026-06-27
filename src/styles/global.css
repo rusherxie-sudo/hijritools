@@ -11,6 +11,8 @@ html {
   color: var(--color-text);
   background: var(--color-bg);
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-block-start: 80px;
 }
 
 body {
@@ -127,25 +129,29 @@ main { padding-block: var(--space-8); }
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: clamp(var(--space-4), 4vw, var(--space-8));
+  padding: var(--space-4);
   margin-block-end: var(--space-6);
   box-shadow: var(--shadow);
 }
+@media (min-width: 480px) { .card { padding: clamp(var(--space-6), 4vw, var(--space-8)); } }
 
 /* 表单 */
 .field { margin-block-end: var(--space-4); }
-.field label { display: block; font-weight: 500; margin-block-end: var(--space-2); }
-input[type="date"], input[type="number"], input[type="text"], input[type="email"], select, textarea {
+.field label { display: block; font-weight: 500; margin-block-end: var(--space-2); font-size: 0.9rem; }
+input, select, textarea {
   inline-size: 100%;
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--fs-body);
+  padding: var(--space-4);
+  font-size: 1rem;
   font-family: var(--font-base);
-  border: 1px solid var(--color-border-input);
+  border: 1.5px solid var(--color-border-input);
   border-radius: var(--radius-sm);
   background: var(--color-surface-input);
   color: var(--color-text);
-  transition: border-color .15s ease, box-shadow .15s ease;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+  -webkit-appearance: none;
 }
+/* 移动端：最小 44px 触摸目标（WCAG 2.5.5） */
+@media (max-width: 479px) { input, select, textarea { padding-block: var(--space-4); min-block-size: 48px; } }
 textarea { resize: vertical; min-block-size: 120px; }
 input:disabled, select:disabled, textarea:disabled { background: #F0F0EC; color: var(--color-text-muted); cursor: not-allowed; }
 input:focus, select:focus, textarea:focus {
