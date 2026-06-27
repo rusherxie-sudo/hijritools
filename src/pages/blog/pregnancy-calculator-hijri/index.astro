@@ -1,0 +1,42 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import Faq from "../../../components/Faq.astro";
+import RelatedTools from '../../../components/RelatedTools.astro';
+import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+const title = 'حاسبة الحمل بالهجري: دليل كامل لحساب الحمل والولادة';
+const description = 'دليل شامل لحساب الحمل بالتقويم الهجري. تعلمي كيفية حساب موعد الولادة المتوقع وعمر الحمل بالأسابيع والأشهر بالهجري والميلادي.';
+const faqs = [
+  { q: 'كيف أحسب الحمل بالهجري؟', a: 'أدخلي تاريخ أول يوم في آخر دورة شهرية بالتقويم الهجري أو الميلادي في حاسبة الحمل، وتحسب الحاسبة موعد الولادة المتوقع وعمر الحمل الحالي بالتقويمين.' },
+  { q: 'كم مدة الحمل بالهجري؟', a: 'مدة الحمل حوالي ٢٨٠ يومًا أو ٤٠ أسبوعًا. بالهجري، هذا يعادل حوالي ٩ أشهر هجرية و٩ أيام تقريبًا.' },
+  { q: 'كيف أعرف أن حملي بدأ؟', a: 'يُحسب الحمل من أول يوم في آخر دورة شهرية (آخر دورة)، وهو التاريخ الذي تستخدمه أغلب النساء والطبيبات لحساب عمر الحمل.' },
+];
+const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/pregnancy-calculator-hijri/' }), faqJsonLd(faqs));
+---
+<ToolLayout title={title} description={description} path="/blog/pregnancy-calculator-hijri/" jsonLd={jsonLd}>
+  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">حاسبة الحمل بالهجري</span></li></ol></nav>
+  <article class="blog-article">
+    <div class="ba-meta"><span class="ba-cat">الحمل والولادة</span><span>2026-06-27</span><span>٦ دقائق قراءة</span></div>
+    <h1>{title}</h1>
+    <p class="ba-intro">حاسبة الحمل بالهجري هي أداة تساعد الأمهات الحوامل في دول الخليج على متابعة حملهن بالتقويم الهجري. في هذا الدليل، نشرح لكِ بالتفصيل كيفية حساب الحمل، حساب موعد الولادة، ومتابعة مراحل الحمل أسبوعًا بأسبوع.</p>
+
+    <h2>كيف أحسب حملي بالهجري؟</h2>
+    <p>حساب الحمل بالهجري سهل باستخدام <a href="/pregnancy/">حاسبة الحمل</a>.只需 إدخال تاريخ أول يوم في آخر دورة شهرية. بناءً على هذا التاريخ، تحسب الحاسبة:</p>
+    <ul><li>موعد الولادة المتوقع بالهجري والميلادي</li><li>عمر الحمل الحالي بالأسابيع والأيام</li><li>الثلث الذي أنتِ فيه (الأول، الثاني، الثالث)</li><li>عدد الأيام المتبقية على الولادة</li></ul>
+
+    <h2>كيفية حساب موعد الولادة</h2>
+    <p>يُحسب موعد الولادة المتوقع بإضافة ٢٨٠ يومًا (٤٠ أسبوعًا) إلى أول يوم في آخر دورة شهرية. هذه الطريقة تُعرف بقاعدة Naegele وهي الأكثر استخدامًا عالميًا.</p>
+
+    <h2>حساب الحمل من يوم التلقيح</h2>
+    <p>في بعض الحالات، قد تعرفين تاريخ التلقيح أو الإباضة بدقة. في هذه الحالة، يمكن حساب موعد الولادة بإضافة ٢٦٦ يومًا من تاريخ التلقيح. <a href="/pregnancy/">حاسبة الحمل</a> تدعم هاتين الطريقتين.</p>
+
+    <h2>أيام التبويض وفترة الخصوبة</h2>
+    <p>لمن تخطط للحمل، <a href="/ovulation/">حاسبة التبويض</a> تساعدك في تحديد:</p>
+    <ul><li>يوم التبويض المتوقع</li><li>أيام الخصوبة العالية (أنسب وقت للحمل)</li><li>موعد الدورة القادمة</li></ul>
+
+    <div class="cta-box"><p>احسبي حملك الآن بالهجري والميلادي</p><a href="/pregnancy/" class="btn">حاسبة الحمل بالهجري</a></div>
+
+    <Faq faqs={faqs} />
+    <RelatedTools slugs={['ovulation', 'gender-predictor', 'period']} />
+  </article>
+</ToolLayout>
+<style>.blog-article{max-width:720px;margin:0 auto}.ba-meta{display:flex;gap:1rem;font-size:.85rem;color:var(--color-text-muted);margin-block-end:.5rem}.ba-cat{color:var(--color-primary);font-weight:600}.blog-article h1{font-size:var(--fs-h2);margin-block:.25rem 1rem}.ba-intro{font-size:1.1rem;line-height:1.8;margin-block-end:2rem}.blog-article h2{margin-block:2rem .75rem;font-size:var(--fs-h3)}.blog-article p,.blog-article li{line-height:1.9}.blog-article ul,.blog-article ol{padding-inline-start:1.5rem}.cta-box{background:var(--color-primary-light,#eaf3ee);border:1px solid var(--color-primary);border-radius:var(--radius);padding:var(--space-6);text-align:center;margin-block:2.5rem}.cta-box p{font-size:1.1rem;font-weight:600}.cta-box .btn{font-size:1.05rem;padding:.7rem 1.5rem}</style>

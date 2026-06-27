@@ -1,0 +1,53 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import Faq from "../../../components/Faq.astro";
+import RelatedTools from '../../../components/RelatedTools.astro';
+import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+const title = 'التقويم الهجري 1448: الأشهر والمناسبات الإسلامية';
+const description = 'التقويم الهجري لعام 1448 هـ كاملًا. تعرف على الأشهر الهجرية والمناسبات الإسلامية والأعياد وأشهر الحرم في هذا العام الهجري.';
+const faqs = [
+  { q: 'متى يبدأ العام الهجري 1448؟', a: 'يبدأ العام الهجري 1448 هـ في ٢٥ يونيو ٢٠٢٦ م تقريبًا حسب تقويم أم القرى.' },
+  { q: 'متى رمضان 1448؟', a: 'رمضان 1448 هـ سيبدأ في حوالي ٦ فبراير ٢٠٢٧ م، ويليه عيد الفطر في حوالي ٨ مارس ٢٠٢٧ م.' },
+  { q: 'ما هي الأشهر الحرم؟', a: 'الأشهر الحرم أربعة: محرم ورجب وذو القعدة وذو الحجة. في هذه الأشهر يُحرم القتال وتُضاعف الحسنات.' },
+];
+const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/hijri-calendar-1448/' }), faqJsonLd(faqs));
+---
+<ToolLayout title={title} description={description} path="/blog/hijri-calendar-1448/" jsonLd={jsonLd}>
+  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">التقويم الهجري 1448</span></li></ol></nav>
+  <article class="blog-article">
+    <div class="ba-meta"><span class="ba-cat">التقويم الهجري</span><span>2026-06-27</span><span>٤ دقائق قراءة</span></div>
+    <h1>{title}</h1>
+    <p class="ba-intro">العام الهجري 1448 هو العام الهجري الحالي (2026-2027 م). في هذا الدليل، نقدم لك التقويم الكامل لعام 1448 هـ مع الأشهر والمناسبات الإسلامية.</p>
+
+    <h2>التقويم الهجري 1448 هـ</h2>
+    <p>العام الهجري 1448 يبدأ في ٢٥ يونيو ٢٠٢٦ م وينتهي في ١٣ يونيو ٢٠٢٧ م تقريبًا. <a href="/calendar/1448/">تصفّح التقويم الهجري 1448 كاملًا</a> مع جميع الأشهر والأيام.</p>
+
+    <h2>الأشهر الهجرية في 1448</h2>
+    <table class="cal-table"><tr><th>الشهر</th><th>البداية التقريبية</th><th>ملاحظات</th></tr>
+    <tr><td>محرم</td><td>٢٥ يونيو ٢٠٢٦</td><td>🕌 شهر حرام — رأس السنة الهجرية</td></tr>
+    <tr><td>صفر</td><td>٢٥ يوليو ٢٠٢٦</td><td></td></tr>
+    <tr><td>ربيع الأول</td><td>٢٣ أغسطس ٢٠٢٦</td><td>المولد النبوي الشريف</td></tr>
+    <tr><td>ربيع الآخر</td><td>٢٢ سبتمبر ٢٠٢٦</td><td></td></tr>
+    <tr><td>جمادى الأولى</td><td>٢١ أكتوبر ٢٠٢٦</td><td></td></tr>
+    <tr><td>جمادى الآخرة</td><td>٢٠ نوفمبر ٢٠٢٦</td><td></td></tr>
+    <tr><td>رجب</td><td>١٩ ديسمبر ٢٠٢٦</td><td>🕌 شهر حرام</td></tr>
+    <tr><td>شعبان</td><td>١٨ يناير ٢٠٢٧</td><td>شهر ترفع فيه الأعمال</td></tr>
+    <tr><td>رمضان</td><td>١٦ فبراير ٢٠٢٧</td><td>⭐ شهر الصيام والقيام</td></tr>
+    <tr><td>شوال</td><td>١٨ مارس ٢٠٢٧</td><td>🎉 عيد الفطر (١ شوال)</td></tr>
+    <tr><td>ذو القعدة</td><td>١٧ أبريل ٢٠٢٧</td><td>🕌 شهر حرام</td></tr>
+    <tr><td>ذو الحجة</td><td>١٦ مايو ٢٠٢٧</td><td>🕌 شهر حرام — عيد الأضحى والحج</td></tr>
+    </table>
+
+    <h2>التقويم الهجري 1447</h2>
+    <p>العام الهجري الماضي 1447 هـ بدأ في ٢٦ يونيو ٢٠٢٥ م. يمكنك <a href="/calendar/1447/">تصفّح التقويم الهجري 1447 كاملًا</a>.</p>
+
+    <h2>التقويم الهجري 1449</h2>
+    <p>العام الهجري القادم 1449 هـ سيبدأ في ١٤ يونيو ٢٠٢٧ م. <a href="/calendar/1449/">تصفّح التقويم الهجري 1449</a>.</p>
+
+    <div class="cta-box"><p>تصفّح التقويم الهجري 1448 كاملًا</p><a href="/calendar/1448/" class="btn">التقويم الهجري 1448</a></div>
+
+    <Faq faqs={faqs} />
+    <RelatedTools slugs={['hijri', 'age', 'pregnancy']} />
+  </article>
+</ToolLayout>
+<style>.cal-table{inline-size:100%;border-collapse:collapse;margin-block:1rem}.cal-table th,.cal-table td{border:1px solid var(--color-border);padding:.5rem .75rem;text-align:start}.cal-table th{background:var(--color-surface-2,#f4f4f5);font-weight:600}.blog-article{max-width:720px;margin:0 auto}.ba-meta{display:flex;gap:1rem;font-size:.85rem;color:var(--color-text-muted);margin-block-end:.5rem}.ba-cat{color:var(--color-primary);font-weight:600}h1{font-size:var(--fs-h2);margin-block:.25rem 1rem}.ba-intro{font-size:1.1rem;line-height:1.8;margin-block-end:2rem}h2{margin-block:2rem .75rem;font-size:var(--fs-h3)}p,li{line-height:1.9}.cta-box{background:var(--color-primary-light,#eaf3ee);border:1px solid var(--color-primary);border-radius:var(--radius);padding:var(--space-6);text-align:center;margin-block:2.5rem}.cta-box p{font-size:1.1rem;font-weight:600}.cta-box .btn{font-size:1.05rem;padding:.7rem 1.5rem}</style>

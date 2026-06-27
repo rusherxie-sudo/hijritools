@@ -1,0 +1,63 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import Faq from "../../../components/Faq.astro";
+import RelatedTools from '../../../components/RelatedTools.astro';
+import { getTool } from '../../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+
+const title = 'كيف تحسب عمرك بالهجري والميلادي؟ دليل شامل لحساب العمر';
+const description = 'تعلم كيف تحسب عمرك بالتقويمين الهجري والميلادي. دليل شامل يشرح الفرق بين التقويمين، طريقة الحساب، ولماذا العمر الهجري أكبر.';
+const faqs = [
+  { q: 'لماذا عمري بالهجري أكبر من عمري بالميلادي؟', a: 'لأن السنة الهجرية أقصر بحوالي ١١ يومًا من السنة الميلادية. كل ٣٣ سنة هجرية تقابل ٣٢ سنة ميلادية، مما يعني أن عمرك بالهجري سيكون أكبر بمقدار سنة تقريبًا كل ٣٣ سنة.' },
+  { q: 'كيف أحسب عمري بالهجري؟', a: 'أسهل طريقة هي استخدام حاسبة العمر. أدخل تاريخ ميلادك بالهجري أو الميلادي، وتحسب الحاسبة عمرك بالتقويمين معًا بالسنوات والأشهر والأيام.' },
+  { q: 'هل يمكن أن يختلف تاريخ ميلادي بين الجوازات السعودية؟', a: 'نعم، في بعض الوثائق السعودية يُسجل التاريخ بالهجري فقط. لذلك من المهم معرفة تاريخ ميلادك بالتقويمين.' },
+];
+const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/age-calculator-hijri/' }), faqJsonLd(faqs));
+---
+<ToolLayout title={title} description={description} path="/blog/age-calculator-hijri/" jsonLd={jsonLd}>
+  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">حساب العمر بالهجري والميلادي</span></li></ol></nav>
+  <article class="blog-article">
+    <div class="ba-meta"><span class="ba-cat">حساب العمر</span><span>2026-06-27</span><span>٤ دقائق قراءة</span></div>
+    <h1>{title}</h1>
+    <p class="ba-intro">حساب العمر من أكثر الأمور التي نحتاجها في حياتنا اليومية، سواء لاستخراج الوثائق الرسمية، التقديم على وظائف، أو لمجرد المعرفة. في هذا الدليل، نقدم لك طريقة حساب العمر بالتقويمين الهجري والميلادي مع شرح الفروقات بينهما.</p>
+
+    <h2>الفرق بين العمر الهجري والعمر الميلادي</h2>
+    <p>هل تعلم أن عمرك بالهجري أكبر من عمرك بالميلادي؟ هذا ليس خطأ، بل بسبب الفرق بين طول السنة الهجرية والميلادية. السنة الهجرية تعتمد على دورة القمر (٣٥٤ يومًا)، بينما السنة الميلادية تعتمد على دورة الشمس (٣٦٥ يومًا). الفرق حوالي ١١ يومًا سنويًا.</p>
+    <p>مع مرور السنوات، يتراكم هذا الفرق. فمثلًا:</p>
+    <ul>
+      <li>شخص عمره <strong>٣٣ سنة ميلادية</strong> سيكون عمره حوالي <strong>٣٤ سنة هجرية</strong></li>
+      <li>شخص عمره <strong>٦٦ سنة ميلادية</strong> سيكون عمره حوالي <strong>٦٨ سنة هجرية</strong></li>
+    </ul>
+
+    <h2>طريقة حساب العمر بالهجري</h2>
+    <p>يمكنك حساب عمرك بالهجري بسهولة باستخدام <a href="/age/">حاسبة العمر</a>. كل ما عليك فعله هو إدخال تاريخ ميلادك — سواء بالهجري أو الميلادي — وتحصل على:</p>
+    <ul>
+      <li>عمرك بالسنوات والأشهر والأيام بالهجري</li>
+      <li>عمرك بالسنوات والأشهر والأيام بالميلادي</li>
+      <li>العد التنازلي لعيد ميلادك القادم (بالهجري والميلادي)</li>
+      <li>اليوم الذي وُلدت فيه</li>
+    </ul>
+
+    <h2>حساب العمر بالميلادي</h2>
+    <p>الطريقة التقليدية لحساب العمر بالميلادي: اطرح سنة الميلاد من السنة الحالية، ثم انظر إن كان عيد ميلادك قد مرّ هذا العام أم لا. لكن الطريقة الأسهل هي استخدام الحاسبة الإلكترونية التي تقوم بذلك بدقة.</p>
+
+    <h2>لماذا يستخدم السعوديون التقويم الهجري في حسابات العمر؟</h2>
+    <p>في المملكة العربية السعودية،多くの المعاملات الرسمية تستخدم التقويم الهجري، بما في ذلك:</p>
+    <ul>
+      <li>تاريخ الميلاد في الهوية الوطنية والإقامة</li>
+      <li>التقويم الدراسي</li>
+      <li>المعاملات البنكية والعقود</li>
+      <li>المناسبات الدينية</li>
+    </ul>
+
+    <div class="cta-box"><p>احسب عمرك الآن بالهجري والميلادي</p><a href="/age/" class="btn">حاسبة العمر</a></div>
+
+    <h2>كيف تحسب فرق العمر بين شخصين؟</h2>
+    <p>إذا كنت تريد معرفة <a href="/age-diff/">الفرق في العمر بين شخصين</a> (مثل الزوجين، الإخوة، أو الأصدقاء)، يمكنك استخدام حاسبة فرق العمر التي تحسب الفرق بالسنوات والأشهر والأيام بدقة وتحدد من الأكبر.</p>
+
+    <Faq faqs={faqs} />
+    <RelatedTools slugs={['hijri', 'date-diff', 'age-diff']} />
+  </article>
+</ToolLayout>
+<style>.blog-article,.ba-meta,.blog-article h1,.ba-intro,.blog-article h2,.blog-article p,.blog-article li{max-width:720px;margin:0 auto}</style>
+<style>.ba-meta{display:flex;gap:1rem;font-size:.85rem;color:var(--color-text-muted);margin-block-end:.5rem}.ba-cat{color:var(--color-primary);font-weight:600}.blog-article h1{font-size:var(--fs-h2);margin-block:.25rem 1rem}.ba-intro{font-size:1.1rem;line-height:1.8;margin-block-end:2rem}.blog-article h2{margin-block:2rem .75rem;font-size:var(--fs-h3)}.blog-article p,.blog-article li{line-height:1.9}.blog-article ul,.blog-article ol{padding-inline-start:1.5rem}.blog-article li{margin-block-end:.4rem}.cta-box{background:var(--color-primary-light,#eaf3ee);border:1px solid var(--color-primary);border-radius:var(--radius);padding:var(--space-6);text-align:center;margin-block:2.5rem}.cta-box p{font-size:1.1rem;font-weight:600;margin-block-end:1rem}.cta-box .btn{font-size:1.05rem;padding:.7rem 1.5rem}</style>

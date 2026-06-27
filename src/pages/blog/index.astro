@@ -1,0 +1,100 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { webAppJsonLd, graph } from '../../lib/seo.js';
+
+const articles = [
+  {
+    slug: 'hijri-converter-guide',
+    title: 'تحويل التاريخ من هجري لميلادي: دليل كامل',
+    desc: 'دليل شامل لتحويل التاريخ من الهجري إلى الميلادي والعكس. تعرف على طريقة التحويل وفق تقويم أم القرى، ولماذا يختلف التاريخ بين الدول.',
+    date: '2026-06-27',
+    cat: 'التاريخ الهجري',
+    readingTime: '٥ دقائق',
+  },
+  {
+    slug: 'age-calculator-hijri',
+    title: 'كيف تحسب عمرك بالهجري والميلادي؟',
+    desc: 'احسب عمرك بالتقويمين الهجري والميلادي بسهولة. تعرف على الفرق بين العمر الهجري والميلادي ولماذا يزيد العمر الهجري بحوالي سنة كل ٣٣ سنة.',
+    date: '2026-06-27',
+    cat: 'حساب العمر',
+    readingTime: '٤ دقائق',
+  },
+  {
+    slug: 'pregnancy-calculator-hijri',
+    title: 'حاسبة الحمل بالهجري: دليل كامل',
+    desc: 'دليل شامل لحساب الحمل بالتقويم الهجري. احسبي موعد الولادة المتوقع وعمر الحمل بالأسابيع والأشهر بالهجري والميلادي.',
+    date: '2026-06-27',
+    cat: 'الحمل والولادة',
+    readingTime: '٦ دقائق',
+  },
+  {
+    slug: 'weighted-percentage-guide',
+    title: 'حساب النسبة الموزونة: دليل القبول الجامعي في السعودية',
+    desc: 'دليل شامل لحساب النسبة الموزونة للقبول في الجامعات السعودية. تعرف على أوزان القدرات والثانوية والتحصيلي وكيفية حساب نسبتك.',
+    date: '2026-06-27',
+    cat: 'التعليم',
+    readingTime: '٥ دقائق',
+  },
+  {
+    slug: 'zakat-calculator-guide',
+    title: 'دليل الزكاة: كيف تحسب زكاة مالك وذهبك؟',
+    desc: 'دليل شامل لحساب الزكاة. تعرف على نصاب الزكاة، طريقة حساب زكاة المال النقدي والذهب، ونسبة ربع العشر (2.5٪) مع أمثلة عملية.',
+    date: '2026-06-27',
+    cat: 'الزكاة والمال',
+    readingTime: '٧ دقائق',
+  },
+  {
+    slug: 'hijri-calendar-1448',
+    title: 'التقويم الهجري 1448: الأشهر والمناسبات',
+    desc: 'التقويم الهجري لعام 1448 هـ كاملًا. تعرف على الأشهر الهجرية والمناسبات الإسلامية والأعياد وأشهر الحرم.',
+    date: '2026-06-27',
+    cat: 'التقويم الهجري',
+    readingTime: '٤ دقائق',
+  },
+];
+
+const jsonLd = graph(
+  webAppJsonLd({ name: 'مدونة HijriTools', description: 'مقالات وأدلة عن التقويم الهجري والصحة والمال', path: '/blog/' }),
+);
+---
+<ToolLayout title="مدونة HijriTools — أدلة ومقالات عن الأدوات الهجرية" description="مقالات شاملة عن تحويل التاريخ الهجري، حساب العمر بالهجري، الحمل والولادة، الزكاة، والنسبة الموزونة" path="/blog/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <div class="tool-head-text">
+      <h1>مدونة HijriTools</h1>
+      <p class="tool-intro">أدلة ومقالات شاملة عن الأدوات الهجرية، الصحة، المال، والتعليم</p>
+    </div>
+  </div>
+
+  <div class="blog-list">
+    {articles.map((a) => (
+      <a href={`/blog/${a.slug}/`} class="blog-card">
+        <div class="bc-meta">
+          <span class="bc-cat">{a.cat}</span>
+          <span class="bc-date">{a.date}</span>
+          <span class="bc-read">{a.readingTime}</span>
+        </div>
+        <h2>{a.title}</h2>
+        <p>{a.desc}</p>
+      </a>
+    ))}
+  </div>
+</ToolLayout>
+
+<style>
+  .blog-list { display: flex; flex-direction: column; gap: 1.25rem; }
+  .blog-card {
+    display: block;
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+  .blog-card:hover { box-shadow: var(--shadow); border-color: var(--color-primary); }
+  .bc-meta { display: flex; gap: 1rem; font-size: .85rem; color: var(--color-text-muted); margin-block-end: .25rem; }
+  .bc-cat { color: var(--color-primary); font-weight: 600; }
+  .blog-card h2 { margin: 0 0 .35rem; font-size: var(--fs-h3); }
+  .blog-card p { margin: 0; color: var(--color-text-muted); font-size: .95rem; }
+</style>

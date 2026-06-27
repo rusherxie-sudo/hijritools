@@ -1,0 +1,55 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import Faq from "../../../components/Faq.astro";
+import RelatedTools from '../../../components/RelatedTools.astro';
+import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+const title = 'دليل الزكاة: كيف تحسب زكاة مالك وذهبك؟';
+const description = 'دليل شامل لحساب الزكاة. تعرف على نصاب الزكاة، طريقة حساب زكاة المال النقدي والذهب، ونسبة ربع العشر (2.5٪) مع أمثلة عملية.';
+const faqs = [
+  { q: 'كم نسبة الزكاة الواجبة؟', a: 'نسبة الزكاة هي ربع العشر (٢.٥٪) من المال الذي بلغ النصاب وحال عليه الحول (سنة هجرية كاملة).' },
+  { q: 'ما هو نصاب الزكاة؟', a: 'نصاب الزكاة يساوي قيمة ٨٥ جرامًا من الذهب. إذا بلغت أموالك هذه القيمة، وجبت عليك الزكاة.' },
+  { q: 'هل تجب الزكاة على الذهب المدخر؟', a: 'نعم، تجب الزكاة على الذهب المدخر الذي بلغ النصاب وحال عليه الحول. ذهب الزينة فيه خلاف فقهي.' },
+];
+const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/zakat-calculator-guide/' }), faqJsonLd(faqs));
+---
+<ToolLayout title={title} description={description} path="/blog/zakat-calculator-guide/" jsonLd={jsonLd}>
+  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">دليل الزكاة</span></li></ol></nav>
+  <article class="blog-article">
+    <div class="ba-meta"><span class="ba-cat">الزكاة والمال</span><span>2026-06-27</span><span>٧ دقائق قراءة</span></div>
+    <h1>{title}</h1>
+    <p class="ba-intro">الزكاة ركن من أركان الإسلام، وهي واجبة على كل مسلم بلغ ماله النصاب وحال عليه الحول. في هذا الدليل الشامل، نشرح لك كيفية حساب الزكاة بسهولة، مع أمثلة عملية.</p>
+
+    <h2>نسبة الزكاة</h2>
+    <p>نسبة الزكاة الواجبة هي <strong>ربع العشر (٢.٥٪)</strong> من المال الذي بلغ النصاب. هذا يعني أن كل ١٠٠٠ ريال تُخرج عنها ٢٥ ريالًا زكاة.</p>
+
+    <h2>نصاب الزكاة</h2>
+    <p>النصاب هو الحد الأدنى من المال الذي تجب عنده الزكاة. نصاب الزكاة = قيمة <strong>٨٥ جرامًا من الذهب</strong>. إذا كان سعر جرام الذهب ٢٨٠ ريالًا مثلًا، فالنصاب = ٢٣,٨٠٠ ريال.</p>
+
+    <h2>كيف تحسب زكاة مالك؟</h2>
+    <p>باستخدام <a href="/zakat/">حاسبة الزكاة</a>، أدخل:</p>
+    <ul><li>المال النقدي (الموجود في حسابك البنكي والنقد المتوفر)</li><li>وزن الذهب الذي تملكه (بالجرام)</li><li>سعر جرام الذهب الحالي</li></ul>
+
+    <h2>مثال عملي</h2>
+    <p>لنفترض أن لديك ٥٠,٠٠٠ ريال في البنك و١٠٠ جرام ذهب وسعر الجرام ٢٨٠ ريالًا:</p>
+    <ul>
+      <li>قيمة الذهب: ١٠٠ × ٢٨٠ = ٢٨,٠٠٠ ريال</li>
+      <li>إجمالي المال: ٥٠,٠٠٠ + ٢٨,٠٠٠ = ٧٨,٠٠٠ ريال</li>
+      <li>النصاب: ٨٥ × ٢٨٠ = ٢٣,٨٠٠ ريال</li>
+      <li>المال تجاوز النصاب ✓</li>
+      <li>الزكاة الواجبة: ٧٨,٠٠٠ × ٢.٥٪ = ١,٩٥٠ ريال</li>
+    </ul>
+    <p><a href="/zakat/">جرب حاسبة الزكاة</a> لحساب زكاتك بدقة.</p>
+
+    <h2>شروط وجوب الزكاة</h2>
+    <ul><li>الإسلام</li><li>بلوغ النصاب</li><li>مرور الحول (سنة هجرية كاملة)</li><li>الملك التام للمال</li></ul>
+
+    <h2>زكاة الذهب</h2>
+    <p><a href="/zakat/">حاسبة زكاة الذهب</a> تساعدك في حساب زكاة الذهب بدقة. زكاة الذهب ٢.٥٪ من قيمته إذا بلغ النصاب (٨٥ جرامًا).</p>
+
+    <div class="cta-box"><p>احسب زكاتك الآن بدقة وسهولة</p><a href="/zakat/" class="btn">حاسبة الزكاة</a></div>
+
+    <Faq faqs={faqs} />
+    <RelatedTools slugs={['percentage', 'vat', 'discount']} />
+  </article>
+</ToolLayout>
+<style>.blog-article{max-width:720px;margin:0 auto}.ba-meta{display:flex;gap:1rem;font-size:.85rem;color:var(--color-text-muted);margin-block-end:.5rem}.ba-cat{color:var(--color-primary);font-weight:600}h1{font-size:var(--fs-h2);margin-block:.25rem 1rem}.ba-intro{font-size:1.1rem;line-height:1.8;margin-block-end:2rem}h2{margin-block:2rem .75rem;font-size:var(--fs-h3)}p,li{line-height:1.9}ul,ol{padding-inline-start:1.5rem}li{margin-block-end:.4rem}.cta-box{background:var(--color-primary-light,#eaf3ee);border:1px solid var(--color-primary);border-radius:var(--radius);padding:var(--space-6);text-align:center;margin-block:2.5rem}.cta-box p{font-size:1.1rem;font-weight:600}.cta-box .btn{font-size:1.05rem;padding:.7rem 1.5rem}</style>
