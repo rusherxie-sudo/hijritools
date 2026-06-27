@@ -499,3 +499,19 @@ main:has(> .hero) { padding-block: 0; }
     scroll-behavior: auto !important;
   }
 }
+
+/* 首页博文预览区 */
+.blog-section { margin-block: var(--space-8) 0; }
+.blog-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-3); }
+.bp-card {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: var(--space-5); color: var(--color-text);
+  box-shadow: var(--shadow); transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.bp-card:hover { border-color: var(--color-primary); box-shadow: var(--shadow-hover); transform: translateY(-3px); text-decoration: none; }
+.bp-meta { font-size: .8rem; font-weight: 600; color: var(--color-primary); }
+.bp-card h3 { margin: 0; font-size: 1rem; font-weight: 700; color: var(--color-primary-ink); }
+.bp-card p { margin: 0; font-size: .85rem; color: var(--color-text-muted); line-height: 1.6; }
+.blog-all-link { text-align: center; margin-block: var(--space-5); font-weight: 600; }
+.blog-all-link a { color: var(--color-primary-dark); }
