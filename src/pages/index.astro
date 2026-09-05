@@ -37,6 +37,14 @@ const jsonLd = graph(
         <a class="btn" href="#tools">استكشف الأدوات<Icon id="ico-chev" size={17} /></a>
         <a class="btn btn-secondary" href="/about/">تعرّف علينا</a>
       </div>
+      <nav class="hero-popular" aria-label="الأكثر استخدامًا">
+        <span class="hp-label">الأكثر استخدامًا:</span>
+        <a href="/gender-predictor/">توقع نوع الجنين</a>
+        <a href="/hijri/">تحويل التاريخ الهجري</a>
+        <a href="/calendar/1448/">التقويم الهجري 1448</a>
+        <a href="/age/">حاسبة العمر</a>
+        <a href="/love-match/">حاسبة الحب</a>
+      </nav>
     </div>
   </section>
 
@@ -101,3 +109,37 @@ const jsonLd = graph(
     </div>
   </section>
 </ToolLayout>
+
+<style>
+  /* Hero「الأكثر استخدامًا」快捷入口：首屏直接导流到高流量工具，降低跳出。 */
+  .hero-popular {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-6);
+  }
+  .hero-popular .hp-label {
+    font-size: var(--fs-small);
+    font-weight: 700;
+    color: var(--color-text-muted);
+  }
+  .hero-popular a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+  }
+  .hero-popular a:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    transform: translateY(-1px);
+  }
+</style>

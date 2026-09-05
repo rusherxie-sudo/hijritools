@@ -1,0 +1,124 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('salary');
+const faqs = [
+  {
+    q: 'كيف أحسب الراتب الصافي من الراتب الإجمالي؟',
+    a: 'اطرح جميع الاستقطاعات (التأمينات، الضريبة، الخصومات الأخرى) من الراتب الإجمالي. أدخل الراتب الإجمالي ونسب الاستقطاعات في الحاسبة لتعرف الراتب الصافي فورًا.',
+  },
+  {
+    q: 'ما هو الفرق بين الراتب الإجمالي والراتب الصافي؟',
+    a: 'الراتب الإجمالي هو الراتب قبل الاستقطاعات، والراتب الصافي هو المبلغ الذي تستلمه فعليًا بعد خصم التأمينات والضرائب والخصومات الأخرى.',
+  },
+  {
+    q: 'كم عدد أيام العمل في الشهر للحساب؟',
+    a: 'يختلف عدد أيام العمل حسب الدولة والقطاع، ولكن الشائع هو ٢٢ يومًا في الشهر (٥ أيام عمل في الأسبوع). يمكنك تعديل عدد الأيام في الحاسبة.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/salary/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/salary/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="gross">الراتب الإجمالي الشهري</label>
+        <input type="number" id="gross" value="10000" min="0" step="100" />
+      </div>
+      <div class="field">
+        <label for="insurance">نسبة التأمينات ٪</label>
+        <input type="number" id="insurance" value="10" min="0" step="0.5" />
+      </div>
+      <div class="field">
+        <label for="tax">نسبة الضريبة ٪</label>
+        <input type="number" id="tax" value="0" min="0" step="0.5" />
+      </div>
+      <div class="field">
+        <label for="other">خصومات أخرى ٪</label>
+        <input type="number" id="other" value="0" min="0" step="0.5" />
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-grid">
+        <div class="stat"><div class="v num" id="net">0</div><div class="l">الراتب الصافي</div></div>
+        <div class="stat"><div class="v num" id="totalDed">0</div><div class="l">إجمالي الاستقطاعات</div></div>
+        <div class="stat"><div class="v num" id="annual">0</div><div class="l">الراتب السنوي الصافي</div></div>
+        <div class="stat"><div class="v num" id="daily">0</div><div class="l">الراتب اليومي</div></div>
+        <div class="stat"><div class="v num" id="hourly">0</div><div class="l">الراتب بالساعة</div></div>
+      </div>
+
+      <div class="salary-breakdown" id="breakdown"></div>
+    </div>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .salary-breakdown {
+    margin-block-start: 1rem;
+    padding-block-start: 1rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .bd-row {
+    display: flex;
+    justify-content: space-between;
+    padding: .4rem 0;
+    font-size: .95rem;
+  }
+  .bd-row .bd-label { color: var(--color-text-muted); }
+  .bd-row .bd-val { font-weight: 500; }
+</style>
+
+<script>
+  import { netSalary, annualSalary, dailySalary, hourlySalary } from '../../lib/salary.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value) || 0;
+  const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '-');
+
+  function run() {
+    const gross = val('gross');
+    const deductions = [];
+    if (val('insurance') > 0) deductions.push({ name: 'التأمينات', percent: val('insurance') });
+    if (val('tax') > 0) deductions.push({ name: 'الضريبة', percent: val('tax') });
+    if (val('other') > 0) deductions.push({ name: 'خصومات أخرى', percent: val('other') });
+
+    const r = netSalary(gross, deductions);
+    $('net').textContent = fmt(r.net);
+    $('totalDed').textContent = fmt(r.totalDeduction);
+    $('annual').textContent = fmt(annualSalary(r.net));
+    $('daily').textContent = fmt(dailySalary(r.net));
+    $('hourly').textContent = fmt(hourlySalary(r.net));
+
+    const bd = $('breakdown');
+    bd.innerHTML = r.breakdown.map((b) =>
+      `<div class="bd-row"><span class="bd-label">${b.name} (${b.percent}٪)</span><span class="bd-val num">− ${fmt(b.amount)}</span></div>`
+    ).join('');
+  }
+
+  ['gross', 'insurance', 'tax', 'other'].forEach((id) => $(id).addEventListener('input', run));
+  run();
+</script>

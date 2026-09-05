@@ -7,9 +7,18 @@ import Disclaimer from '../../components/Disclaimer.astro';
 import RelatedTools from '../../components/RelatedTools.astro';
 import { getTool } from '../../data/tools.js';
 import { gccOrder, countries } from '../../data/countries.js';
+import { hijriHolidays } from '../../data/hijri-holidays.js';
+import { hijriToGregorian, formatGregorian, HIJRI_MONTHS_AR } from '../../lib/hijri.js';
 import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
 
 const tool = getTool('countdown');
+
+const currentHijriYear = 1448;
+const holidayTable = hijriHolidays.map((h) => {
+  const g = hijriToGregorian(currentHijriYear, h.hm, h.hd, 0);
+  return { ...h, gregDate: formatGregorian(g), hijriYear: currentHijriYear };
+});
+
 const faqs = [
   {
     q: 'كم باقي على رمضان؟',
@@ -22,6 +31,22 @@ const faqs = [
   {
     q: 'كيف أعمل عدّ تنازلي لمناسبتي أو تاريخ معيّن؟',
     a: 'من خانة «العدّ لأي تاريخ» اختر أي تاريخ ميلادي قادم — كزواج أو سفر أو امتحان — لتظهر لك الأيام المتبقية والتاريخ الهجري المقابل له فورًا.',
+  },
+  {
+    q: 'متى يبدأ رمضان ١٤٤٨ هجريًا؟',
+    a: `رمضان ١٤٤٨ يبدأ فلكيًا يوم ١ رمضان ١٤٤٨ هـ بإذن الله، وقد يختلف الموعد الفعلي يومًا واحدًا حسب رؤية الهلال في بلدك. تستطيع اختيار دولتك من القائمة لمشاهدة العدّ الأنسب.`,
+  },
+  {
+    q: 'كم يومًا بين رمضان وعيد الفطر؟',
+    a: 'شهر رمضان ٢٩ أو ٣٠ يومًا حسب رؤية الهلال. لذلك فإن الفارق بين أول رمضان وأول شوال (عيد الفطر) هو ٢٩ أو ٣٠ يومًا بالضبط.',
+  },
+  {
+    q: 'متى عيد الأضحى ١٤٤٨ هجريًا؟',
+    a: `يقف الحجاج يوم ٩ ذي الحجة (يوم عرفة)، ويكون عيد الأضحى في ١٠ ذي الحجة ١٤٤٨ هـ. الأداة تحدّث العدّ لكل من يوم عرفة وعيد الأضحى تلقائيًا.`,
+  },
+  {
+    q: 'هل يُحدّث العدّ التنازلي تلقائيًا كل يوم؟',
+    a: 'نعم، العدّ التنازلي مبني على تاريخ اليوم الفعلي لجهازك، ويتغيّر تلقائيًا عند فتح الصفحة في أي يوم جديد دون حاجة لتحديث يدوي.',
   },
 ];
 const jsonLd = graph(
@@ -68,7 +93,55 @@ const jsonLd = graph(
     <p class="error-text hidden" id="custom-err">يرجى اختيار تاريخ صالح ضمن النطاق المدعوم.</p>
   </div>
 
+  <div class="card" style="margin-block-start:var(--space-8)">
+    <h2>المناسبات الإسلامية لعام ١٤٤٨ هـ</h2>
+    <p style="color:var(--color-text-muted);margin-block-end:var(--space-4)">
+      التواريخ الميلادية تقريبية حسب تقويم أم القرى، وقد تختلف يومًا واحدًا حسب رؤية الهلال في دولتك.
+    </p>
+    <table class="holiday-table">
+      <thead>
+        <tr><th>المناسبة</th><th>التاريخ الهجري</th><th>التاريخ الميلادي (تقديري)</th></tr>
+      </thead>
+      <tbody>
+        {holidayTable.map((h) => (
+          <tr>
+            <td>{h.nameAr}</td>
+            <td class="num">{h.hd} {HIJRI_MONTHS_AR[h.hm]} {h.hijriYear}</td>
+            <td class="num">{h.gregDate}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
   <Disclaimer variant="calc" />
+
+  <!-- المحتوى التعليمي -->
+  <div class="card tool-guide">
+    <h2>لماذا نستخدم التقويم الهجري للعدّ التنازلي؟</h2>
+    <p>كثير من المناسبات الإسلامية (رمضان، عيد الفطر، عيد الأضحى، الحج) تُحدد بالتقويم الهجري. العدّ التنازلي بالتقويمين معًا يساعدك على التخطيط: المناسبات الدينية والهجرية بالتقويم الهجري، والاجتماعات والسفر بالموعد الميلادي.</p>
+
+    <h2>أبرز المناسبات الإسلامية</h2>
+    <ul>
+      <li><strong>رمضان:</strong> شهر الصيام، يتغير تاريخه سنويًا بالتقويم الميلادي (يتقدم ~١١ يومًا كل سنة)</li>
+      <li><strong>عيد الفطر:</strong> أول شوال، بعد رمضان بـ ١ يوم</li>
+      <li><strong>عيد الأضحى:</strong> tenth of Dhul Hijjah، يوم النحر</li>
+      <li><strong>أول محرم:</strong> رأس السنة الهجرية</li>
+      <li><strong>ليلة الإسراء والمعراج:</strong> ٢٧ رجب</li>
+    </ul>
+
+    <h2>فائدة العدّ التنازلي</h2>
+    <p>معرفةعدد الأيام المتبقية على مناسبة قادمة تساعدك على:</p>
+    <ul>
+      <li>تجهيز كل ما تحتاجه قبل رمضان (الصيام، الصدقات، الخطط)</li>
+      <li>حجز رحلات الحج والعمرة مبكرًا</li>
+      <li>التخطيط للاحتفالات والمناسبات العائلية</li>
+      <li>إعداد جدول دراسي أو عمل يتوافق مع الموسم</li>
+    </ul>
+
+    <h2>دقة التواريخ</h2>
+    <p>تعتمد التواريخ على تقويم أم القرى الرسمي. قد يختلف التاريخ الفعلي يومًا واحدًا حسب رؤية الهلال في بعض الدول.</p>
+  </div>
 
   <Faq faqs={faqs} />
 
@@ -140,3 +213,10 @@ const jsonLd = graph(
   countrySel.addEventListener('change', () => { renderEvents(); renderCustom(); });
   $('custom-date').addEventListener('change', renderCustom);
 </script>
+
+<style>
+  .holiday-table { width: 100%; border-collapse: collapse; }
+  .holiday-table th { text-align: start; padding: var(--space-2) var(--space-3); border-block-end: 2px solid var(--color-primary-dark); color: var(--color-primary-dark); font-weight: 700; }
+  .holiday-table td { padding: var(--space-2) var(--space-3); border-block-end: 1px solid var(--color-border); }
+  .holiday-table tbody tr:hover { background: var(--color-primary-light); }
+</style>

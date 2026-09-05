@@ -1,0 +1,129 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('gpa');
+const faqs = [
+  { q: 'ما هو المعدل التراكمي (GPA)؟', a: 'المعدل التراكمي (Grade Point Average) هو متوسط درجات الطالب في جميع المقررات التي درسها، ويُحسب بضرب درجة كل مقرر في عدد ساعاته المعتمدة وقسمة المجموع على إجمالي الساعات. يُستخدم كمعيار رئيسي للقبول الجامعي والتوظيف.' },
+  { q: 'ما الفرق بين نظام ٤ ونظام ٥ في حساب المعدل؟', a: 'النظامان متشابهان في المبدأ لكن يختلفان في السلم: نظام ٤ (الأعلى A+=٤.٠) هو المعيار العالمي، ونظام ٥ (الأعلى A+=٥.٠) شائع في بعض الجامعات السعودية. أداتنا تدعم النظامين معًا.' },
+  { q: 'كيف تُحسب النسبة المئوية من المعدل؟', a: 'في نظام ٤: المعدل ٤.٠ ≈ ٩٥-١٠٠٪، ٣.٠ ≈ ٨٥-٨٩٪. في نظام ٥: المعدل ٥.٠ ≈ ٩٥-١٠٠٪، ٤.٠ ≈ ٨٥-٨٩٪. يمكنك استخدام حاسبة النسبة المئوية للتحويل الدقيق.' },
+  { q: 'كيف أعرف إذا كان معدلي جيدًا للقبول الجامعي؟', a: 'يختلف الحد الأدنى حسب الجامعة والتخصص. عمومًا: المعدل ٣.٥+ (نظام ٤) أو ٤.٠+ (نظام ٥) يُعتبر ممتازًا ويفتح أبواب التخصصات التنافسية. راجع موقع الجامعة التي تهمك لمعرفة شروط القبول.' },
+  { q: 'هل تحسب الأداة المعدل الفصلي والتراكمي؟', a: 'نعم. يمكنك إدخال جميع مقررات فصل دراسي واحد لحساب المعدل الفصلي، أو إدخال جميع مقرراتك عبر عدة فصول لحساب المعدل التراكمي. الطريقة الحسابية واحدة في الحالتين.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/gpa/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/gpa/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field" style="max-width:280px">
+      <label for="scale">نظام المعدل</label>
+      <select id="scale">
+        <option value="4">نظام ٤ (A+=٤.٠)</option>
+        <option value="5">نظام ٥ (A+=٥.٠)</option>
+      </select>
+    </div>
+    <div id="courses"></div>
+    <div style="display:flex;gap:var(--space-3);align-items:center;margin-block-start:var(--space-4)">
+      <button class="btn" id="add-course">+ أضف مقررًا</button>
+      <button class="btn" id="calc">احسب المعدل</button>
+    </div>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div style="color:var(--color-text-muted)">المعدل التراكمي</div>
+    <div class="result-main"><span class="num" id="gpa-out">-</span></div>
+    <div class="num" id="letter-out" style="font-size:var(--fs-h3);color:var(--color-primary-dark)"></div>
+    <hr class="gold-divider" />
+    <div class="result-grid">
+      <div class="stat"><div class="v num" id="credits-out">0</div><div class="l">إجمالي الساعات</div></div>
+      <div class="stat"><div class="v num" id="courses-out">0</div><div class="l">عدد المقررات</div></div>
+    </div>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { calculateGPA, letterGrade } from '../../lib/gpa.js';
+
+  const $ = (id) => document.getElementById(id);
+  let courseCount = 3;
+
+  function createRow() {
+    const div = document.createElement('div');
+    div.className = 'row';
+    div.innerHTML = `
+      <div class="field" style="flex:0 1 180px">
+        <label>الدرجة (٪)</label>
+        <input type="number" class="grade-in" value="85" min="0" max="100" />
+      </div>
+      <div class="field" style="flex:0 1 140px">
+        <label>الساعات</label>
+        <input type="number" class="credits-in" value="3" min="1" max="12" />
+      </div>
+      <button class="btn remove-row" type="button" style="padding:var(--space-1) var(--space-3);align-self:flex-end;margin-block-end:var(--space-1)">✕</button>
+    `;
+    div.querySelector('.remove-row').addEventListener('click', () => {
+      if (document.querySelectorAll('.row').length > 1) div.remove();
+    });
+    return div;
+  }
+
+  function init() {
+    const container = $('courses');
+    for (let i = 0; i < courseCount; i++) container.appendChild(createRow());
+  }
+
+  $('add-course').addEventListener('click', () => {
+    $('courses').appendChild(createRow());
+  });
+
+  function run() {
+    const grades = [...document.querySelectorAll('.grade-in')].map(el => parseFloat(el.value));
+    const credits = [...document.querySelectorAll('.credits-in')].map(el => parseInt(el.value, 10));
+    const courses = grades.map((g, i) => ({ grade: g, credits: credits[i] }));
+    const scale = parseInt($('scale').value, 10);
+
+    const hasInvalid = courses.some(c => isNaN(c.grade) || isNaN(c.credits) || c.credits < 1);
+    if (hasInvalid) {
+      $('err').textContent = 'يرجى التأكد من إدخال درجة (٠-١٠٠) وساعات (١-١٢) صحيحة لكل مقرر.';
+      $('err').classList.remove('hidden');
+      $('result').classList.add('hidden');
+      return;
+    }
+
+    const r = calculateGPA(courses, scale);
+    $('gpa-out').textContent = r.gpa.toFixed(2);
+    $('letter-out').textContent = letterGrade(r.gpa, scale);
+    $('credits-out').textContent = r.totalCredits;
+    $('courses-out').textContent = courses.length;
+    $('err').classList.add('hidden');
+    $('result').classList.remove('hidden');
+  }
+
+  $('calc').addEventListener('click', run);
+  $('scale').addEventListener('change', run);
+  init();
+  run();
+</script>

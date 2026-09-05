@@ -1,0 +1,112 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { toolIconId } from '../../data/icons.js';
+import Faq from '../../components/Faq.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { ZODIAC } from '../../data/zodiac.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('zodiac');
+const signs = Object.entries(ZODIAC); // [key, {nameAr, emoji, rangeAr, ...}]
+const faqs = [
+  { q: 'كيف أعرف برجي؟', a: 'أدخل يوم وشهر ميلادك في الأداة، وستعرض لك برجك الفلكي مباشرة مع تاريخه وصفاته. لا حاجة لإدخال سنة الميلاد لأن البرج يعتمد على اليوم والشهر فقط.' },
+  { q: 'ما هي الأبراج الاثنا عشر بالترتيب؟', a: 'الحمل، الثور، الجوزاء، السرطان، الأسد، العذراء، الميزان، العقرب، القوس، الجدي، الدلو، الحوت.' },
+  { q: 'ماذا لو وُلدت في يوم على حدود برجين؟', a: 'إذا كان ميلادك في يوم انتقال بين برجين، فالأداة تعتمد التواريخ الفلكية الشائعة. قد تختلف بعض المصادر بيوم واحد على الحدود.' },
+  { q: 'هل توقعات الأبراج حقيقية؟', a: 'هذه الأداة تعرّفك ببرجك وصفاته العامة للتسلية فقط. توقعات الحظ اليومية لا أساس علمي لها ولا ينبغي الاعتماد عليها في القرارات.' },
+  { q: 'ما الفرق بين البرج الفلكي والبرج الصيني؟', a: 'البرج الفلكي يعتمد على يوم وشهر الميلاد (١٢ برجًا)، أما البرج الصيني فيعتمد على سنة الميلاد (١٢ حيوانًا). كلاهما للتسلية.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/zodiac/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/zodiac/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="field" style="flex:1 1 240px">
+        <label for="bdate">تاريخ ميلادك (يوم/شهر)</label>
+        <input type="date" id="bdate" />
+      </div>
+    </div>
+    <button class="btn" id="calc">اعرف برجك ⭐</button>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div class="result-main" id="out">-</div>
+    <div id="out-range" style="color:var(--color-text-muted)"></div>
+    <div id="out-trait" style="margin-block-start:var(--space-2)"></div>
+  </div>
+
+  <section class="zodiac-grid" aria-label="كل الأبراج">
+    {signs.map(([key, s]) => (
+      <div class="zodiac-cell" data-key={key}>
+        <span class="z-emoji">{s.emoji}</span>
+        <span class="z-name">{s.nameAr}</span>
+        <span class="z-range num">{s.rangeAr}</span>
+      </div>
+    ))}
+  </section>
+
+  <article class="prose" style="margin-block-start:var(--space-8)">
+    <h2>كيف أعرف برجي حسب تاريخ الميلاد؟</h2>
+    <p>الأبراج الفلكية (الأبراج الشمسية) اثنا عشر برجًا، يُحدَّد برجك منها حسب <strong>يوم وشهر ميلادك</strong> فقط — دون الحاجة إلى سنة الميلاد. يكفي أن تدخل تاريخ ميلادك في الأداة أعلاه لتعرف برجك فورًا، مع تاريخه الفلكي وأبرز صفاته العامة.</p>
+    <p>تنقسم الأبراج إلى أربعة عناصر: <strong>نارية</strong> (الحمل، الأسد، القوس)، و<strong>ترابية</strong> (الثور، العذراء، الجدي)، و<strong>هوائية</strong> (الجوزاء، الميزان، الدلو)، و<strong>مائية</strong> (السرطان، العقرب، الحوت). ويُقال إن لكل عنصر طباعًا عامة تميّز أصحابه.</p>
+    <p><strong>تنبيه:</strong> معرفة البرج وصفاته العامة أمر ممتع للتسلية، لكن توقعات الحظ والطالع اليومية لا تستند إلى أي أساس علمي، ولا ينبغي بناء أي قرار عليها.</p>
+  </article>
+
+  <Disclaimer variant="entertainment" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { zodiacInfo } from '../../lib/zodiac.js';
+  import { parseISODate } from '../../lib/date-utils.js';
+
+  const $ = (id) => document.getElementById(id);
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  function run() {
+    const d = parseISODate($('bdate').value);
+    if (!d) { showErr('يرجى إدخال تاريخ ميلادك.'); return; }
+    const month = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    try {
+      const info = zodiacInfo(month, day);
+      $('out').textContent = `${info.emoji} برجك: ${info.nameAr}`;
+      $('out-range').textContent = info.rangeAr;
+      $('out-trait').textContent = info.trait;
+      $('err').classList.add('hidden');
+      $('result').classList.remove('hidden');
+      // 高亮网格中的对应星座
+      document.querySelectorAll('.zodiac-cell').forEach((c) => c.classList.toggle('active', c.dataset.key === info.key));
+    } catch (e) {
+      showErr('تعذّر تحديد البرج، تأكد من التاريخ.');
+    }
+  }
+
+  $('calc').addEventListener('click', run);
+</script>
+
+<style>
+  .zodiac-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-3); margin-block-start: var(--space-6); }
+  .zodiac-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-3); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); text-align: center; }
+  .zodiac-cell.active { border-color: var(--color-accent); background: var(--color-accent-light); }
+  .z-emoji { font-size: 1.6rem; line-height: 1; }
+  .z-name { font-weight: 700; }
+  .z-range { font-size: var(--fs-small); color: var(--color-text-muted); }
+</style>

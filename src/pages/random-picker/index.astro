@@ -1,0 +1,105 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { toolIconId } from '../../data/icons.js';
+import Faq from '../../components/Faq.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('random-picker');
+const faqs = [
+  { q: 'كيف أستخدم أداة القرعة؟', a: 'اكتب كل اسم أو خيار في سطر مستقل داخل المربع، ثم اضغط "اختر عشوائيًا" لسحب فائز واحد، أو "رتّب عشوائيًا" لترتيب القائمة كلها بشكل عشوائي.' },
+  { q: 'هل الاختيار عشوائي فعلًا؟', a: 'نعم، يستخدم الاختيار مولّد الأرقام العشوائية في متصفحك، وكل خيار له نفس الاحتمال في كل سحبة.' },
+  { q: 'هل تُحفظ الأسماء التي أدخلها؟', a: 'لا، كل شيء يجري داخل متصفحك ولا تُرسل القائمة أو تُخزّن في أي مكان.' },
+  { q: 'كم عدد الأسماء التي يمكنني إدخالها؟', a: 'يمكنك إدخال أي عدد من الأسماء أو الخيارات، سطرًا لكل خيار. الأداة تتعامل مع القوائم الطويلة بسهولة.' },
+  { q: 'لِمَ أستخدم القرعة العشوائية؟', a: 'مثالية لاختيار فائز في مسابقة، توزيع الأدوار، اختيار من يبدأ اللعبة، أو أي قرار تريد تركه للحظ بشكل عادل.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/random-picker/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/random-picker/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label for="names">الأسماء أو الخيارات (كل خيار في سطر)</label>
+      <textarea id="names" rows="6" dir="auto" placeholder="أحمد&#10;سارة&#10;خالد&#10;نورة"></textarea>
+    </div>
+    <div class="row">
+      <button class="btn" id="pick">اختر عشوائيًا 🎯</button>
+      <button class="btn btn-secondary" id="shuf">رتّب عشوائيًا 🔀</button>
+    </div>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div style="color:var(--color-text-muted)" id="out-label">الفائز</div>
+    <div class="result-main" id="out">-</div>
+    <ol class="pick-list hidden" id="out-list"></ol>
+  </div>
+
+  <article class="prose" style="margin-block-start:var(--space-8)">
+    <h2>أداة القرعة والاختيار العشوائي</h2>
+    <p>أداة القرعة تساعدك على اتخاذ قرار عادل بترك الأمر للحظ. اكتب قائمة الأسماء أو الخيارات — كل واحد في سطر — ثم اختر إما <strong>سحب فائز واحد عشوائيًا</strong>، أو <strong>إعادة ترتيب القائمة كلها</strong> بشكل عشوائي. مفيدة للمسابقات، السحوبات، توزيع الأدوار، أو اختيار من يبدأ اللعبة.</p>
+    <p>كل الاختيارات تتم داخل متصفحك مباشرة باستخدام مولّد الأرقام العشوائية، وكل خيار يحصل على فرصة متساوية. لا تُرسل قائمتك إلى أي خادم ولا تُحفظ في أي مكان.</p>
+  </article>
+
+  <Disclaimer variant="entertainment" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { parseNames, pickOne, shuffle } from '../../lib/random-picker.js';
+
+  const $ = (id) => document.getElementById(id);
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  function getList() {
+    const list = parseNames($('names').value);
+    if (list.length < 2) { showErr('يرجى إدخال خيارين على الأقل، كل خيار في سطر.'); return null; }
+    return list;
+  }
+
+  $('pick').addEventListener('click', () => {
+    const list = getList();
+    if (!list) return;
+    const winner = pickOne(list);
+    $('out-label').textContent = 'الفائز 🎉';
+    $('out').textContent = winner;
+    $('out-list').classList.add('hidden');
+    $('err').classList.add('hidden');
+    $('result').classList.remove('hidden');
+  });
+
+  $('shuf').addEventListener('click', () => {
+    const list = getList();
+    if (!list) return;
+    const ordered = shuffle(list);
+    $('out-label').textContent = 'الترتيب العشوائي';
+    $('out').textContent = '';
+    const ol = $('out-list');
+    ol.innerHTML = '';
+    ordered.forEach((name) => { const li = document.createElement('li'); li.textContent = name; ol.appendChild(li); });
+    ol.classList.remove('hidden');
+    $('err').classList.add('hidden');
+    $('result').classList.remove('hidden');
+  });
+</script>
+
+<style>
+  .pick-list { text-align: start; margin: var(--space-2) auto 0; max-inline-size: 320px; padding-inline-start: var(--space-6); }
+  .pick-list li { padding-block: 2px; }
+</style>

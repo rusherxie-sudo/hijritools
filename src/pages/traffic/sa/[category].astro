@@ -1,0 +1,114 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import Faq from "../../../components/Faq.astro";
+import Disclaimer from '../../../components/Disclaimer.astro';
+import RelatedTools from '../../../components/RelatedTools.astro';
+import { getTool } from '../../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+import { trafficViolationCategories, categoryList, trafficSource } from '../../../data/traffic-violations.js';
+
+export function getStaticPaths() {
+  return categoryList.map((c) => ({ params: { category: c.id } }));
+}
+
+const { category } = Astro.params;
+const tool = getTool('traffic-sa');
+const cat = trafficViolationCategories[category];
+
+const title = `${cat.nameAr} من مخالفات المرور — قائمة الغرامات في السعودية`;
+const description = `قائمة كاملة ب${cat.violations.length} مخالفة مرورية من ${cat.nameAr} في السعودية، مع قيمة الغرامة (${cat.fineRange}) وتفاصيل كل مخالفة.`;
+const faqs = [
+  {
+    q: `كم قيمة غرامة ${cat.nameAr} في السعودية؟`,
+    a: `غرامات ${cat.nameAr} تتراوح بين ${cat.fineRange} سعودي، حسب خطورة المخالفة وتكرارها.`,
+  },
+  {
+    q: `كم عدد مخالفات ${cat.nameAr}؟`,
+    a: `تشمل ${cat.nameAr} حوالي ${cat.violations.length} نوع مخالفة، من أبرزها: ${cat.violations.slice(0, 3).join('، ')}.`,
+  },
+  {
+    q: 'كيف أدفع غرامة المخالفة المرورية؟',
+    a: 'تُدفع الغرامات عبر منصة أبشر الإلكترونية أو عبر البنوك المتعاملة، ويمكن الحصول على تخفيض ٢٥٪ عند السداد خلال ١٥ يومًا.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: title, description, path: `/traffic/sa/${category}/` }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={title} description={description} path={`/traffic/sa/${category}/`} jsonLd={jsonLd}>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-block-end:1rem">
+    {categoryList.map((c) => (
+      <a href={`/traffic/sa/${c.id}/`} class={`tc-btn ${c.id === category ? 'active' : ''}`}>
+        {c.nameAr}
+      </a>
+    ))}
+  </div>
+
+  <h1>{title}</h1>
+  <p class="tool-intro">{description}</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-block-end:1rem;padding:1rem;background:var(--color-surface);border-radius:var(--radius)">
+      <span style="font-weight:600">{cat.nameAr}</span>
+      <span style="color:var(--color-primary);font-weight:600">{cat.fineRange}</span>
+    </div>
+
+    <ul class="tv-violation-list">
+      {cat.violations.map((v) => (
+        <li>{v}</li>
+      ))}
+    </ul>
+  </div>
+
+  <p style="color:var(--color-text-muted);font-size:.85rem">المصدر: {trafficSource}</p>
+
+  <Disclaimer variant="regulatory" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .tc-btn {
+    display: inline-block;
+    padding: .4rem .85rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: .85rem;
+    transition: all .15s;
+  }
+  .tc-btn:hover {
+    border-color: var(--color-primary);
+  }
+  .tc-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+  .tv-violation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: .5rem;
+  }
+  .tv-violation-list li {
+    padding: .6rem .75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    position: relative;
+    padding-inline-start: 1.75rem;
+  }
+  .tv-violation-list li::before {
+    content: "•";
+    position: absolute;
+    right: .75rem;
+    color: var(--color-primary);
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+</style>

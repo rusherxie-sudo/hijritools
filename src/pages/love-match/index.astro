@@ -1,0 +1,111 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { toolIconId } from '../../data/icons.js';
+import Faq from '../../components/Faq.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('love-match');
+const faqs = [
+  { q: 'كيف تعمل حاسبة الحب؟', a: 'تأخذ الأداة الاسمين وتحوّلهما إلى نسبة مئوية ثابتة عبر معادلة رياضية بسيطة. النتيجة نفسها في كل مرة لنفس الاسمين، وهي للتسلية فقط ولا تدل على أي شيء حقيقي.' },
+  { q: 'هل نتيجة حاسبة الحب حقيقية؟', a: 'لا. حاسبة الحب أداة ترفيهية بحتة ولا تستند إلى أي أساس علمي أو نفسي. لا تتخذ أي قرار بناءً عليها.' },
+  { q: 'لماذا تظهر نفس النتيجة دائمًا لنفس الاسمين؟', a: 'لأن الحساب ثابت وليس عشوائيًا؛ نفس الاسمين يعطيان دائمًا نفس النسبة، وتبديل ترتيب الاسمين لا يغيّر النتيجة.' },
+  { q: 'هل تختلف النتيجة إذا بدّلت ترتيب الاسمين؟', a: 'لا، النتيجة متماثلة سواء أدخلت "أحمد وسارة" أو "سارة وأحمد" — الأداة مصممة لتكون النسبة واحدة في الحالتين.' },
+  { q: 'هل تُحفظ الأسماء التي أدخلها؟', a: 'لا، كل الحساب يتم داخل متصفحك مباشرة ولا تُرسل الأسماء أو تُخزّن في أي مكان.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/love-match/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/love-match/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <p class="fun-note">💕 للتسلية فقط — نتيجة حاسبة الحب لا تعني أي شيء حقيقي.</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field" style="flex:1 1 200px"><label for="name-a">الاسم الأول</label><input type="text" id="name-a" dir="auto" placeholder="مثال: أحمد" /></div>
+      <div class="field" style="flex:1 1 200px"><label for="name-b">الاسم الثاني</label><input type="text" id="name-b" dir="auto" placeholder="مثال: سارة" /></div>
+    </div>
+    <button class="btn" id="calc">احسب نسبة الحب 💘</button>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div style="color:var(--color-text-muted)" id="out-names">-</div>
+    <div class="result-main" id="out">-</div>
+    <div class="love-bar"><div class="love-bar-fill" id="bar"></div></div>
+    <div id="out-msg" style="color:var(--color-text-muted);margin-block-start:var(--space-2)"></div>
+  </div>
+
+  <article class="prose" style="margin-block-start:var(--space-8)">
+    <h2>عن حاسبة الحب وتوافق الأسماء</h2>
+    <p>حاسبة الحب هي لعبة قديمة ممتعة انتشرت بين الأصدقاء والأزواج لقياس "نسبة التوافق" بين اسمين. تدخل اسمك واسم الشخص الآخر، فتعطيك الأداة نسبة مئوية من ٠ إلى ١٠٠ مع رسالة طريفة. الفكرة كلها للمرح والتسلية، ولا علاقة لها بأي حقيقة علمية أو عاطفية.</p>
+    <p>تعمل حاسبتنا بطريقة <strong>ثابتة وليست عشوائية</strong>: نفس الاسمين يعطيان دائمًا نفس النسبة، كما أن ترتيب الاسمين لا يغيّر النتيجة (أحمد وسارة = سارة وأحمد). هذا يجعل اللعبة عادلة وممتعة عند مشاركتها مع الأصدقاء.</p>
+    <p><strong>تنبيه:</strong> الحب الحقيقي لا يُقاس بحاسبة أو معادلة، بل بالاحترام والتفاهم والصدق. استمتع بالنتيجة كلعبة فقط ولا تبنِ عليها أي قرار.</p>
+    <h2>كيف أستخدم حاسبة الحب؟</h2>
+    <ol>
+      <li>اكتب <strong>الاسم الأول</strong> (اسمك مثلًا).</li>
+      <li>اكتب <strong>الاسم الثاني</strong> (اسم من تحب أو صديق).</li>
+      <li>اضغط "احسب نسبة الحب" لتظهر النسبة فورًا مع رسالة طريفة.</li>
+    </ol>
+    <p>شارك النتيجة مع أصدقائك للمرح! جرّب أسماء مختلفة وقارن النسب.</p>
+  </article>
+
+  <Disclaimer variant="entertainment" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { loveScore } from '../../lib/love-match.js';
+
+  const $ = (id) => document.getElementById(id);
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  function messageFor(score) {
+    if (score >= 90) return '💞 توافق رائع! ثنائي مثالي.';
+    if (score >= 70) return '💖 توافق كبير وجميل.';
+    if (score >= 50) return '💗 توافق جيد، فيه أمل.';
+    if (score >= 30) return '💛 توافق متوسط، يحتاج جهدًا.';
+    return '💔 توافق ضعيف… لكنها لعبة فقط!';
+  }
+
+  function run() {
+    const a = $('name-a').value.trim();
+    const b = $('name-b').value.trim();
+    if (!a || !b) { showErr('يرجى إدخال الاسمين.'); return; }
+    try {
+      const score = loveScore(a, b);
+      $('out-names').textContent = `${a} ❤ ${b}`;
+      $('out').textContent = `${score}%`;
+      $('bar').style.inlineSize = `${score}%`;
+      $('out-msg').textContent = messageFor(score);
+      $('err').classList.add('hidden');
+      $('result').classList.remove('hidden');
+    } catch (e) {
+      showErr('تعذّر الحساب، تأكد من إدخال الاسمين.');
+    }
+  }
+
+  $('calc').addEventListener('click', run);
+  [$('name-a'), $('name-b')].forEach((el) => el.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); }));
+</script>
+
+<style>
+  .fun-note { background: var(--color-accent-light); color: var(--color-warning); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); font-weight: 700; font-size: var(--fs-small); }
+  .love-bar { inline-size: 100%; block-size: 14px; background: var(--color-border); border-radius: var(--radius-pill); overflow: hidden; margin-block-start: var(--space-3); }
+  .love-bar-fill { block-size: 100%; inline-size: 0; background: linear-gradient(90deg, #F06292, #E91E63); border-radius: var(--radius-pill); transition: inline-size var(--duration-slow) var(--ease-out); }
+</style>

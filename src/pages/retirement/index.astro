@@ -1,0 +1,61 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { retirementCareerList } from '../../data/retirement-careers.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('retirement');
+const faqs = [
+  {
+    q: 'كيف أحسب مدخرات التقاعد؟',
+    a: 'تُحسب مدخرات التقاعد بتركيز ما تدخره شهريًا وعدد سنوات الادخار ونسبة العائد السنوية على الاستثمار، بناءً على الفائدة المركبة. كلما زادت مدة الادخار زادت قيمة المدخرات بشكل كبير.',
+  },
+  {
+    q: 'كم أحتاج ادخار شهريًا للتقاعد؟',
+    a: 'يعتمد المبلغ على عمرك الحالي وعمر التقاعد المستهدف والدخل الذي تريده بعد التقاعد. القاعدة الشائعة: ادخر ١٠-١٥٪ من دخلك الشهري، ويمكنك استخدام الحاسبة لمعرفة القيمة الدقيقة لحالتك.',
+  },
+  {
+    q: 'ما هي نسبة السحب الآمنة بعد التقاعد؟',
+    a: 'القاعدة الشائعة هي نسبة السحب السنوي ٤٪ من قيمة المدخرات، أي سحب الشهري يساوي ٤٪ ÷ ١٢. هذه النسبة مصممة لضمان استمرار المدخرات لمدة ٣٠ عامًا فأكثر.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/retirement/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/retirement/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <ul class="vat-cards">
+    {retirementCareerList.map((c) => (
+      <li>
+        <a class="vat-card" href={`/retirement/${c.code}/`}>
+          <span class="vat-flag">{c.icon}</span>
+          <span class="vat-card-text">
+            <span class="vat-name">{c.shortAr}</span>
+            <span class="vat-rate">حاسبة مخصصة {c.nameAr}</span>
+          </span>
+          <Icon id="ico-chev" size={18} class="vat-chev" />
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>

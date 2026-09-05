@@ -3,7 +3,7 @@ import ToolLayout from '../../../layouts/ToolLayout.astro';
 import Faq from "../../../components/Faq.astro";
 import RelatedTools from '../../../components/RelatedTools.astro';
 import { getTool } from '../../../data/tools.js';
-import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+import { articleJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
 
 const tool = getTool('hijri');
 const title = 'تحويل التاريخ من هجري لميلادي: دليل كامل للتحويل بين التقويمين';
@@ -17,19 +17,11 @@ const faqs = [
 ];
 
 const jsonLd = graph(
-  webAppJsonLd({ name: title, description, path: '/blog/hijri-converter-guide/' }),
+  articleJsonLd({ name: title, description, path: '/blog/hijri-converter-guide/', datePublished: '2026-06-27', authorName: 'HijriTools' }),
   faqJsonLd(faqs),
 );
 ---
-<ToolLayout title={title} description={description} path="/blog/hijri-converter-guide/" jsonLd={jsonLd}>
-  <nav class="breadcrumb" aria-label="مسار التنقل">
-    <ol>
-      <li><a href="/">الرئيسية</a></li>
-      <li><a href="/blog/">المدونة</a></li>
-      <li><span aria-current="page">تحويل التاريخ من هجري لميلادي</span></li>
-    </ol>
-  </nav>
-
+<ToolLayout title={title} description={description} path="/blog/hijri-converter-guide/" jsonLd={jsonLd} ogType="article" breadcrumb={[{name:'الرئيسية',path:'/'},{name:'المدونة',path:'/blog/'},{name:'تحويل التاريخ من هجري لميلادي',path:'/blog/hijri-converter-guide/'}]}>
   <article class="blog-article">
     <div class="ba-meta">
       <span class="ba-cat">التاريخ الهجري</span>

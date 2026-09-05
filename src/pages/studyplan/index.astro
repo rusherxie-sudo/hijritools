@@ -1,0 +1,196 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('studyplan');
+const faqs = [
+  {
+    q: 'كيف أصنع جدول مذاكرة فعال؟',
+    a: 'حدد تاريخ الاختبار وأسماء المواد وعدد الساعات اليومية، ثم وزّع الوقت evenly بين المواد مع مراعاة فترات الراحة. المرحلة الأولى مراجعة، والثانية تمارين، والثالثة مراجعة نهائية.',
+  },
+  {
+    q: 'كم ساعة أدرس في اليوم؟',
+    a: 'يختلف حسب القدرة والوقت المتاح، ولكن الجلسات الفعالة عادة ما تكون ٣-٥ ساعات يوميًا مع فترات راحة قصيرة (٥-١٠ دقائق كل ٥٠ دقيقة).',
+  },
+  {
+    q: 'ما هي أفضل طريقة لمراجعة القدرات؟',
+    a: 'اقسم وقتك بين المواد الأربعة (لفظي، كمي، استدلال منطقي، هندسي)، وركّز على التمارين والحلول الزمنية لأن السرعة عامل مهم في اختبار القدرات.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/studyplan/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/studyplan/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="examDate">تاريخ الاختبار</label>
+        <input type="date" id="examDate" />
+      </div>
+      <div class="field">
+        <label for="hoursPerDay">ساعات المذاكرة باليوم</label>
+        <input type="number" id="hoursPerDay" value="3" min="1" max="12" step="1" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field" style="flex:1">
+        <label>اختبار القدرات العامة</label>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button type="button" class="preset-btn" data-preset="qdratic">مواد القدرات</button>
+          <button type="button" class="preset-btn" data-preset="tahsili">مواد التحصيلي</button>
+          <button type="button" class="preset-btn" data-preset="clear">مسح</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field" style="flex:1">
+        <label for="subjects">المواد (افصل بينها بفاصلة)</label>
+        <input type="text" id="subjects" value="اللفظي, الكمي, الاستدلال المنطقي, الاستدلال الهندسي" placeholder="مثال: الرياضيات, الفيزياء, الكيمياء" />
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-grid">
+        <div class="stat"><div class="v num" id="daysLeft">0</div><div class="l">أيام حتى الاختبار</div></div>
+        <div class="stat"><div class="v num" id="weeksLeft">0</div><div class="l">أسابيع حتى الاختبار</div></div>
+        <div class="stat"><div class="v num" id="totalHours">0</div><div class="l">إجمالي ساعات المذاكرة</div></div>
+        <div class="stat"><div class="v num" id="hoursPerSubj">0</div><div class="l">الساعات لكل مادة</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="planCard" style="display:none">
+    <h3 style="margin-block-start:0">الخطة الأسبوعية</h3>
+    <div id="weeklyPlan" class="sp-weekly"></div>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .preset-btn {
+    padding: .4rem .8rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: .85rem;
+    transition: all .15s;
+  }
+  .preset-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+  .sp-weekly {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+  }
+  .sp-week {
+    padding: .75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+  .sp-week-head {
+    font-weight: 600;
+    margin-block-end: .5rem;
+    color: var(--color-primary);
+  }
+  .sp-subj {
+    display: flex;
+    justify-content: space-between;
+    padding: .25rem 0;
+    font-size: .9rem;
+  }
+  .sp-subj .s-label { color: var(--color-text-muted); }
+</style>
+
+<script>
+  import { generateStudyPlan, QDRAT_SUBJECTS, TAHSELI_SUBJECTS } from '../../lib/studyplan.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value) || 0;
+  const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '-');
+
+  const today = new Date().toISOString().split('T')[0];
+  const examDateEl = $('examDate');
+  if (!examDateEl.value) {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    examDateEl.value = d.toISOString().split('T')[0];
+  }
+
+  function getSubjects() {
+    return $('subjects').value.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
+  }
+
+  function run() {
+    const examDate = new Date($('examDate').value);
+    const subjects = getSubjects();
+    const hoursPerDay = val('hoursPerDay');
+
+    const plan = generateStudyPlan(examDate, subjects, hoursPerDay);
+
+    $('daysLeft').textContent = plan.days;
+    $('weeksLeft').textContent = plan.weeks;
+    $('totalHours').textContent = fmt(plan.totalHours);
+    $('hoursPerSubj').textContent = subjects.length > 0 ? fmt(plan.hoursPerSubject) : '-';
+
+    const planCard = $('planCard');
+    if (subjects.length > 0 && plan.days > 0) {
+      planCard.style.display = '';
+      $('weeklyPlan').innerHTML = plan.weeklyPlan.slice(0, 8).map((w) => `
+        <div class="sp-week">
+          <div class="sp-week-head">الأسبوع ${w.week} — ${w.phase === 'review' ? 'مراجعة المفاهيم' : w.phase === 'practice' ? 'تمارين واختبارات' : 'مراجعة نهائية'}</div>
+          ${w.subjects.map((s) => `
+            <div class="sp-subj">
+              <span class="s-label">${s.subject}</span>
+              <span class="num">${s.hours} ساعة / أسبوع</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+    } else {
+      planCard.style.display = 'none';
+    }
+  }
+
+  document.querySelectorAll('.preset-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const preset = btn.dataset.preset;
+      if (preset === 'qdratic') {
+        $('subjects').value = QDRAT_SUBJECTS.join(', ');
+      } else if (preset === 'tahsili') {
+        $('subjects').value = TAHSELI_SUBJECTS.join(', ');
+      } else if (preset === 'clear') {
+        $('subjects').value = '';
+      }
+      run();
+    });
+  });
+
+  ['examDate', 'hoursPerDay', 'subjects'].forEach((id) => $(id).addEventListener('input', run));
+  run();
+</script>

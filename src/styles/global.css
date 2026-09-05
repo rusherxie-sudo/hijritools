@@ -463,6 +463,11 @@ main:has(> .hero) { padding-block: 0; }
 .faq-a p { margin: 0; }
 
 /* 伊历年历 */
+.cal-years { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block-start: var(--space-4); }
+.cal-years a, .cal-years .cal-year-cur { display: inline-flex; align-items: center; padding: 0.35rem 0.9rem; border-radius: var(--radius-pill); font-weight: 700; font-size: var(--fs-small); border: 1px solid var(--color-border-input); text-decoration: none; }
+.cal-years a { background: var(--color-surface); color: var(--color-primary); transition: border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out); }
+.cal-years a:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
+.cal-years .cal-year-cur { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
 .cal-year { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: var(--space-6); margin-block: var(--space-6); }
 .cal-month { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-4); }
 .cal-month h2 { font-size: 1.1rem; margin-block-end: 2px; display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }

@@ -14,6 +14,7 @@ const {
   wide = false, // 首页等需要宽骨架的页面设 true；工具页默认收窄正文
   bleed = false, // 全宽出血：不套 .container（页面自管容器，如首页 hero），不渲染面包屑/分享
   breadcrumb = null, // 可选自定义面包屑 [{name, path}]；缺省时工具页自动用「首页 > 当前页」
+  ogType = 'website', // 可覆盖：博客页设为 'article'
 } = Astro.props;
 
 const site = Astro.site?.toString().replace(/\/$/, '') ?? 'https://hijritools.com';
@@ -24,6 +25,9 @@ const fullTitle = title.includes('HijriTools') ? title : `${title} | HijriTools`
 // GA4 初始化脚本（用 set:html={表达式} 原样输出，避免 JSX 转义单引号为 &#39; 破坏脚本）。
 const gaId = 'G-EW5LTTLXTY';
 const gaInit = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`;
+
+// 百度统计异步加载脚本。用 set:html 逐字符精确输出，不依赖模板字符串与 Astro 前端插值处理。
+const baiduRaw = '<script>\nvar _hmt = _hmt || [];\n(function() {\n  var hm = document.createElement("script");\n  hm.src = "https://hm.baidu.com/hm.js?1dcb6ba32a141124d8395ac1fc88616f";\n  var s = document.getElementsByTagName("script")[0];\n  s.parentNode.insertBefore(hm, s);\n})();\n</script>';
 
 // 面包屑：首页与 noindex 页不显示；其余默认两级（首页 > 当前页），可被 breadcrumb prop 覆盖。
 const crumbs = !noindex && path !== '/'
@@ -40,11 +44,12 @@ const finalJsonLd = crumbs && jsonLd && Array.isArray(jsonLd['@graph'])
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Google Analytics 4（G-EW5LTTLXTY）。仅生产环境注入，避免本地 dev/preview 污染 GA4 数据。 -->
+    <!-- Google Analytics 4 + 百度统计。仅生产环境注入，避免本地 dev/preview 污染数据。 -->
     {import.meta.env.PROD && (
       <Fragment>
         <script async is:inline src="https://www.googletagmanager.com/gtag/js?id=G-EW5LTTLXTY"></script>
         <script is:inline set:html={gaInit}></script>
+        <Fragment set:html={baiduRaw} />
       </Fragment>
     )}
     <title>{fullTitle}</title>
@@ -54,7 +59,7 @@ const finalJsonLd = crumbs && jsonLd && Array.isArray(jsonLd['@graph'])
       : <link rel="canonical" href={canonical} />}
     {!noindex && <link rel="alternate" hreflang="ar" href={canonical} />}
     {!noindex && <link rel="alternate" hreflang="x-default" href={canonical} />}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="HijriTools" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />

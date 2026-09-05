@@ -3,7 +3,7 @@ import ToolLayout from '../../../layouts/ToolLayout.astro';
 import Faq from "../../../components/Faq.astro";
 import RelatedTools from '../../../components/RelatedTools.astro';
 import { getTool } from '../../../data/tools.js';
-import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+import { articleJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
 
 const title = 'كيف تحسب عمرك بالهجري والميلادي؟ دليل شامل لحساب العمر';
 const description = 'تعلم كيف تحسب عمرك بالتقويمين الهجري والميلادي. دليل شامل يشرح الفرق بين التقويمين، طريقة الحساب، ولماذا العمر الهجري أكبر.';
@@ -12,10 +12,9 @@ const faqs = [
   { q: 'كيف أحسب عمري بالهجري؟', a: 'أسهل طريقة هي استخدام حاسبة العمر. أدخل تاريخ ميلادك بالهجري أو الميلادي، وتحسب الحاسبة عمرك بالتقويمين معًا بالسنوات والأشهر والأيام.' },
   { q: 'هل يمكن أن يختلف تاريخ ميلادي بين الجوازات السعودية؟', a: 'نعم، في بعض الوثائق السعودية يُسجل التاريخ بالهجري فقط. لذلك من المهم معرفة تاريخ ميلادك بالتقويمين.' },
 ];
-const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/age-calculator-hijri/' }), faqJsonLd(faqs));
+const jsonLd = graph(articleJsonLd({ name: title, description, path: '/blog/age-calculator-hijri/', datePublished: '2026-06-27', authorName: 'HijriTools' }), faqJsonLd(faqs));
 ---
-<ToolLayout title={title} description={description} path="/blog/age-calculator-hijri/" jsonLd={jsonLd}>
-  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">حساب العمر بالهجري والميلادي</span></li></ol></nav>
+<ToolLayout title={title} description={description} path="/blog/age-calculator-hijri/" jsonLd={jsonLd} ogType="article" breadcrumb={[{name:'الرئيسية',path:'/'},{name:'المدونة',path:'/blog/'},{name:'حساب العمر بالهجري والميلادي',path:'/blog/age-calculator-hijri/'}]}>
   <article class="blog-article">
     <div class="ba-meta"><span class="ba-cat">حساب العمر</span><span>2026-06-27</span><span>٤ دقائق قراءة</span></div>
     <h1>{title}</h1>

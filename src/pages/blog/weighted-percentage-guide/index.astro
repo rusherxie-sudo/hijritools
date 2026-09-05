@@ -2,7 +2,7 @@
 import ToolLayout from '../../../layouts/ToolLayout.astro';
 import Faq from "../../../components/Faq.astro";
 import RelatedTools from '../../../components/RelatedTools.astro';
-import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+import { articleJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
 const title = 'حساب النسبة الموزونة: دليل القبول الجامعي في السعودية';
 const description = 'دليل شامل لحساب النسبة الموزونة للقبول في الجامعات السعودية. تعرف على كيفية حساب النسبة الموزونة والمكافئة وأوزان القدرات والثانوية والتحصيلي.';
 const faqs = [
@@ -10,10 +10,9 @@ const faqs = [
   { q: 'كيف أحسب النسبة الموزونة؟', a: 'استخدم حاسبة النسبة الموزونة. أدخل درجاتك في الثانوية والقدرات والتحصيلي، ثم اضبط الأوزان حسب جامعتك. تحسب الحاسبة نسبتك الموزونة مباشرة.' },
   { q: 'هل تختلف النسبة الموزونة من جامعة لأخرى؟', a: 'نعم، تختلف الأوزان بين الجامعات وبين التخصصات داخل الجامعة الواحدة. أوزان كلية الطب تختلف عن أوزان كلية الهندسة مثلاً.' },
 ];
-const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/weighted-percentage-guide/' }), faqJsonLd(faqs));
+const jsonLd = graph(articleJsonLd({ name: title, description, path: '/blog/weighted-percentage-guide/', datePublished: '2026-06-28', authorName: 'HijriTools' }), faqJsonLd(faqs));
 ---
-<ToolLayout title={title} description={description} path="/blog/weighted-percentage-guide/" jsonLd={jsonLd}>
-  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">النسبة الموزونة</span></li></ol></nav>
+<ToolLayout title={title} description={description} path="/blog/weighted-percentage-guide/" jsonLd={jsonLd} ogType="article" breadcrumb={[{name:'الرئيسية',path:'/'},{name:'المدونة',path:'/blog/'},{name:'النسبة الموزونة',path:'/blog/weighted-percentage-guide/'}]}>
   <article class="blog-article">
     <div class="ba-meta"><span class="ba-cat">التعليم</span><span>2026-06-27</span><span>٥ دقائق قراءة</span></div>
     <h1>{title}</h1>

@@ -1,0 +1,104 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { toolIconId } from '../../data/icons.js';
+import Faq from '../../components/Faq.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { CHINESE_ZODIAC } from '../../data/chinese-zodiac.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('chinese-zodiac');
+const faqs = [
+  { q: 'كيف أعرف برجي الصيني؟', a: 'أدخل سنة ميلادك الميلادية في الأداة، وستعرض لك حيوانك في الأبراج الصينية (الفأر، الثور، النمر...) مع صفاته. البرج الصيني يعتمد على سنة الميلاد فقط.' },
+  { q: 'ما هي حيوانات الأبراج الصينية الاثنا عشر؟', a: 'الفأر، الثور، النمر، الأرنب، التنين، الأفعى، الحصان، الخروف، القرد، الديك، الكلب، الخنزير — وتتكرر كل ١٢ سنة.' },
+  { q: 'ماذا لو وُلدت في يناير أو فبراير؟', a: 'السنة الصينية تبدأ مع رأس السنة الصينية (أواخر يناير أو فبراير) وليس أول يناير. إذا وُلدت في تلك الفترة، قد يكون برجك حيوان السنة السابقة — راجع تاريخ رأس السنة الصينية لعام ميلادك.' },
+  { q: 'ما الفرق بين البرج الصيني والبرج الفلكي؟', a: 'البرج الفلكي يعتمد على يوم وشهر الميلاد (١٢ برجًا)، أما البرج الصيني فيعتمد على سنة الميلاد (١٢ حيوانًا يتكرر كل ١٢ سنة). كلاهما للتسلية فقط.' },
+  { q: 'هل صفات البرج الصيني حقيقية؟', a: 'لا، صفات الأبراج الصينية موروث ثقافي للتسلية فقط ولا تستند إلى أي أساس علمي. استمتع بها كلعبة ولا تبنِ عليها قرارات.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/chinese-zodiac/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/chinese-zodiac/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="field" style="flex:0 1 200px">
+        <label for="year">سنة الميلاد (ميلادي)</label>
+        <input type="number" id="year" value="2000" min="1900" max="2100" />
+      </div>
+    </div>
+    <button class="btn" id="calc">اعرف برجك الصيني 🐉</button>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div class="result-main" id="out">-</div>
+    <div id="out-trait" style="margin-block-start:var(--space-2)"></div>
+  </div>
+
+  <section class="cz-grid" aria-label="كل الأبراج الصينية">
+    {CHINESE_ZODIAC.map((z) => (
+      <div class="cz-cell" data-key={z.key}>
+        <span class="cz-emoji">{z.emoji}</span>
+        <span class="cz-name">{z.nameAr}</span>
+      </div>
+    ))}
+  </section>
+
+  <article class="prose" style="margin-block-start:var(--space-8)">
+    <h2>الأبراج الصينية حسب سنة الميلاد</h2>
+    <p>الأبراج الصينية نظام قديم يقسّم السنوات إلى دورة من <strong>اثني عشر حيوانًا</strong> تتكرر كل ١٢ سنة: الفأر، الثور، النمر، الأرنب، التنين، الأفعى، الحصان، الخروف، القرد، الديك، الكلب، والخنزير. يُحدَّد برجك الصيني حسب <strong>سنة ميلادك</strong>، ويُقال في الموروث الصيني إن لكل حيوان طباعًا تميّز مواليده.</p>
+    <p>على عكس الأبراج الفلكية التي تعتمد على اليوم والشهر، يكفي هنا إدخال سنة الميلاد. لاحظ أن السنة الصينية تبدأ مع <strong>رأس السنة الصينية</strong> (بين أواخر يناير وفبراير)، لذا من وُلد في بداية العام الميلادي قد ينتمي لحيوان السنة السابقة.</p>
+    <p><strong>تنبيه:</strong> الأبراج الصينية وصفاتها موروث ثقافي للتسلية والترفيه فقط، ولا علاقة لها بأي حقيقة علمية.</p>
+  </article>
+
+  <Disclaimer variant="entertainment" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { chineseZodiacInfo } from '../../lib/chinese-zodiac.js';
+
+  const $ = (id) => document.getElementById(id);
+  const showErr = (msg) => { const e = $('err'); e.textContent = msg; e.classList.remove('hidden'); $('result').classList.add('hidden'); };
+
+  function run() {
+    const year = parseInt($('year').value, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) { showErr('يرجى إدخال سنة ميلاد صحيحة (١٩٠٠–٢١٠٠).'); return; }
+    try {
+      const info = chineseZodiacInfo(year);
+      $('out').textContent = `${info.emoji} برجك الصيني: ${info.nameAr}`;
+      $('out-trait').textContent = info.trait;
+      $('err').classList.add('hidden');
+      $('result').classList.remove('hidden');
+      document.querySelectorAll('.cz-cell').forEach((c) => c.classList.toggle('active', c.dataset.key === info.key));
+    } catch (e) {
+      showErr('تعذّر تحديد البرج، تأكد من السنة.');
+    }
+  }
+
+  $('calc').addEventListener('click', run);
+  $('year').addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+</script>
+
+<style>
+  .cz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--space-3); margin-block-start: var(--space-6); }
+  .cz-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-3); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); text-align: center; }
+  .cz-cell.active { border-color: var(--color-accent); background: var(--color-accent-light); }
+  .cz-emoji { font-size: 1.6rem; line-height: 1; }
+  .cz-name { font-weight: 700; font-size: var(--fs-small); }
+</style>

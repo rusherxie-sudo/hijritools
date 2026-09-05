@@ -2,7 +2,7 @@
 import ToolLayout from '../../../layouts/ToolLayout.astro';
 import Faq from "../../../components/Faq.astro";
 import RelatedTools from '../../../components/RelatedTools.astro';
-import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+import { articleJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
 const title = 'دليل الزكاة: كيف تحسب زكاة مالك وذهبك؟';
 const description = 'دليل شامل لحساب الزكاة. تعرف على نصاب الزكاة، طريقة حساب زكاة المال النقدي والذهب، ونسبة ربع العشر (2.5٪) مع أمثلة عملية.';
 const faqs = [
@@ -10,10 +10,9 @@ const faqs = [
   { q: 'ما هو نصاب الزكاة؟', a: 'نصاب الزكاة يساوي قيمة ٨٥ جرامًا من الذهب. إذا بلغت أموالك هذه القيمة، وجبت عليك الزكاة.' },
   { q: 'هل تجب الزكاة على الذهب المدخر؟', a: 'نعم، تجب الزكاة على الذهب المدخر الذي بلغ النصاب وحال عليه الحول. ذهب الزينة فيه خلاف فقهي.' },
 ];
-const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/zakat-calculator-guide/' }), faqJsonLd(faqs));
+const jsonLd = graph(articleJsonLd({ name: title, description, path: '/blog/zakat-calculator-guide/', datePublished: '2026-06-28', authorName: 'HijriTools' }), faqJsonLd(faqs));
 ---
-<ToolLayout title={title} description={description} path="/blog/zakat-calculator-guide/" jsonLd={jsonLd}>
-  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">دليل الزكاة</span></li></ol></nav>
+<ToolLayout title={title} description={description} path="/blog/zakat-calculator-guide/" jsonLd={jsonLd} ogType="article" breadcrumb={[{name:'الرئيسية',path:'/'},{name:'المدونة',path:'/blog/'},{name:'دليل الزكاة',path:'/blog/zakat-calculator-guide/'}]}>
   <article class="blog-article">
     <div class="ba-meta"><span class="ba-cat">الزكاة والمال</span><span>2026-06-27</span><span>٧ دقائق قراءة</span></div>
     <h1>{title}</h1>

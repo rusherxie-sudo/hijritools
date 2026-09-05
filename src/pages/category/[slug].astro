@@ -1,0 +1,74 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { liveTools, categoryNamesAr, toolLink } from '../../data/tools.js';
+import { categoryMeta, toolIconId } from '../../data/icons.js';
+import { webAppJsonLd, graph } from '../../lib/seo.js';
+
+export function getStaticPaths() {
+  return Object.keys(categoryNamesAr).map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const catName = categoryNamesAr[slug];
+const meta = categoryMeta[slug];
+const tools = liveTools.filter((t) => t.category === slug);
+
+const title = `${catName} — جميع الأدوات والحاسبات | HijriTools`;
+const description = tools.length > 0
+  ? `${catName} — أدوات وحاسبات مجانية: ${tools.map(t => t.shortAr).join('، ')}. بدون تسجيل ومجانية بالكامل.`
+  : `${catName} — استكشف أدواتنا المجانية للتخطيط والحساب.`;
+
+const jsonLd = graph(
+  webAppJsonLd({ name: catName, description, path: `/category/${slug}/` }),
+);
+
+if (!catName) return Astro.redirect('/404/');
+---
+<ToolLayout title={title} description={description} path={`/category/${slug}/`} jsonLd={jsonLd}>
+  <div class="container" style="margin-block-start:var(--space-10)">
+    <div class="tool-head">
+      <span class="tool-head-chip"><Icon id={meta?.icon ?? 'ico-spark'} size={28} /></span>
+      <div class="tool-head-text">
+        <h1>{catName}</h1>
+        {meta?.sub && <p class="tool-intro">{meta.sub}</p>}
+      </div>
+    </div>
+
+    {tools.length > 0 ? (
+      <div class="tool-grid" style="margin-block-start:var(--space-6)">
+        {tools.map((t) => (
+          <a href={toolLink(t)} class="tool-card">
+            <span class="tool-card-icon">{t.icon}</span>
+            <div>
+              <strong>{t.shortAr}</strong>
+              <p>{t.descAr}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p>لا توجد أدوات في هذا التصنيف حاليًا.</p>
+    )}
+  </div>
+</ToolLayout>
+
+<style>
+  .tool-grid { display: grid; gap: var(--space-4); }
+  @media (min-width: 640px) { .tool-grid { grid-template-columns: repeat(2, 1fr); } }
+  .tool-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .2s;
+  }
+  .tool-card:hover { border-color: var(--color-primary); }
+  .tool-card-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .tool-card strong { display: block; margin-block-end: .3rem; }
+  .tool-card p { font-size: var(--fs-small); color: var(--color-text-muted); margin: 0; line-height: 1.6; }
+</style>

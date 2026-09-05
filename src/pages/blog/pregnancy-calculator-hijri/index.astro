@@ -2,7 +2,7 @@
 import ToolLayout from '../../../layouts/ToolLayout.astro';
 import Faq from "../../../components/Faq.astro";
 import RelatedTools from '../../../components/RelatedTools.astro';
-import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+import { articleJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
 const title = 'حاسبة الحمل بالهجري: دليل كامل لحساب الحمل والولادة';
 const description = 'دليل شامل لحساب الحمل بالتقويم الهجري. تعلمي كيفية حساب موعد الولادة المتوقع وعمر الحمل بالأسابيع والأشهر بالهجري والميلادي.';
 const faqs = [
@@ -10,10 +10,9 @@ const faqs = [
   { q: 'كم مدة الحمل بالهجري؟', a: 'مدة الحمل حوالي ٢٨٠ يومًا أو ٤٠ أسبوعًا. بالهجري، هذا يعادل حوالي ٩ أشهر هجرية و٩ أيام تقريبًا.' },
   { q: 'كيف أعرف أن حملي بدأ؟', a: 'يُحسب الحمل من أول يوم في آخر دورة شهرية (آخر دورة)، وهو التاريخ الذي تستخدمه أغلب النساء والطبيبات لحساب عمر الحمل.' },
 ];
-const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/pregnancy-calculator-hijri/' }), faqJsonLd(faqs));
+const jsonLd = graph(articleJsonLd({ name: title, description, path: '/blog/pregnancy-calculator-hijri/', datePublished: '2026-06-28', authorName: 'HijriTools' }), faqJsonLd(faqs));
 ---
-<ToolLayout title={title} description={description} path="/blog/pregnancy-calculator-hijri/" jsonLd={jsonLd}>
-  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">حاسبة الحمل بالهجري</span></li></ol></nav>
+<ToolLayout title={title} description={description} path="/blog/pregnancy-calculator-hijri/" jsonLd={jsonLd} ogType="article" breadcrumb={[{name:'الرئيسية',path:'/'},{name:'المدونة',path:'/blog/'},{name:'حاسبة الحمل بالهجري',path:'/blog/pregnancy-calculator-hijri/'}]}>
   <article class="blog-article">
     <div class="ba-meta"><span class="ba-cat">الحمل والولادة</span><span>2026-06-27</span><span>٦ دقائق قراءة</span></div>
     <h1>{title}</h1>

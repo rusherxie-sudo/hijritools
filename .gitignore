@@ -18,4 +18,7 @@ dist/
 # 其它 AI 工具的本地配置产物(非本项目代码)
 .agents/
 .codex/
+
+# 本地设计与规划产物
+.hermes/
 AGENTS.md

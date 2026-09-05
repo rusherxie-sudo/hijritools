@@ -1,7 +1,7 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
 import Icon from '../components/Icon.astro';
-import { graph } from '../lib/seo.js';
+import { graph, organizationJsonLd, websiteJsonLd } from '../lib/seo.js';
 
 const title = 'من نحن';
 const description = 'تعرّف على HijriTools: موقع عربي مستقل يقدّم حاسبات ومحوّلات مجانية للتواريخ الهجرية والميلادية والصحة والمال، مع توضيح مصادر بياناتنا ومنهجيتنا في الدقة.';
@@ -12,7 +12,7 @@ const values = [
   { icon: 'ico-shield', t: 'خصوصية أولاً', d: 'كل العمليات الحسابية تتم داخل متصفحك. لا نجمع بياناتك ولا نرسلها إلى أي خادم.' },
 ];
 ---
-<ToolLayout title={title} description={description} path="/about/" jsonLd={graph()}>
+<ToolLayout title={title} description={description} path="/about/" jsonLd={graph(organizationJsonLd(), websiteJsonLd())}>
   <span class="hero-badge"><Icon id="ico-spark" size={14} filled />تعرّف على هجري</span>
   <h1 class="page-title">من نحن</h1>
   <section class="prose">

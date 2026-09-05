@@ -1,0 +1,279 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import Icon from "../../../components/Icon.astro";
+import { toolIconId } from "../../../data/icons.js";
+import Faq from "../../../components/Faq.astro";
+import Disclaimer from '../../../components/Disclaimer.astro';
+import RelatedTools from '../../../components/RelatedTools.astro';
+import { getTool } from '../../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+import { categoryList, trafficSource } from '../../../data/traffic-violations.js';
+
+const tool = getTool('traffic-sa');
+const faqs = [
+  {
+    q: 'كم قيمة غرامة المخالفات المرورية في السعودية؟',
+    a: 'تتراوح الغرامات بين ١٠٠ ريال وحتى ١٠٬٠٠٠ ريال سعودي حسب خطورة المخالفة، مقسمة إلى ٧ فئات من الفئة الرابعة (الأقل غرامة) إلى الفئة السابعة (الأعلى).',
+  },
+  {
+    q: 'كم قيمة غرامة تجاوز السرعة في السعودية؟',
+    a: 'تختلف حسب سرعة الطرق ومقدار التجاوز: على طرق ١٢٠ كم تبدأ من ١٥٠ ريال لتجاوز ١٠-٢٠ كم، وتصل إلى ٢٠٠٠ ريال لتجاوز أكثر من ٥٠ كم. على طرق ١٤٠ كم تبدأ من ٣٠٠ ريال.',
+  },
+  {
+    q: 'هل هناك تخفيض على المخالفات المرورية؟',
+    a: 'نعم، يمكن الحصول على تخفيض يصل إلى ٢٥٪ عند السداد خلال ١٥ يومًا من تاريخ تسجيل المخالفة، وشرط عدم وجود مخالفات سابقة، عبر منصة أبشر.',
+  },
+  {
+    q: 'كيف أستعلم عن المخالفات المرورية؟',
+    a: 'تتم الاستعلام عن المخالفات عبر منصة أبشر الإلكترونية التابعة لوزارة الداخلية السعودية، بإدخال رقم الهوية أو الإقامة والتحقق.',
+  },
+  {
+    q: 'كم قيمة غرامة قطع الإشارة الحمراء؟',
+    a: 'غرامة قطع الإشارة الضوئية الحمراء تتراوح بين ٣٠٠٠ إلى ٦٠٠٠ ريال سعودي، وتقع ضمن الفئة السادسة من المخالفات (شديدة الخطورة).',
+  },
+  {
+    q: 'كم قيمة غرامة استخدام الجوال أثناء القيادة؟',
+    a: 'غرامة استخدام الهاتف المحمول بيد السائق أثناء القيادة تتراوح بين ٥٠٠ إلى ٩٠٠ ريال سعودي، وتقع ضمن الفئة الأولى.',
+  },
+  {
+    q: 'كم قيمة غرامة عدم ربط حزام الأمان؟',
+    a: 'غرامة عدم ربط حزام الأمان تتراوح بين ١٥٠ إلى ٣٠٠ ريال سعودي، وتقع ضمن الفئة الثالثة من المخالفات.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/traffic/sa/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/traffic/sa/" jsonLd={jsonLd}>
+  <h1>{tool.titleAr}</h1>
+  <p class="tool-intro">{tool.descAr}</p>
+
+  <div class="card">
+    <div class="tv-search">
+      <input type="text" id="searchInput" placeholder="ابحث عن مخالفة... (مثال: سرعة، جوال، حزام)" />
+    </div>
+
+    <div class="tv-categories">
+      {categoryList.map((cat) => (
+        <a href={`/traffic/sa/${cat.id}/`} class="tv-cat">
+          <div class="tv-cat-head">
+            <span class="tv-cat-name">{cat.nameAr}</span>
+            <span class="tv-cat-fine">{cat.fineRange}</span>
+          </div>
+          <div class="tv-cat-count">{cat.violations.length} مخالفة</div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <div class="card" id="resultsCard" style="display:none">
+    <h3 style="margin-block-start:0">نتائج البحث</h3>
+    <div id="resultsList" class="tv-results"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-block-start:0">جدول مخالفات السرعة</h3>
+    <div class="tv-speed">
+      <div class="tv-speed-col">
+        <h4>طرق 120 كم/ساعة</h4>
+        <table>
+          <thead><tr><th>مقدار التجاوز</th><th>الغرامة (ريال)</th></tr></thead>
+          <tbody>
+            <tr><td>١٠ – ٢٠ كم</td><td class="num">150 – 300</td></tr>
+            <tr><td>٢٠ – ٣٠ كم</td><td class="num">300 – 500</td></tr>
+            <tr><td>٣٠ – ٤٠ كم</td><td class="num">800 – 1,000</td></tr>
+            <tr><td>٤٠ – ٥٠ كم</td><td class="num">1,200 – 1,500</td></tr>
+            <tr><td>أكثر من ٥٠ كم</td><td class="num">1,500 – 2,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tv-speed-col">
+        <h4>طرق 140 كم/ساعة</h4>
+        <table>
+          <thead><tr><th>مقدار التجاوز</th><th>الغرامة (ريال)</th></tr></thead>
+          <tbody>
+            <tr><td>٥ – ١٠ كم</td><td class="num">300 – 500</td></tr>
+            <tr><td>١٠ – ٢٠ كم</td><td class="num">800 – 1,000</td></tr>
+            <tr><td>٢٠ – ٣٠ كم</td><td class="num">1,200 – 1,500</td></tr>
+            <tr><td>أكثر من ٣٠ كم</td><td class="num">1,500 – 2,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <p style="color:var(--color-text-muted);font-size:.85rem">المصدر: {trafficSource}</p>
+
+  <article class="prose" style="margin-block-start:var(--space-8)">
+    <h2>جدول المخالفات المرورية الجديد في السعودية 2026</h2>
+    <p>يُعدّ جدول المخالفات المرورية الجديد الصادر عن الإدارة العامة للمرور في المملكة العربية السعودية المرجع الرسمي والوحيد لتحديد قيمة غرامات المرور على مستوى المملكة، وقد جرى تحديثه آخر مرة في أبريل 2026 ليشمل ضوابط أكثر دقة تتعلق بسرعة الطرق وأنواع المخالفات. يهدف هذا الجدول إلى تعزيز السلامة المرورية وتقليل الحوادث على الطرق السعودية، ويُلزم جميع السائقين، سواء كانوا مواطنين أو مقيمين أو زوارًا، باحترام قواعد المرور وإلا فإنهم سيتعرضون لغرامات مالية تبدأ من 100 ريال وتصل إلى 10,000 ريال سعودي حسب نوع المخالفة ودرجة خطورتها.</p>
+    <p>تُصنّف غرامات المرور في السعودية ضمن نظام دقيق يعتمد على سبع فئات رئيسية، تبدأ من الفئة الرابعة (الأقل خطورة وغرامة) مرورًا بالفئات الأولى والثانية والثالثة والخامسة، وصولًا إلى الفئة السادسة والفئة السابعة الأعلى خطورة وغرامة. كل فئة من هذه الفئات تضم مجموعة من المخالفات ذات الطبيعة المتشابهة، وكلما زادت خطورة المخالفة على السلامة العامة ارتفعت قيمة الغرامة المالية المترتبة عليها.</p>
+
+    <h2>نظام التصنيف السبعة للمخالفات المرورية</h2>
+    <p>يعتمد جدول المخالفات المرورية الجديد على نظام تصنيف يتألف من سبع فئات رئيسية، وهي مرتبة وفقًا لطبيعة المخالفة وأثرها على السلامة المرورية:</p>
+    <ul>
+      <li><strong>الفئة الأولى (500 – 900 ريال):</strong> تشمل مخالفات مثل استخدام الجوال أثناء القيادة، والوقوف في أماكن ذوي الاحتياجات الخاصة، والقيادة دون رخصة سارية.</li>
+      <li><strong>الفئة الثانية (300 – 500 ريال):</strong> تشمل مخالفات مثل عدم استخدام مقاعد الأمان للأطفال، وترك الأطفال دون مرافق بالغ، والانشغال أثناء القيادة.</li>
+      <li><strong>الفئة الثالثة (150 – 300 ريال):</strong> تشمل مخالفات مثل عدم ربط حزام الأمان، واستخدام الهاتف المحمول، وعدم ترك مسافة أمان كافية.</li>
+      <li><strong>الفئة الرابعة (100 – 150 ريال):</strong> أقل الغرامات، وتشمل إلقاء القمامة، والوقوف في أماكن غير مخصصة، والقيادة ببطء مفرط.</li>
+      <li><strong>الفئة الخامسة (1000 – 2000 ريال):</strong> تشمل مخالفات مثل القيادة برخصة لا تتناسب مع نوع المركبة، والتجاوز في المناطق الممنوعة، وعدم ارتداء الخوذة للدراجات النارية.</li>
+      <li><strong>الفئة السادسة (3000 – 6000 ريال):</strong> مخالفات شديدة الخطورة مثل قطع الإشارة الحمراء، والقيادة بالاتجاه المعاكس، وسباق المركبات على الطرق العامة.</li>
+      <li><strong>الفئة السابعة (5000 – 10,000 ريال):</strong> أعلى الغرامات وتشمل القيادة تحت تأثير المخدرات أو الكحول، والمجازفة بعبور الأودية أثناء جريانها.</li>
+    </ul>
+
+    <h2>غرامات المرور 2026 — المبالغ والفئات</h2>
+    <p>في عام 2026، تستمر غرامات المرور في المملكة العربية السعودية بالعمل وفق الجدول المعتمد، حيث تتراوح الغرامات بين 100 ريال سعودي كحد أدنى للفئة الرابعة، و10,000 ريال سعودي كحد أقصى للفئة السابعة. أما مخالفات السرعة فهي تُحسب بشكل منفصل بناءً على سرعة الطريق ومقدار التجاوز، فعلى طرق 120 كم/ساعة تبدأ الغرامة من 150 ريال لتجاوز 10-20 كم وتصل إلى 2000 ريال لتجاوز أكثر من 50 كم، بينما على طرق 140 كم/ساعة تبدأ من 300 ريال لتجاوز 5-10 كم وتصل أيضًا إلى 2000 ريال لتجاوز أكثر من 30 كم.</p>
+    <p>يُمكن للسائقين الاطلاع على تفاصيل كل فئة والبحث عن مخالفة محددة عبر أداة البحث أعلى الصفحة، إذ توفر الأداة إمكانية تصفح جميع المخالفات المصنفة ضمن جدول المخالفات المرورية الجديد مع توضيح قيمة الغرامة المالية لكل فئة.</p>
+
+    <h2>الاستعلام عن المخالفات ودفع الغرامات عبر منصة أبشر</h2>
+    <p>تتم عملية الاستعلام عن المخالفات المرورية ودفع غرامات المرور إلكترونيًا عبر منصة أبشر التابعة لوزارة الداخلية السعودية، وهي القناة الرسمية المعتمدة لجميع المعاملات المرورية. ويتطلب الاستعلام تسجيل الدخول إلى حساب المستخدم في أبشر بإدخال رقم الهوية أو الإقامة وكلمة المرور، ثم الانتقال إلى قسم «الخدمات» واختيار «المرور»، ومنها يمكن الاستعلام عن المخالفات المسجلة على المركبة أو رخصة القيادة.</p>
+    <p>بعد عرض المخالفات، يستطيع المستخدم اختيار المخالفة المطلوب سدادها والدفع إلكترونيًا عبر بطاقة مدى أو بطاقات الائتمان المعتمدة، كما يمكن استخدام تطبيق «أبشر أشخاص» على الجوال لإتمام العملية في أي وقت ومن أي مكان. ويتلقى المستخدم إشعارًا فوريًا بعد إتمام عملية الدفع لتأكيد سداد الغرامة.</p>
+
+    <h2>تخفيض 25% عند السداد خلال 15 يومًا</h2>
+    <p>يُمنح السائقون في السعودية تخفيضًا على غرامات المرور يصل إلى 25% من قيمة المخالفة عند السداد خلال 15 يومًا من تاريخ تسجيل المخالفة، وذلك وفقًا للضوابط المعتمدة من الإدارة العامة للمرور. ويُشترط للاستفادة من هذا التخفيض ألا يكون السائق قد ارتكب مخالفات سابقة مسجلة عليه، وأن يتم السداد عبر منصة أبشر بشكل إلكتروني.</p>
+    <p>على سبيل المثال، إذا كانت قيمة المخالفة 1000 ريال، فإن السداد خلال 15 يومًا يجعل المبلغ المستحق 750 ريال فقط، أي توفير 250 ريال. ويمكنك استخدام <a href="/percentage/">أداة حساب النسبة المئوية</a> لحساب قيمة التخفيض بدقة لأي مبلغ مخالفة، ومعرفة المبلغ النهائي الذي يجب سداده بعد خصم 25%.</p>
+
+    <h2>النقاط المرورية وسحب رخصة القيادة</h2>
+    <p>إلى جانب الغرامات المالية، يعتمد النظام المروري السعودي نظامًا للنقاط يُسجّل على السائقين عند ارتكاب المخالفات، حيث تُحتسب النقاط حسب خطورة المخالفة. وعند تراكم عدد معين من النقاط خلال مدة محددة، تتخذ الإدارة العامة للمرور إجراءات أشد تصل إلى سحب رخصة القيادة لمدة محددة أو بشكل دائم في الحالات الشديدة.</p>
+    <p>تُعدّ المخالفات المصنفة ضمن الفئتين السادسة والسابعة من أكثر المخالفات تأثيرًا على رصيد النقاط، إذ إن قطع الإشارة الحمراء، والقيادة تحت تأثير المخدرات أو الكحول، وسباق المركبات على الطرق العامة، قد تؤدي مباشرة إلى سحب الرخصة وحتى الإحالة إلى الجهات القضائية في بعض الحالات. لذا يُنصح جميع السائقين بالالتزام التام بقواعد المرور وتجنب المخالفات الشديدة للحفاظ على سلامتهم وسلامة مستخدمي الطريق الآخرين، وتجنب فقدان رخصة القيادة.</p>
+  </article>
+
+  <Disclaimer variant="regulatory" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .tv-search input {
+    width: 100%;
+    padding: .75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+  .tv-search input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+  .tv-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .75rem;
+    margin-block-start: 1rem;
+  }
+  .tv-cat {
+    display: block;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: all .15s;
+  }
+  .tv-cat:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+  }
+  .tv-cat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: .25rem;
+  }
+  .tv-cat-name { font-weight: 600; }
+  .tv-cat-fine {
+    color: var(--color-primary);
+    font-size: .85rem;
+    font-weight: 500;
+  }
+  .tv-cat-count {
+    font-size: .85rem;
+    color: var(--color-text-muted);
+  }
+  .tv-speed {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 600px) {
+    .tv-speed { grid-template-columns: 1fr; }
+  }
+  .tv-speed-col h4 {
+    margin-block: 0 .5rem;
+    color: var(--color-primary);
+  }
+  .tv-speed table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .9rem;
+  }
+  .tv-speed th, .tv-speed td {
+    padding: .5rem .75rem;
+    border: 1px solid var(--color-border);
+    text-align: right;
+  }
+  .tv-speed th {
+    background: var(--color-surface);
+    font-weight: 600;
+  }
+  .tv-results {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .tv-result-item {
+    padding: .5rem .75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tv-result-item .r-fine {
+    color: var(--color-primary);
+    font-weight: 500;
+    font-size: .85rem;
+  }
+</style>
+
+<script>
+  import { categoryList } from '../../../data/traffic-violations.js';
+  const violations = [];
+  categoryList.forEach((c) => {
+    c.violations.forEach((v) => {
+      violations.push({ name: v, category: c.nameAr, fine: c.fineRange, catId: c.id });
+    });
+  });
+
+  const searchInput = document.getElementById('searchInput');
+  const resultsCard = document.getElementById('resultsCard');
+  const resultsList = document.getElementById('resultsList');
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim();
+    if (!q) {
+      resultsCard.style.display = 'none';
+      return;
+    }
+    const results = violations.filter((v) =>
+      v.name.includes(q) || v.category.includes(q)
+    ).slice(0, 30);
+
+    if (results.length === 0) {
+      resultsList.innerHTML = '<p style="color:var(--color-text-muted)">لا توجد نتائج</p>';
+    } else {
+      resultsList.innerHTML = results.map((r) => `
+        <div class="tv-result-item">
+          <span>${r.name}</span>
+          <span class="r-fine">${r.fine}</span>
+        </div>
+      `).join('');
+    }
+    resultsCard.style.display = '';
+  });
+</script>

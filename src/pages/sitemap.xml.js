@@ -1,6 +1,6 @@
 // 自动生成 sitemap.xml：从 tools.js 汇总所有页面（含法规工具的每国页）。
 // 新增工具/国家后无需手改，构建时自动包含。
-import { liveTools } from '../data/tools.js';
+import { liveTools, categoryNamesAr } from '../data/tools.js';
 
 const SITE = 'https://hijritools.com';
 
@@ -42,6 +42,11 @@ export function GET() {
   // 博客文章
   for (const p of blogPosts) {
     entries.push(p);
+  }
+
+  // 分类汇总页
+  for (const slug of Object.keys(categoryNamesAr)) {
+    entries.push({ loc: `/category/${slug}/`, lastmod: '2026-06-28' });
   }
 
   const body =

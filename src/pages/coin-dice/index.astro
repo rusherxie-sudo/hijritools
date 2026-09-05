@@ -1,0 +1,116 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { toolIconId } from '../../data/icons.js';
+import Faq from '../../components/Faq.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('coin-dice');
+const faqs = [
+  { q: 'كيف أرمي العملة أو النرد؟', a: 'اختر الوضع (عملة أو نرد)، ثم اضغط الزر. في وضع العملة تظهر النتيجة صورة أو كتابة، وفي وضع النرد يظهر رقم كل حجر مع المجموع.' },
+  { q: 'هل النتيجة عشوائية فعلًا؟', a: 'نعم، تعتمد الأداة على مولّد الأرقام العشوائية في متصفحك، فلكل وجه للعملة أو رقم للنرد نفس الاحتمال في كل رمية.' },
+  { q: 'كم حجر نرد يمكنني رميه؟', a: 'يمكنك رمي من حجر واحد حتى خمسة أحجار نرد دفعة واحدة، وتُعرض نتيجة كل حجر مع المجموع الكلي.' },
+  { q: 'متى أستخدم رمي العملة؟', a: 'مثالي لاتخاذ قرار سريع بين خيارين، تحديد من يبدأ لعبة، أو أي اختيار تريد تركه للحظ بشكل عادل.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/coin-dice/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/coin-dice/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="seg" role="tablist">
+      <button class="seg-btn active" id="tab-coin" role="tab">🪙 العملة</button>
+      <button class="seg-btn" id="tab-dice" role="tab">🎲 النرد</button>
+    </div>
+
+    <div id="pane-coin">
+      <button class="btn btn-block" id="flip">ارمِ العملة</button>
+    </div>
+
+    <div id="pane-dice" class="hidden">
+      <div class="field" style="flex:0 1 200px">
+        <label for="dice-count">عدد الأحجار</label>
+        <select id="dice-count">
+          <option value="1">١</option>
+          <option value="2">٢</option>
+          <option value="3">٣</option>
+          <option value="4">٤</option>
+          <option value="5">٥</option>
+        </select>
+      </div>
+      <button class="btn btn-block" id="roll">ارمِ النرد</button>
+    </div>
+  </div>
+
+  <div class="result hidden" id="result">
+    <div class="cd-face" id="face">-</div>
+    <div class="result-main" id="out">-</div>
+    <div id="out-sum" style="color:var(--color-text-muted)"></div>
+  </div>
+
+  <article class="prose" style="margin-block-start:var(--space-8)">
+    <h2>رمي العملة وحجر النرد</h2>
+    <p>أداة بسيطة وممتعة لاتخاذ القرارات بترك الأمر للحظ. في <strong>وضع العملة</strong> تحصل على نتيجة صورة أو كتابة بضغطة واحدة — مثالية للاختيار بين خيارين. وفي <strong>وضع النرد</strong> يمكنك رمي حتى خمسة أحجار نرد دفعة واحدة، مع عرض نتيجة كل حجر ومجموعها الكلي — مناسب لألعاب الطاولة والألعاب العائلية.</p>
+    <p>كل الرميات عشوائية تمامًا وتتم داخل متصفحك، فلا حاجة لعملة أو نرد حقيقي. جرّبها في أي وقت لاتخاذ قرار عادل أو للتسلية.</p>
+  </article>
+
+  <Disclaimer variant="entertainment" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { flipCoin, rollDice } from '../../lib/coin-dice.js';
+
+  const $ = (id) => document.getElementById(id);
+  const DICE_FACES = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+  // 模式切换
+  function setMode(dice) {
+    $('tab-coin').classList.toggle('active', !dice);
+    $('tab-dice').classList.toggle('active', dice);
+    $('pane-coin').classList.toggle('hidden', dice);
+    $('pane-dice').classList.toggle('hidden', !dice);
+    $('result').classList.add('hidden');
+  }
+  $('tab-coin').addEventListener('click', () => setMode(false));
+  $('tab-dice').addEventListener('click', () => setMode(true));
+
+  $('flip').addEventListener('click', () => {
+    const r = flipCoin();
+    $('face').textContent = r === 'heads' ? '🙂' : '✦';
+    $('out').textContent = r === 'heads' ? 'صورة' : 'كتابة';
+    $('out-sum').textContent = '';
+    $('result').classList.remove('hidden');
+  });
+
+  $('roll').addEventListener('click', () => {
+    const count = parseInt($('dice-count').value, 10);
+    const rolls = rollDice(count, 6);
+    $('face').textContent = rolls.map((n) => DICE_FACES[n]).join(' ');
+    $('out').textContent = rolls.join(' + ');
+    $('out-sum').textContent = count > 1 ? `المجموع: ${rolls.reduce((a, b) => a + b, 0)}` : '';
+    $('result').classList.remove('hidden');
+  });
+</script>
+
+<style>
+  .seg { display: inline-flex; gap: 4px; background: var(--color-border); padding: 4px; border-radius: var(--radius-pill); margin-block-end: var(--space-4); }
+  .seg-btn { border: none; background: transparent; padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill); font: inherit; font-weight: 700; cursor: pointer; color: var(--color-text-muted); }
+  .seg-btn.active { background: var(--color-surface); color: var(--color-primary); box-shadow: var(--shadow-sm); }
+  .cd-face { font-size: 3rem; line-height: 1.2; }
+</style>

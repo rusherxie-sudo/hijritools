@@ -28,7 +28,19 @@ export const toolIconIds = {
   qdrat: 'ico-graduation',
   zakat: 'ico-coins',
   meeras: 'ico-book',
-  };
+  gpa: 'ico-graduation',
+  area: 'ico-ruler',
+  retirement: 'ico-coins',
+  wordcount: 'ico-text',
+  salary: 'ico-wallet',
+  studyplan: 'ico-calendar',
+  'traffic-sa': 'ico-shield',
+  'love-match': 'ico-heart',
+  zodiac: 'ico-star',
+  'chinese-zodiac': 'ico-spark',
+  'random-picker': 'ico-target',
+  'coin-dice': 'ico-dice',
+};
 
 export const toolIconId = (slug) => toolIconIds[slug] ?? 'ico-spark';
 

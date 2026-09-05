@@ -1,0 +1,140 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { retirementCareers, retirementCareerList } from '../../data/retirement-careers.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+export function getStaticPaths() {
+  return retirementCareerList.map((c) => ({ params: { career: c.code } }));
+}
+
+const { career } = Astro.params;
+const tool = getTool('retirement');
+const c = retirementCareers[career];
+
+const title = c.titleAr;
+const description = c.descAr;
+const faqs = [
+  {
+    q: 'كيف أحسب قيمة مدخراتي عند التقاعد؟',
+    a: `ادخل المبلغ الذي تدخره شهريًا ونسبة العائد السنوية على استثمارك وعدد سنوات الادخار، وتحسب لك الحاسبة القيمة الإجمالية للمدخرات عند التقاعد بناءً على الفائدة المركبة.`,
+  },
+  {
+    q: 'كم أحتاج لأدخر شهريًا للتقاعد بمريح؟',
+    a: 'القاعدة العامة: ادخر ١٠-١٥٪ من دخلك الشهري. وكلما بدأت مبكرًا قل المبلغ الشهري المطلوب بفضل قوة الفائدة المركبة على المدى الطويل.',
+  },
+  {
+    q: 'ما هو الدخل الشهري المتوقع بعد التقاعد؟',
+    a: 'باستخدام قاعدة السحب الآمن ٤٪ سنويًا، يكون الدخل الشهري = (قيمة المدخرات × ٤٪) ÷ ١٢. تضمن هذه النسبة استمرار المدخرات لعقود.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: title, description, path: `/retirement/${career}/` }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={title} description={description} path={`/retirement/${career}/`} jsonLd={jsonLd}>
+  <div class="ret-career-switcher">
+    {retirementCareerList.map((cc) => (
+      <a href={`/retirement/${cc.code}/`} class={`rc-btn ${cc.code === career ? 'active' : ''}`}>
+        <span>{cc.icon}</span>
+        <span>{cc.nameAr}</span>
+      </a>
+    ))}
+  </div>
+
+  <h1>{title}</h1>
+  <p class="tool-intro">{description}</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="monthly">الادخار الشهري</label>
+        <input type="number" id="monthly" value={c.defaults.monthly} min="0" step="100" />
+      </div>
+      <div class="field">
+        <label for="returnPct">نسبة العائد السنوية ٪</label>
+        <input type="number" id="returnPct" value={c.defaults.returnPct} min="0" step="0.5" />
+      </div>
+      <div class="field">
+        <label for="currentAge">العمر الحالي</label>
+        <input type="number" id="currentAge" value={c.defaults.currentAge} min="18" max="80" step="1" />
+      </div>
+      <div class="field">
+        <label for="retirementAge">عمر التقاعد</label>
+        <input type="number" id="retirementAge" value={c.defaults.retirementAge} min="40" max="80" step="1" />
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-grid">
+        <div class="stat"><div class="v num" id="futureValue">0</div><div class="l">قيمة المدخرات عند التقاعد</div></div>
+        <div class="stat"><div class="v num" id="monthlyIncome">0</div><div class="l">الدخل الشهري بعد التقاعد (٤٪)</div></div>
+        <div class="stat"><div class="v num" id="years">0</div><div class="l">عدد سنوات الادخار</div></div>
+      </div>
+    </div>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  .ret-career-switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-block-end: 1rem;
+  }
+  .rc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .85rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: .9rem;
+    transition: all .15s;
+  }
+  .rc-btn:hover {
+    border-color: var(--color-primary);
+  }
+  .rc-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+</style>
+
+<script>
+  import { futureValue, retirementMonthlyIncome, yearsToRetirement } from '../../lib/retirement.js';
+  const $ = (id) => document.getElementById(id);
+  const val = (id) => parseFloat($(id).value) || 0;
+  const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '-');
+
+  function run() {
+    const monthly = val('monthly');
+    const returnPct = val('returnPct');
+    const currentAge = val('currentAge');
+    const retirementAge = val('retirementAge');
+    const years = yearsToRetirement(currentAge, retirementAge);
+    const fv = futureValue(monthly, returnPct, years);
+    const income = retirementMonthlyIncome(fv);
+    $('futureValue').textContent = fmt(fv);
+    $('monthlyIncome').textContent = fmt(income);
+    $('years').textContent = years;
+  }
+
+  ['monthly', 'returnPct', 'currentAge', 'retirementAge'].forEach((id) => {
+    $(id).addEventListener('input', run);
+  });
+  run();
+</script>

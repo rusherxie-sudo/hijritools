@@ -21,7 +21,7 @@ const cats = ['date', 'health', 'finance', 'entertainment', 'utility', 'educatio
     <div class="footer-col">
       <h3>الأدوات</h3>
       <ul>
-        {cats.map((c) => (<li><a href={`/#c-${c}`}>{categoryNamesAr[c]}</a></li>))}
+        {cats.map((c) => (<li><a href={`/category/${c}/`}>{categoryNamesAr[c]}</a></li>))}
       </ul>
     </div>
 

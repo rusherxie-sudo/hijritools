@@ -28,7 +28,28 @@ export function faqJsonLd(faqs) {
   };
 }
 
-/** 站点级实体（首页用）。无站内搜索，故不加 SearchAction。 */
+/** 文章/博客结构化数据（博客页用）。 */
+export function articleJsonLd({ name, description, path, datePublished, dateModified, authorName, image }) {
+  return {
+    '@type': 'BlogPosting',
+    name,
+    description,
+    url: `${SITE}${path}`,
+    inLanguage: 'ar',
+    datePublished,
+    dateModified: dateModified ?? datePublished,
+    author: { '@type': 'Person', name: authorName ?? 'HijriTools' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'HijriTools',
+      url: `${SITE}/`,
+      logo: { '@type': 'ImageObject', url: `${SITE}/og.png` },
+    },
+    image: image ?? `${SITE}/og.png`,
+  };
+}
+
+/** 站点级实体（首页用）。含 SearchAction。 */
 export function websiteJsonLd() {
   return {
     '@type': 'WebSite',
@@ -36,16 +57,30 @@ export function websiteJsonLd() {
     alternateName: 'أدوات هجرية',
     url: `${SITE}/`,
     inLanguage: 'ar',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: { '@type': 'EntryPoint', urlTemplate: `${SITE}/?q={search_term_string}` },
+      'query-input': 'required name=search_term_string',
+    },
   };
 }
 
-/** 品牌实体（首页用，建立 Organization 身份）。 */
+/** 品牌实体（首页用，建立 Organization 身份）。含 contactPoint + sameAs。 */
 export function organizationJsonLd() {
   return {
     '@type': 'Organization',
     name: 'HijriTools',
     url: `${SITE}/`,
     logo: `${SITE}/og.png`,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      availableLanguage: 'ar',
+    },
+    sameAs: [
+      'https://twitter.com/hijritools',
+      'https://www.instagram.com/hijritools',
+    ],
   };
 }
 

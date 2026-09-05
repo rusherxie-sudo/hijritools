@@ -1,4 +1,26 @@
 User-agent: *
 Allow: /
 
+# AI search crawlers — allow for visibility in AI search surfaces
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
 Sitemap: https://hijritools.com/sitemap.xml

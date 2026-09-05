@@ -1,0 +1,121 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+import { AREA_UNITS } from '../../lib/area.js';
+
+const tool = getTool('area');
+const units = Object.entries(AREA_UNITS);
+const faqs = [
+  { q: 'كيف أحسب مساحة غرفة بالمتر المربع؟', a: 'اضرب الطول في العرض (بالمتر). مثال: غرفة طولها ٥م وعرضها ٤م مساحتها = ٥ × ٤ = ٢٠ مترًا مربعًا. أدخل القياسات في الأداة وستحصل على النتيجة فورًا.' },
+  { q: 'ما الفرق بين المتر المربع والمتر الطولي؟', a: 'المتر الطولي يقيس الطول فقط (بُعد واحد)، والمتر المربع يقيس المساحة (بُعدان: طول × عرض). مثلًا سجادة طولها ٣م وعرضها ٢م مساحتها ٦ أمتار مربعة.' },
+  { q: 'كيف أحسب مساحة الأرض بالدونم؟', a: 'الدونم الواحد = ١٠٠٠ متر مربع. احسب المساحة بالمتر المربع أولًا (طول × عرض)، ثم اقسم الناتج على ١٠٠٠ لتحصل على المساحة بالدونم. مثلًا ٥٠٠٠م² = ٥ دونم.' },
+  { q: 'كيف أحسب مساحة المثلث؟', a: 'مساحة المثلث = نصف طول القاعدة × الارتفاع. مثلًا مثلث قاعدته ٦م وارتفاعه ٤م مساحته = ٠.٥ × ٦ × ٤ = ١٢ مترًا مربعًا.' },
+  { q: 'كيف أحسب مساحة الدائرة؟', a: 'مساحة الدائرة = π × نصف القطر². أدخل نصف القطر في الأداة واختر "دائرة" للحصول على المساحة فورًا.' },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/area/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/area/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field" style="max-width:280px">
+      <label for="shape">الشكل الهندسي</label>
+      <select id="shape">
+        <option value="rect">مستطيل / مربع</option>
+        <option value="tri">مثلث</option>
+        <option value="circle">دائرة</option>
+      </select>
+    </div>
+    <div class="row" id="rect-inputs">
+      <div class="field"><label for="l">الطول</label><input type="number" id="l" value="5" min="0" step="any" /></div>
+      <div class="field"><label for="w">العرض</label><input type="number" id="w" value="4" min="0" step="any" /></div>
+    </div>
+    <div class="row hidden" id="tri-inputs">
+      <div class="field"><label for="b">القاعدة</label><input type="number" id="b" value="6" min="0" step="any" /></div>
+      <div class="field"><label for="h">الارتفاع</label><input type="number" id="h" value="4" min="0" step="any" /></div>
+    </div>
+    <div class="field hidden" style="max-width:280px" id="circle-inputs">
+      <label for="r">نصف القطر</label>
+      <input type="number" id="r" value="3" min="0" step="any" />
+    </div>
+    <div class="field" style="max-width:280px">
+      <label for="unit">وحدة المساحة</label>
+      <select id="unit">
+        {units.map(([k, v]) => (<option value={k}>{v}</option>))}
+      </select>
+    </div>
+    <p class="error-text hidden" id="err"></p>
+  </div>
+
+  <div class="result" id="result">
+    <div style="color:var(--color-text-muted)">المساحة</div>
+    <div class="result-main"><span class="num" id="out">-</span></div>
+    <div class="num" style="color:var(--color-text-muted)" id="out-alt"></div>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<script>
+  import { rectArea, triArea, circleArea, convertArea } from '../../lib/area.js';
+
+  const $ = (id) => document.getElementById(id);
+
+  function showShape(shape) {
+    ['rect', 'tri', 'circle'].forEach(s => $(`${s}-inputs`).classList.toggle('hidden', s !== shape));
+  }
+
+  $('shape').addEventListener('change', () => { showShape($('shape').value); run(); });
+
+  function run() {
+    const shape = $('shape').value;
+    const unit = $('unit').value;
+    let m2;
+
+    if (shape === 'rect') {
+      const l = parseFloat($('l').value), w = parseFloat($('w').value);
+      if (!Number.isFinite(l) || !Number.isFinite(w)) { $('err').classList.remove('hidden'); return; }
+      m2 = rectArea(l, w);
+    } else if (shape === 'tri') {
+      const b = parseFloat($('b').value), h = parseFloat($('h').value);
+      if (!Number.isFinite(b) || !Number.isFinite(h)) { $('err').classList.remove('hidden'); return; }
+      m2 = triArea(b, h);
+    } else {
+      const r = parseFloat($('r').value);
+      if (!Number.isFinite(r)) { $('err').classList.remove('hidden'); return; }
+      m2 = circleArea(r);
+    }
+
+    const val = convertArea(m2, 'm2', unit);
+    $('out').textContent = Number.isInteger(val) ? val.toLocaleString() : val.toFixed(3);
+    $('out-alt').textContent = unit !== 'm2' ? `= ${m2.toFixed(2)} متر مربع` : '';
+    $('err').classList.add('hidden');
+  }
+
+  ['l', 'w', 'b', 'h', 'r', 'unit'].forEach(id => {
+    const el = $(id);
+    if (el) el.addEventListener('input', run);
+  });
+
+  showShape('rect');
+  run();
+</script>

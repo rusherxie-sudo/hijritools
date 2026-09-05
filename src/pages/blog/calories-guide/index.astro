@@ -1,0 +1,84 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import Faq from "../../../components/Faq.astro";
+import RelatedTools from '../../../components/RelatedTools.astro';
+import { articleJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+const title = 'دليل السعرات الحرارية: كيف تحسب احتياجك اليومي؟';
+const description = 'دليل شامل لحساب السعرات الحرارية اليومية. تعرف على TDEE ومعدل الأيض الأساسي (BMR) ومعادلة ميفلين سانت جيور، مع نصائح غذائية.';
+const faqs = [
+  { q: 'ما هو TDEE؟', a: 'TDEE (Total Daily Energy Expenditure) هو إجمالي السعرات الحرارية التي يحرقها جسمك يوميًا، ويشمل معدل الأيض الأساسي (BMR) + السعرات المحروقة بالنشاط البدني والهضم. معرفة TDEE يساعدك في التحكم بوزنك.' },
+  { q: 'ما الفرق بين BMR و TDEE؟', a: 'BMR (معدل الأيض الأساسي) هو السعرات التي يحتاجها جسمك للوظائف الحيوية أثناء الراحة (تنفس، قلب، دماغ). TDEE هو BMR مضروبًا في معامل النشاط البدني. بمعنى آخر: TDEE = BMR × مستوى نشاطك.' },
+  { q: 'كم سعرة حرارية أحتاج لإنقاص الوزن؟', a: 'لإنقاص الوزن، تحتاج إلى عجز سعرات بمقدار ٥٠٠ سعرة يوميًا عن TDEE لخسارة نصف كيلو أسبوعيًا. يمكنك استخدام <a href="/calories/">حاسبة السعرات الحرارية</a> لتحديد احتياجك اليومي بدقة.' },
+];
+const jsonLd = graph(articleJsonLd({ name: title, description, path: '/blog/calories-guide/', datePublished: '2026-06-28', authorName: 'HijriTools' }), faqJsonLd(faqs));
+---
+<ToolLayout title={title} description={description} path="/blog/calories-guide/" jsonLd={jsonLd} ogType="article" breadcrumb={[{name:'الرئيسية',path:'/'},{name:'المدونة',path:'/blog/'},{name:'دليل السعرات الحرارية',path:'/blog/calories-guide/'}]}>
+  <article class="blog-article">
+    <div class="ba-meta"><span class="ba-cat">الصحة والتغذية</span><span>2026-06-28</span><span>٧ دقائق قراءة</span></div>
+    <h1>{title}</h1>
+    <p class="ba-intro">معرفة احتياج جسمك اليومي من السعرات الحرارية هو الخطوة الأولى نحو تحقيق أهدافك الصحية، سواء كنت ترغب في إنقاص الوزن أو زيادته أو المحافظة عليه. في هذا الدليل الشامل، نرشدك خطوة بخطوة لحساب TDEE و BMR بمعادلة ميفلين سانت جيور العلمية، مع نصائح عملية لتطبيقها.</p>
+
+    <h2>ما هو TDEE؟</h2>
+    <p><strong>TDEE</strong> (Total Daily Energy Expenditure) هو إجمالي الطاقة التي يستهلكها جسمك في اليوم الواحد. يتكون TDEE من ثلاثة مكونات رئيسية:</p>
+    <ul>
+      <li><strong>معدل الأيض الأساسي (BMR):</strong> الطاقة التي يحتاجها جسمك للوظائف الحيوية الأساسية كالتنفس ونبض القلب ودرجة حرارة الجسم — يمثل حوالي ٦٠-٧٠٪ من TDEE.</li>
+      <li><strong>التأثير الحراري للغذاء (TEF):</strong> الطاقة المستهلكة في هضم الطعام وامتصاصه — حوالي ١٠٪ من TDEE.</li>
+      <li><strong>النشاط البدني:</strong> يشمل التمارين الرياضية والحركة اليومية (مشي، أعمال منزلية...) — حوالي ١٥-٣٠٪ من TDEE.</li>
+    </ul>
+
+    <h2>معادلة ميفلين سانت جيور (Mifflin-St Jeor)</h2>
+    <p>تعتبر معادلة ميفلين سانت جيور أدق معادلة لحساب BMR، وهي المعتمدة من قبل أكاديمية التغذية وعلم التغذية الأمريكية. المعادلة كالتالي:</p>
+    <ul>
+      <li><strong>للرجال:</strong> BMR = (١٠ × الوزن بالكجم) + (٦.٢٥ × الطول بالسم) - (٥ × العمر) + ٥</li>
+      <li><strong>للنساء:</strong> BMR = (١٠ × الوزن بالكجم) + (٦.٢٥ × الطول بالسم) - (٥ × العمر) - ١٦١</li>
+    </ul>
+
+    <h2>مستويات النشاط البدني</h2>
+    <p>بعد حساب BMR، تضربه في معامل النشاط لتحصل على TDEE:</p>
+    <ul>
+      <li><strong>خامل (Sedentary):</strong> BMR × ١.٢ — عمل مكتبي مع نشاط بدني قليل جدًا.</li>
+      <li><strong>خفيف (Light):</strong> BMR × ١.٣٧٥ — تمارين خفيفة ١-٣ أيام أسبوعيًا.</li>
+      <li><strong>متوسط (Moderate):</strong> BMR × ١.٥٥ — تمارين معتدلة ٣-٥ أيام أسبوعيًا.</li>
+      <li><strong>نشط (Active):</strong> BMR × ١.٧٢٥ — تمارين مكثفة ٦-٧ أيام أسبوعيًا.</li>
+      <li><strong>نشط جدًا (Very Active):</strong> BMR × ١.٩ — تمارين شاقة يوميًا + عمل بدني.</li>
+    </ul>
+
+    <h2>مثال عملي لحساب السعرات</h2>
+    <p>رجل عمره ٣٠ سنة، وزنه ٨٠ كجم، طوله ١٧٥ سم، نشاطه متوسط:</p>
+    <ul>
+      <li>BMR = (١٠ × ٨٠) + (٦.٢٥ × ١٧٥) - (٥ × ٣٠) + ٥ = ١,٧٤٨ سعرة</li>
+      <li>TDEE = ١,٧٤٨ × ١.٥٥ = ٢,٧١٠ سعرة حرارية يوميًا</li>
+    </ul>
+
+    <h2>نصائح لإنقاص الوزن</h2>
+    <p>لإنقاص الوزن بشكل صحي ومستدام:</p>
+    <ul>
+      <li>اخلق عجزًا بمقدار ٣٠٠-٥٠٠ سعرة عن TDEE لخسارة ٠.٢٥-٠.٥ كجم أسبوعيًا.</li>
+      <li>لا تقل سعراتك عن BMR أبدًا — جسمك يحتاج هذه الطاقة للوظائف الحيوية.</li>
+      <li>اجمع بين تقليل السعرات وزيادة النشاط البدني لنتائج أفضل.</li>
+      <li>تناول كمية كافية من البروتين (١.٦-٢.٢ جرام لكل كجم من وزنك) للحفاظ على الكتلة العضلية.</li>
+    </ul>
+
+    <h2>نصائح لزيادة الوزن</h2>
+    <p>لزيادة الوزن بطريقة صحية:</p>
+    <ul>
+      <li>أضف ٣٠٠-٥٠٠ سعرة فوق TDEE يوميًا لزيادة ٠.٢٥-٠.٥ كجم أسبوعيًا.</li>
+      <li>ركز على الأطعمة الغنية بالعناصر الغذائية (مكسرات، أفوكادو، زبدة الفول السوداني، حليب كامل الدسم).</li>
+      <li>قم بتمارين المقاومة لبناء العضلات وليس الدهون فقط.</li>
+    </ul>
+
+    <h2>نصائح للمحافظة على الوزن</h2>
+    <p>للمحافظة على وزنك الحالي، تناول سعرات تعادل TDEE تمامًا. احرص على:</p>
+    <ul>
+      <li>توازن المغذيات الكبرى: ٤٥-٦٥٪ كربوهيدرات، ٢٠-٣٥٪ دهون، ١٠-٣٥٪ بروتين.</li>
+      <li>شرب كمية كافية من الماء — استخدم <a href="/water/">حاسبة شرب الماء</a> لمعرفة احتياجك اليومي.</li>
+      <li>مراقبة وزنك أسبوعيًا وتعديل السعرات حسب الحاجة.</li>
+    </ul>
+
+    <div class="cta-box"><p>احسب احتياجك اليومي من السعرات الحرارية بدقة</p><a href="/calories/" class="btn">حاسبة السعرات الحرارية</a></div>
+
+    <Faq faqs={faqs} />
+    <RelatedTools slugs={['bmi', 'water', 'ideal-weight']} />
+  </article>
+</ToolLayout>
+<style>.blog-article{max-width:720px;margin:0 auto}.ba-meta{display:flex;gap:1rem;font-size:.85rem;color:var(--color-text-muted);margin-block-end:.5rem}.ba-cat{color:var(--color-primary);font-weight:600}h1{font-size:var(--fs-h2);margin-block:.25rem 1rem}.ba-intro{font-size:1.1rem;line-height:1.8;margin-block-end:2rem}h2{margin-block:2rem .75rem;font-size:var(--fs-h3)}p,li{line-height:1.9}ul,ol{padding-inline-start:1.5rem}li{margin-block-end:.4rem}.cta-box{background:var(--color-primary-light,#eaf3ee);border:1px solid var(--color-primary);border-radius:var(--radius);padding:var(--space-6);text-align:center;margin-block:2.5rem}.cta-box p{font-size:1.1rem;font-weight:600}.cta-box .btn{font-size:1.05rem;padding:.7rem 1.5rem}</style>

@@ -1,0 +1,38 @@
+# HijriTools — أدوات هجرية
+> أداة ويب عربية مجانية للحسابات والتConversions في التقويم الهجري.面向海湾六国用户提供阿拉伯语在线工具。
+
+## الفئات الرئيسية
+- [محولات التاريخ](https://hijritools.com/hijri/): تحويل التاريخ من هجري لميلادي والعكس
+- [حاسبة العمر](https://hijritools.com/age/): حساب العمر بالتقويمين الهجري والميلادي
+- [حاسبة الحمل](https://hijritools.com/pregnancy/): حساب موعد الولادة وعمر الحمل
+- [حاسبة النسبة الموزونة](https://hijritools.com/percentage/): حساب النسبة الموزونة للقبول الجامعي
+- [VAT حاسبة](https://hijritools.com/vat/sa/): حاسبة ضريبة القيمة المضافة — السعودية
+- [حاسبة السعرات الحرارية](https://hijritools.com/calories/): حساب احتياجك اليومي من السعرات
+- [حاسبة أيام التبويض](https://hijritools.com/ovulation/): حساب فترة الخصوبة والتبويض
+- [الفرق بين تاريخين](https://hijritools.com/date-diff/): حساب الفرق بين تاريخين بالأيام والأسابيع
+
+## المدونة
+- [تحويل التاريخ من هجري لميلادي](https://hijritools.com/blog/hijri-converter-guide/): دليل شامل للتحويل بين التقويمين
+- [التقويم الهجري 1448](https://hijritools.com/blog/hijri-calendar-1448/): الأشهر والمناسبات الإسلامية
+- [حساب العمر بالهجري](https://hijritools.com/blog/age-calculator-hijri/): طريقة حساب العمر بالتقويمين
+- [دليل الزكاة](https://hijritools.com/blog/zakat-calculator-guide/): كيف تحسب زكاة مالك وذهبك
+- [دليل المواريث](https://hijritools.com/blog/meeras-guide/): نصيب كل وارث من الميراث
+- [حاسبة الحمل بالهجري](https://hijritools.com/blog/pregnancy-calculator-hijri/): حساب الحمل بالتقويم الهجري
+- [دليل التبويض](https://hijritools.com/blog/ovulation-guide/): كيفية حساب أيام الخصوبة
+- [دليل السعرات الحرارية](https://hijritools.com/blog/calories-guide/): كيف تحسب احتياجك اليومي
+- [النسبة الموزونة](https://hijritools.com/blog/weighted-percentage-guide/): دليل القبول الجامعي
+- [ضريبة القيمة المضافة](https://hijritools.com/blog/vat-saudi-guide/): كل ما تريد معرفته عن VAT
+
+## معلومات الموقع
+- الموقع: https://hijritools.com
+- اللغة: العربية (RTL)
+- التقويم:乌姆库拉历（UMM AL-QURA）— 伊历官方标准
+- التخزين: Cloudflare Pages (CDN 全球加速)
+-analytics: Google Search Console + Google Analytics 4
+
+## الحقائق الأساسية (للاقتباس)
+-锚点伊历: 1447-01-01 = 2025-06-26（乌姆库拉历）
+- VAT税率（السعودية）: 15٪（2020年1月1日起）
+- 天课比例: ربع العشر (2.5٪)
+- 孕期: 280天 / 40周 / 9个月+7天
+- 伊历一年: 354或355天（单双数交替）

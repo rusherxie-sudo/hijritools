@@ -1,0 +1,88 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import Faq from "../../../components/Faq.astro";
+import RelatedTools from '../../../components/RelatedTools.astro';
+import { articleJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+
+const title = 'دليل شرب الماء يوميًا: كم تحتاج فعلاً؟';
+const description = 'دليل شامل عن كمية الماء اليومية المثالية: كم لترًا يجب أن تشرب يوميًا، العوامل المؤثرة، وأعراض الجفاف.';
+const faqs = [
+  { q: 'كم لترًا من الماء يجب أن أشرب يوميًا؟', a: 'القاعدة العامة هي ٨ أكواب (حوالي ٢ لتر) يوميًا للبالغين، لكن هذا يختلف حسب الوزن والنشاط والمناخ. الصيغة الدقيقة: ٣٠-٤٠ ملليلتر لكل كيلوغرام من وزن الجسم. مثلًا، شخص وزنه ٧٠ كجم يحتاج ٢.١-٢.٨ لتر يوميًا.' },
+  { q: 'هل يمكن شرب الماء بكثرة أن يضر الجسم؟', a: 'شرب كمية مفرطة من الماء (تسمى التسمم المائي) نادر جدًا لكن ممكن عند الرياضيين في حرارة عالية. الكلية تتعامل مع ١-١.٥ لتر في الساعة كحد أقصى. استمع لجسمك واشرب عند العطش.' },
+  { q: 'ما هي أفضل الأوقات لشرب الماء؟', a: 'وزّع الماء على مدار اليوم: كوب عند الاستيقاظ، كوب قبل كل وجبة، كوب قبل ساعة من النوم. لا تنتظر حتى تشعر بالعطش لأن ذلك يعني جسمك بدأ يفقد الماء.' },
+];
+const jsonLd = graph(
+  articleJsonLd({ name: title, description, path: '/blog/water-intake-guide/', datePublished: '2026-06-30', authorName: 'HijriTools' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={title} description={description} path="/blog/water-intake-guide/" jsonLd={jsonLd} ogType="article" breadcrumb={[{name:'الرئيسية',path:'/'},{name:'المدونة',path:'/blog/'},{name:'دليل شرب الماء',path:'/blog/water-intake-guide/'}]}>
+  <article class="blog-article">
+    <div class="ba-meta"><span class="ba-cat">الصحة</span><span>2026-06-30</span><span>٥ دقائق قراءة</span></div>
+    <h1>{title}</h1>
+    <p class="ba-intro">شرب الماء بكميات كافية هو أحد أبسط وأهم الخطوات للحفاظ على صحتك. لكن كم لترًا يجب أن تشرب فعلاً يوميًا؟ في هذا الدليل نجيب عن هذا السؤال ونوضح العوامل التي تؤثر على احتياجك للماء.</p>
+
+    <h2>كم لترًا من الماء يجب شربه يوميًا؟</h2>
+    <p>التوصية العامة هي <strong>٨ أكواب يوميًا</strong> (حوالي ٢ لتر)، وهي ما يعرف بقاعدة ٨×٨. لكن هذه القاعدة مبسطة ولا تناسب الجميع. الصيغة الأدق هي:</p>
+    <ul>
+      <li>٣٠-٤٠ ملليلتر من الماء لكل كيلوغرام من وزن الجسم يوميًا.</li>
+      <li>شخص وزنه ٦٠ كجم يحتاج ١.٨-٢.٤ لتر يوميًا.</li>
+      <li>شخص وزنه ٨٠ كجم يحتاج ٢.٤-٣.٢ لتر يوميًا.</li>
+    </ul>
+    <p>المرأة الحامل تحتاج حوالي ٣ لترات يوميًا، والمرضع حوالي ٣.٥ لتر. استخدم <a href="/water/">حاسبة شرب الماء</a> لمعرفة احتياجك الدقيق.</p>
+
+    <h2>عوامل تؤثر على احتياجك للماء</h2>
+    <p>الكمية المثالية ليست واحدة للجميع. هذه العوامل تؤثر على احتياجك:</p>
+    <ul>
+      <li><strong>الوزن:</strong> كلما زاد وزنك، احتجت ماءً أكثر.</li>
+      <li><strong>مستوى النشاط البدني:</strong> التمارين الرياضية تزيد فقدان الماء عبر العرق.Athletes قد يحتاجون ضعف الكمية.</li>
+      <li><strong>المناخ:</strong> الطقس الحار والرطب يزيدان التعرق وفقدان الماء.</li>
+      <li><strong>الحالة الصحية:</strong> الحمى والإسهال والتعب العضلي تزيد الاحتياج.</li>
+      <li><strong>النظام الغذائي:</strong> الملح والبروتين العالي يزيدان الاحتياج.</li>
+    </ul>
+
+    <h2>أعراض الجفاف</h2>
+    <p>الجفاف يحدث عندما يفقد الجسم ماءً أكثر مما يأخذه. الأعراض المبكرة:</p>
+    <ul>
+      <li><strong>العطش:</strong> إشارة متأخرة — جسمك يفقد الماء قبل أن تشعر بالعطش.</li>
+      <li><strong>الصداع:</strong> من أكثر أعراض الجفاف شيوعًا.</li>
+      <li><strong>البول الداكن:</strong> لون البول الأصفر الداكن يشير إلى احتياج أكبر للماء.</li>
+      <li><strong>التعب وقلة التركيز:</strong> حتى الجفاف الخفيف يؤثر على الأداء العقلي.</li>
+      <li><strong>جفاف الجلد والشفتين:</strong> بشرة جافة وشفاه متشققة.</li>
+    </ul>
+    <p>الجفاف الشديد يستدعي تدخلًا طبيًا عاجلًا خاصة عند الأطفال وكبار السن.</p>
+
+    <h2>علامات أنك تشرب كمية كافية</h2>
+    <ul>
+      <li>البول فاتح اللون (أصفر فاتح أو عديم اللون).</li>
+      <li>لا تشعر بالعطش خلال اليوم.</li>
+      <li>طاقة كافية والتركيز جيد.</li>
+      <li>بشرة نضرة ومرنة.</li>
+      <li>تمرير البول ٤-٧ مرات يوميًا.</li>
+    </ul>
+
+    <h2>نصائح عملية لزيادة شرب الماء</h2>
+    <ul>
+      <li>احمل معك زجاجة ماء أينما ذهبت.</li>
+      <li>ضع تذكيرًا في هاتفك كل ساعة.</li>
+      <li>اشرب كوبًا قبل كل وجبة.</li>
+      <li>أضف شرائح ليمون أو نعناع لتحسين الطعم.</li>
+      <li>تناول فواكه والخضروات الغنية بالماء مثل الخيار والبطيخ.</li>
+    </ul>
+
+    <h2>علاقة الماء بالسعرات الحرارية والوزن</h2>
+    <p>شرب الماء يساعد في التحكم بالوزن بعدة طرق:</p>
+    <ul>
+      <li>كوب ماء قبل الوجبة يقلل الشهية ويقلل السعرات المتناولة.</li>
+      <li>الجفاف يرتبط بصعوبة حرق الدهون.</li>
+      <li>استبدل المشروبات السكرية بالماء لتوفير مئات السعرات.</li>
+    </ul>
+    <p>لخطة غذائية متكاملة، استخدم <a href="/calories/">حاسبة السعرات الحرارية</a> و<a href="/bmi/">حاسبة BMI</a> لقياس مؤشر كتلة جسمك.</p>
+
+    <div class="cta-box"><p>احسب كمية الماء التي يحتاجها جسمك يوميًا</p><a href="/water/" class="btn">حاسبة شرب الماء</a></div>
+
+    <Faq faqs={faqs} />
+    <RelatedTools slugs={['water', 'calories', 'bmi']} />
+  </article>
+</ToolLayout>
+<style>.blog-article{max-width:720px;margin:0 auto}.ba-meta{display:flex;gap:1rem;font-size:.85rem;color:var(--color-text-muted);margin-block-end:.5rem}.ba-cat{color:var(--color-primary);font-weight:600}h1{font-size:var(--fs-h2);margin-block:.25rem 1rem}.ba-intro{font-size:1.1rem;line-height:1.8;margin-block-end:2rem}h2{margin-block:2rem .75rem;font-size:var(--fs-h3)}p,li{line-height:1.9}ul,ol{padding-inline-start:1.5rem}li{margin-block-end:.4rem}.cta-box{background:var(--color-primary-light,#eaf3ee);border:1px solid var(--color-primary);border-radius:var(--radius);padding:var(--space-6);text-align:center;margin-block:2.5rem}.cta-box p{font-size:1.1rem;font-weight:600}.cta-box .btn{font-size:1.05rem;padding:.7rem 1.5rem}</style>

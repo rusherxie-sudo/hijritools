@@ -1,0 +1,97 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Icon from "../../components/Icon.astro";
+import { toolIconId } from "../../data/icons.js";
+import Faq from "../../components/Faq.astro";
+import Disclaimer from '../../components/Disclaimer.astro';
+import RelatedTools from '../../components/RelatedTools.astro';
+import { getTool } from '../../data/tools.js';
+import { webAppJsonLd, faqJsonLd, graph } from '../../lib/seo.js';
+
+const tool = getTool('wordcount');
+const faqs = [
+  {
+    q: 'كيف أحسب عدد الكلمات في نص؟',
+    a: 'انسخ النص وألصقه في الحاسبة أعلاه، وتُحصي الحاسبة عدد الكلمات والحروف والجمل والفقرات ووقت القراءة فورًا أثناء الكتابة أو اللصق.',
+  },
+  {
+    q: 'كم عدد كلمات المقال المطلوب؟',
+    a: 'يختلف الحد المطلوب حسب الغرض: تغريدة تويتر ٢٨٠ حرفًا، مقال مدونة ٥٠٠-٢٠٠٠ كلمة، بحث أكاديمي ٣٠٠٠-١٠٠٠٠ كلمة.',
+  },
+  {
+    q: 'هل تحسب الحاسبة الكلمات العربية؟',
+    a: 'نعم، تحسب الحاسبة الكلمات العربية والإنجليزية وأي لغة أخرى، وتحسب الحروف مع وبدون المسافات وعدد الجمل والفقرات.',
+  },
+];
+const jsonLd = graph(
+  webAppJsonLd({ name: tool.titleAr, description: tool.descAr, path: '/wordcount/' }),
+  faqJsonLd(faqs),
+);
+---
+<ToolLayout title={tool.titleAr} description={tool.descAr} path="/wordcount/" jsonLd={jsonLd}>
+  <div class="tool-head">
+    <span class="tool-head-chip"><Icon id={toolIconId(tool.slug)} size={28} /></span>
+    <div class="tool-head-text">
+      <h1>{tool.titleAr}</h1>
+      <p class="tool-intro">{tool.descAr}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <textarea id="text" placeholder="اكتب أو الصق النص هنا..."></textarea>
+
+    <div class="result" id="result">
+      <div class="result-grid">
+        <div class="stat"><div class="v num" id="words">0</div><div class="l">عدد الكلمات</div></div>
+        <div class="stat"><div class="v num" id="chars">0</div><div class="l">عدد الحروف (مع المسافات)</div></div>
+        <div class="stat"><div class="v num" id="charsNoSpace">0</div><div class="l">عدد الحروف (بدون مسافات)</div></div>
+        <div class="stat"><div class="v num" id="sentences">0</div><div class="l">عدد الجمل</div></div>
+        <div class="stat"><div class="v num" id="paragraphs">0</div><div class="l">عدد الفقرات</div></div>
+        <div class="stat"><div class="v num" id="readTime">0</div><div class="l">وقت القراءة (دقيقة)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <Disclaimer variant="calc" />
+
+  <Faq faqs={faqs} />
+
+  <RelatedTools slugs={tool.related} />
+</ToolLayout>
+
+<style>
+  textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+</style>
+
+<script>
+  import { countWords, countChars, countCharsNoSpaces, countSentences, countParagraphs, readingTime } from '../../lib/wordcount.js';
+  const $ = (id) => document.getElementById(id);
+
+  function run() {
+    const text = $('text').value;
+    $('words').textContent = countWords(text);
+    $('chars').textContent = countChars(text);
+    $('charsNoSpace').textContent = countCharsNoSpaces(text);
+    $('sentences').textContent = countSentences(text);
+    $('paragraphs').textContent = countParagraphs(text);
+    $('readTime').textContent = readingTime(text);
+  }
+
+  $('text').addEventListener('input', run);
+  run();
+</script>

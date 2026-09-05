@@ -2,7 +2,7 @@
 import ToolLayout from '../../../layouts/ToolLayout.astro';
 import Faq from "../../../components/Faq.astro";
 import RelatedTools from '../../../components/RelatedTools.astro';
-import { webAppJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
+import { articleJsonLd, faqJsonLd, graph } from '../../../lib/seo.js';
 const title = 'التقويم الهجري 1448: الأشهر والمناسبات الإسلامية';
 const description = 'التقويم الهجري لعام 1448 هـ كاملًا. تعرف على الأشهر الهجرية والمناسبات الإسلامية والأعياد وأشهر الحرم في هذا العام الهجري.';
 const faqs = [
@@ -10,10 +10,9 @@ const faqs = [
   { q: 'متى رمضان 1448؟', a: 'رمضان 1448 هـ سيبدأ في حوالي ٦ فبراير ٢٠٢٧ م، ويليه عيد الفطر في حوالي ٨ مارس ٢٠٢٧ م.' },
   { q: 'ما هي الأشهر الحرم؟', a: 'الأشهر الحرم أربعة: محرم ورجب وذو القعدة وذو الحجة. في هذه الأشهر يُحرم القتال وتُضاعف الحسنات.' },
 ];
-const jsonLd = graph(webAppJsonLd({ name: title, description, path: '/blog/hijri-calendar-1448/' }), faqJsonLd(faqs));
+const jsonLd = graph(articleJsonLd({ name: title, description, path: '/blog/hijri-calendar-1448/', datePublished: '2026-06-28', authorName: 'HijriTools' }), faqJsonLd(faqs));
 ---
-<ToolLayout title={title} description={description} path="/blog/hijri-calendar-1448/" jsonLd={jsonLd}>
-  <nav class="breadcrumb"><ol><li><a href="/">الرئيسية</a></li><li><a href="/blog/">المدونة</a></li><li><span aria-current="page">التقويم الهجري 1448</span></li></ol></nav>
+<ToolLayout title={title} description={description} path="/blog/hijri-calendar-1448/" jsonLd={jsonLd} ogType="article" breadcrumb={[{name:'الرئيسية',path:'/'},{name:'المدونة',path:'/blog/'},{name:'التقويم الهجري 1448',path:'/blog/hijri-calendar-1448/'}]}>
   <article class="blog-article">
     <div class="ba-meta"><span class="ba-cat">التقويم الهجري</span><span>2026-06-27</span><span>٤ دقائق قراءة</span></div>
     <h1>{title}</h1>
