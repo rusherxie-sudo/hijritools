@@ -1,18 +1,12 @@
 // 自动生成 sitemap.xml：从 tools.js 汇总所有页面（含法规工具的每国页）。
-// 新增工具/国家后无需手改，构建时自动包含。
+// 数据源：tools.js（工具/分类）、blog.js（博客）、traffic-violations.js（交通分类）、retirement-careers.js（退休职业）。
+// 新增工具/国家/文章后无需手改，构建时自动包含。
 import { liveTools, categoryNamesAr } from '../data/tools.js';
+import { blogPosts } from '../data/blog.js';
+import { categoryList } from '../data/traffic-violations.js';
+import { retirementCareerList } from '../data/retirement-careers.js';
 
 const SITE = 'https://hijritools.com';
-
-const blogPosts = [
-  { loc: '/blog/', lastmod: '2026-06-27' },
-  { loc: '/blog/hijri-converter-guide/', lastmod: '2026-06-27' },
-  { loc: '/blog/age-calculator-hijri/', lastmod: '2026-06-27' },
-  { loc: '/blog/pregnancy-calculator-hijri/', lastmod: '2026-06-27' },
-  { loc: '/blog/weighted-percentage-guide/', lastmod: '2026-06-27' },
-  { loc: '/blog/zakat-calculator-guide/', lastmod: '2026-06-27' },
-  { loc: '/blog/hijri-calendar-1448/', lastmod: '2026-06-27' },
-];
 
 export function GET() {
   // lastmod = 每个工具自带的 updated（内容最后实质更新日），稳定且只在真改时变化。
@@ -29,19 +23,34 @@ export function GET() {
   }
 
   for (const t of liveTools) {
+    // 日历等 staticPaths 工具：逐条落地。
     if (Array.isArray(t.staticPaths)) {
       for (const p of t.staticPaths) entries.push({ loc: p, lastmod: t.updated ?? null });
+      continue;
+    }
+    // 带 href 的工具（如 traffic-sa 落地 /traffic/sa/）：尊重 href，不再按 slug/countries 生成。
+    if (t.href) {
+      entries.push({ loc: t.href, lastmod: t.updated ?? null });
+      if (t.slug === 'traffic-sa') {
+        for (const c of categoryList) entries.push({ loc: `/traffic/sa/${c.id}/`, lastmod: t.updated ?? null });
+      }
       continue;
     }
     entries.push({ loc: `/${t.slug}/`, lastmod: t.updated ?? null });
     if (t.type === 'regulatory' && Array.isArray(t.countries)) {
       for (const cc of t.countries) entries.push({ loc: `/${t.slug}/${cc}/`, lastmod: t.updated ?? null });
     }
+    // 退休工具：除 /retirement/ 外，另有各职业落地页。
+    if (t.slug === 'retirement') {
+      for (const c of retirementCareerList) entries.push({ loc: `/retirement/${c.code}/`, lastmod: t.updated ?? null });
+    }
   }
 
-  // 博客文章
+  // 博客：索引 + 全部文章（单一数据源 blog.js）。
+  const blogDates = blogPosts.map((p) => p.date).filter(Boolean).sort();
+  entries.push({ loc: '/blog/', lastmod: blogDates.at(-1) ?? null });
   for (const p of blogPosts) {
-    entries.push(p);
+    entries.push({ loc: `/blog/${p.slug}/`, lastmod: p.lastmod ?? p.date ?? null });
   }
 
   // 分类汇总页

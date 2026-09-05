@@ -1,57 +1,7 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import { webAppJsonLd, graph } from '../../lib/seo.js';
-
-const articles = [
-  {
-    slug: 'hijri-converter-guide',
-    title: 'تحويل التاريخ من هجري لميلادي: دليل كامل',
-    desc: 'دليل شامل لتحويل التاريخ من الهجري إلى الميلادي والعكس. تعرف على طريقة التحويل وفق تقويم أم القرى، ولماذا يختلف التاريخ بين الدول.',
-    date: '2026-06-27',
-    cat: 'التاريخ الهجري',
-    readingTime: '٥ دقائق',
-  },
-  {
-    slug: 'age-calculator-hijri',
-    title: 'كيف تحسب عمرك بالهجري والميلادي؟',
-    desc: 'احسب عمرك بالتقويمين الهجري والميلادي بسهولة. تعرف على الفرق بين العمر الهجري والميلادي ولماذا يزيد العمر الهجري بحوالي سنة كل ٣٣ سنة.',
-    date: '2026-06-27',
-    cat: 'حساب العمر',
-    readingTime: '٤ دقائق',
-  },
-  {
-    slug: 'pregnancy-calculator-hijri',
-    title: 'حاسبة الحمل بالهجري: دليل كامل',
-    desc: 'دليل شامل لحساب الحمل بالتقويم الهجري. احسبي موعد الولادة المتوقع وعمر الحمل بالأسابيع والأشهر بالهجري والميلادي.',
-    date: '2026-06-27',
-    cat: 'الحمل والولادة',
-    readingTime: '٦ دقائق',
-  },
-  {
-    slug: 'weighted-percentage-guide',
-    title: 'حساب النسبة الموزونة: دليل القبول الجامعي في السعودية',
-    desc: 'دليل شامل لحساب النسبة الموزونة للقبول في الجامعات السعودية. تعرف على أوزان القدرات والثانوية والتحصيلي وكيفية حساب نسبتك.',
-    date: '2026-06-27',
-    cat: 'التعليم',
-    readingTime: '٥ دقائق',
-  },
-  {
-    slug: 'zakat-calculator-guide',
-    title: 'دليل الزكاة: كيف تحسب زكاة مالك وذهبك؟',
-    desc: 'دليل شامل لحساب الزكاة. تعرف على نصاب الزكاة، طريقة حساب زكاة المال النقدي والذهب، ونسبة ربع العشر (2.5٪) مع أمثلة عملية.',
-    date: '2026-06-27',
-    cat: 'الزكاة والمال',
-    readingTime: '٧ دقائق',
-  },
-  {
-    slug: 'hijri-calendar-1448',
-    title: 'التقويم الهجري 1448: الأشهر والمناسبات',
-    desc: 'التقويم الهجري لعام 1448 هـ كاملًا. تعرف على الأشهر الهجرية والمناسبات الإسلامية والأعياد وأشهر الحرم.',
-    date: '2026-06-27',
-    cat: 'التقويم الهجري',
-    readingTime: '٤ دقائق',
-  },
-];
+import { blogPosts } from '../../data/blog.js';
 
 const jsonLd = graph(
   webAppJsonLd({ name: 'مدونة HijriTools', description: 'مقالات وأدلة عن التقويم الهجري والصحة والمال', path: '/blog/' }),
@@ -66,7 +16,7 @@ const jsonLd = graph(
   </div>
 
   <div class="blog-list">
-    {articles.map((a) => (
+    {blogPosts.map((a) => (
       <a href={`/blog/${a.slug}/`} class="blog-card">
         <div class="bc-meta">
           <span class="bc-cat">{a.cat}</span>
