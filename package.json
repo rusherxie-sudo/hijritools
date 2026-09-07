@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "indexnow": "node scripts/indexnow-submit.mjs"
   },
   "dependencies": {
     "@umalqura/core": "^0.0.7",
